@@ -1,13 +1,30 @@
 Grid Howto
 ==========
+This howto is for CentOS based clusters. You can try the setup in VirtualBox as well, although you will lack BMC and IB features.
+
+Install ansible on the local client. Ansible should be installed into `$HOME/ansible`:
+
+    cd $HOME
+    git://github.com/ansible/ansible.git
+
+Edit your `$HOME/.bashrc`:
+
+    source $HOME/ansible/hacking/env-setup &> /dev/null
+    export ANSIBLE_HOSTS=$ANSIBLE_HOME/hosts
+
+Run the source command:
+
+    source $HOME/.bashrc
+
 ## Root servers
+Install at least 2 root servers for HA. Try to use multi-master setups and avoid string heartbeat integration and floating addresses. Try to use real distributed services.
+
 Generate root password:
 
-    curl "https://www.random.org/strings/?num=1&len=16&digits=on&unique=off&&rnd=new&format=plain" | \
-    awk '{print(substr($0,1,4))"-"(substr($0,5,4))"-"(substr($0,9,4))"-"(substr($0,13,4))}'
+    cd $HOME/ansible/plays
+    bin/passwd
 
-
-The following network zones are recommended for the cluster. External interfaces or gateways connect cluster forming a grid.
+The following network zones are recommended for the cluster. External interfaces or gateways connect cluster forming a grid. The BMC network can be on the same interface as system. Storage and MPI is usually on InfiniBand and utilize RDMA. The system network is used to boot and provision the cluster.
 
     IF   Network  Address Range
     bmc  bmc      10.0.0.0/16
@@ -15,6 +32,8 @@ The following network zones are recommended for the cluster. External interfaces
     eth1 storage  10.2.0.0/16
     eth2 mpi      10.3.0.0/16
     ethX external ?
+
+This network configuration is in `network.yml`.
 
 ## Partitions
 Use HW raid for physical volumes.
@@ -31,48 +50,34 @@ Use HW raid for physical volumes.
       opt     | /opt
 
 ## Ansible Bootstrap
-
-### Install ansible on the local client
-
-Ansible should be installed into `$HOME/ansible`:
-
-    cd $HOME
-    git://github.com/ansible/ansible.git
-
-Edit your `$HOME/.bashrc`:
-
-    source $HOME/ansible/hacking/env-setup &> /dev/null
-    export ANSIBLE_HOSTS=$ANSIBLE_HOME/hosts
-
-Run the source command:
-
-    source $HOME/.bashrc
-
 Create and edit `$HOME/ansible/hosts`:
 
-    [root_servers]
+    [root]
     root-01 ansible_ssh_host=10.1.1.1
     root-02 ansible_ssh_host=10.1.1.2
 
 Check the connection:
 
-    ansible root_servers -u root -m raw -a "hostname" -k
+    ansible root -u root -m raw -a "hostname" -k
 
 Play the bootstrap:
 
     cd $HOME/ansible/plays
     ssh-keygen -f keys/admin
-    ansible-playbook root_servers bootstrap.yml -k
+    ansible-playbook root bootstrap.yml -k -i hosts
 
-Test the Administrator Account:
+Test the bootstrap:
 
-    ansible root_servers -m ping -u admin --private-key=keys/admin -k
-    bin/admin root_servers ping
+    ansible root -m ping -u admin --private-key=keys/admin -k -i hosts
+
+This command has a shorthand notation. From now on this notation will be used.
+
+    bin/admin root ping -k
 
 Secure the Server:
 
-    bin/playboy root_servers plays/secure_ssh_server.yml
-    bin/playboy root_servers plays/secure_su.yml
-    bin/playboy root_servers plays/login_defs.yml
-    bin/playboy root_servers plays/entropy.yml
+    bin/play root secure.yml -k --sudo
 
+## Basic Services
+### Time Service (NTP)
+Root servers provide NTP for the cluster. If you have a very large cluster root servers talk only to satellite servers aka rack leaders. Root servers are stratum 2 time servers. Each root server broadcasts time to the system network with crypto enabled.
