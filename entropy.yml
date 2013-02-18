@@ -1,0 +1,22 @@
+# This play installs rng-tools
+---
+- hosts: all
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Install rng-tools
+      yum: name=rng-tools
+           state=installed
+
+    - name: Configure rng-tools
+      lineinfile: dest=/etc/sysconfig/rngd
+                  state=present
+                  regexp="^EXTRAOPTIONS"
+                  line='EXTRAOPTIONS="-r /dev/urandom"'
+      notify:
+        - start rngd
+
+  handlers:
+    - include: handlers.yml

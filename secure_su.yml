@@ -1,0 +1,15 @@
+# This play secures su
+---
+- hosts: *
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Secure su
+      lineinfile: dest=/etc/pam.d/su
+                  state=present
+                  regexp="^auth.*required.*pam_wheel.so.*use_uid"
+                  insertbefore="^auth.*include"
+                  line="auth required pam_wheel.so use_uid"
+

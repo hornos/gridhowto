@@ -1,0 +1,50 @@
+# This play bootstraps ansible
+# generate root administrator keys by:
+# mkdir $HOME/ansible/plays/keys
+# cd $HOME/ansible/plays/keys
+# ssh-keygen -b 2048 -C "Ansible Root Administrator" -f ./root-admin
+---
+- hosts: all
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Install python-simplejson
+      raw: yum -y install python-simplejson
+
+    - name: Install sudo
+      yum: name=sudo state=installed
+    
+    - name: Create Root Administrator
+      user: name=admin
+            comment='Ansible Root Administrator'
+            groups=wheel
+
+    - name: Sudoers for wheel
+      lineinfile: dest=/etc/sudoers.d/wheel
+                  create=yes
+                  state=present
+                  regexp='^%wheel'
+                  line="%wheel ALL=(ALL) NOPASSWD:ALL"
+
+    - name: Sudoers file mode
+      file: path=/etc/sudoers.d/wheel
+            owner=root
+            group=root
+            mode=0440
+
+    - name: Create Root Administrator SSH Directory
+      file: path=/home/${admin_user}/.ssh
+            state=directory
+            owner=$admin_user
+            group=$admin_user
+            mode=0700
+
+    - name: Copy Root Administrator SSH keys
+      copy: src=$admin_key
+            dest=/home/${admin_user}/.ssh/authorized_keys
+            owner=$admin_user
+            group=$admin_user
+            mode=0600
+

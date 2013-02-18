@@ -1,0 +1,14 @@
+# This play modifies /etc/login.defs
+---
+- hosts: all
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Secure su
+      lineinfile: dest=/etc/login.defs
+                  state=present
+                  regexp="^UMASK"
+                  line="UMASK 007"
+

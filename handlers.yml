@@ -1,0 +1,9 @@
+---
+- name: reload sshd
+  action: service name=sshd
+                  state=reloaded
+
+- name: start rngd
+  action: service name=rngd
+                  state=started
+                  enabled=yes

@@ -1,0 +1,21 @@
+# This play secures SSH
+# run it with sudo
+---
+- hosts: all
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Secure SSH Server
+      template: src=templates/sshd_config.j2
+                dest=/etc/ssh/sshd_config
+                owner=root
+                group=root
+                mode=0600
+                backup=yes
+      notify:
+        - reload sshd
+
+  handlers:
+    - include: handlers.yml
