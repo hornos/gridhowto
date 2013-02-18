@@ -1,0 +1,34 @@
+#!/bin/bash
+gdn=$(pwd $(dirname $0))
+gbn=$(basename $0)
+user=admin
+key=$gdn/keys/${user}
+inventory=$gdn/hosts
+
+hosts=${1:-root}
+shift
+module=${1:-ping}
+shift
+opts=$*
+
+args="-u ${user} --private-key=${key} -i ${inventory} ${opts}"
+cmd=""
+
+case $gbn in
+  play)
+    cmd="ansible-playbook ${module} -l ${hosts}"
+    ;;
+  admin)
+    cmd="ansible ${hosts} -m ${module}"
+    ;;
+  reboot)
+    args="-u ${user} --private-key=${key} -i ${inventory} ${module} ${opts}"
+    cmd="ansible ${hosts} -m command -a /sbin/reboot --sudo"
+    ;;
+  help|*)
+    help/play
+    ;;
+esac
+
+# echo ${cmd} ${args}
+eval "$cmd $args"

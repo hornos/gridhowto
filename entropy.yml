@@ -16,7 +16,14 @@
                   regexp="^EXTRAOPTIONS"
                   line='EXTRAOPTIONS="-r /dev/urandom"'
       notify:
-        - start rngd
+        - restart rngd
+    
+    - name: start rngd
+      service: name=rngd
+               state=started
+               enabled=yes
 
   handlers:
-    - include: handlers.yml
+    - name: restart rngd
+      action: service name=rngd
+              state=restarted

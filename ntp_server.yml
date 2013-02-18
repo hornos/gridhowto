@@ -1,0 +1,32 @@
+# This play modifies
+# http://www.ntp.org/ntpfaq/NTP-s-config-adv.htm
+---
+- hosts: all
+
+  vars_files:
+    - vars.yml
+    - network.yml
+
+  tasks:
+    - name: Install NTP Server
+      yum: name=ntp state=installed
+
+    - name: Setup NTP Server
+      lineinfile: dest=/etc/ntp.conf
+                  state=present
+                  regexp="broadcast ${network_system_bcast} autokey version 4"
+                  insertafter="# broadcast server"
+                  line="broadcast ${network_system_bcast} autokey version 4"
+                  backup=yes
+      notify:
+        - restart ntpd
+
+    - name: start ntpd
+      service: name=ntpd
+               state=started
+               enabled=yes
+
+  handlers:
+    - name: restart ntpd
+      service: name=ntpd
+               state=restarted

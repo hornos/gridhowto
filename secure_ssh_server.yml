@@ -18,4 +18,6 @@
         - reload sshd
 
   handlers:
-    - include: handlers.yml
+    - name: reload sshd
+      service: name=sshd
+               state=reloaded

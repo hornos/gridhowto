@@ -1,0 +1,9 @@
+# This play secures the server
+# Based on RH EAL4+ recommenadtions
+---
+- name: Secure the server
+  hosts: all
+
+- include: secure_ssh_server.yml
+- include: secure_su.yml
+- include: secure_login_defs.yml

@@ -1,0 +1,3 @@
+[root]
+root-01 ansible_ssh_host=10.1.1.1
+root-02 ansible_ssh_host=10.1.1.2
