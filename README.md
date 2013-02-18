@@ -10,7 +10,6 @@ Install ansible on the local client. Ansible should be installed into `$HOME/ans
 Edit your `$HOME/.bashrc`:
 
     source $HOME/ansible/hacking/env-setup &> /dev/null
-    export ANSIBLE_HOSTS=$ANSIBLE_HOME/hosts
 
 Run the source command:
 
