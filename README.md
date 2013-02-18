@@ -51,7 +51,8 @@ Run the source command:
 Create and edit `$HOME/ansible/hosts`:
 
     [root_servers]
-    root-01:22 ansible_ssh_host=10.1.1.1
+    root-01 ansible_ssh_host=10.1.1.1
+    root-02 ansible_ssh_host=10.1.1.2
 
 Check the connection:
 
@@ -59,21 +60,19 @@ Check the connection:
 
 Play the bootstrap:
 
-    cd $HOME/ansible
-    ansible-playbook root_servers plays/bootstrap.yml
+    cd $HOME/ansible/plays
+    ssh-keygen -f keys/admin
+    ansible-playbook root_servers bootstrap.yml -k
 
 Test the Administrator Account:
 
-    ansible root_servers -m ping -u admin --private-key=plays/keys/root-admin -k
+    ansible root_servers -m ping -u admin --private-key=keys/admin -k
+    bin/admin root_servers ping
 
-Secure the SSH Server:
+Secure the Server:
 
-    ansible-playbook root_servers plays/secure_ssh_server.yml
-
-Secure su:
-
-    ansible-playbook root_servers plays/secure_su.yml
-
-
-
+    bin/playboy root_servers plays/secure_ssh_server.yml
+    bin/playboy root_servers plays/secure_su.yml
+    bin/playboy root_servers plays/login_defs.yml
+    bin/playboy root_servers plays/entropy.yml
 
