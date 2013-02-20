@@ -2,8 +2,19 @@
 gdn=$(pwd $(dirname $0))
 gbn=$(basename $0)
 user=admin
-key=$gdn/keys/${user}
-inventory=$gdn/hosts
+key=./keys/${user}
+inventory=./hosts
+config=./config
+
+tmp=".${gbn}.$$"
+
+function play/exit() {
+  if test -r "${tmp}" ; then
+    rm -f "${tmp}"
+  fi
+  exit 1
+}
+trap play/exit INT TERM EXIT
 
 hosts=${1:-root}
 shift
@@ -21,14 +32,31 @@ case $gbn in
   admin)
     cmd="ansible ${hosts} -m ${module}"
     ;;
+  run)
+    cmd="ansible ${hosts} -m command -a \"${module}\""
+    ;;
+  shell)
+    echo "${module}" > ${tmp}
+    chmod a+x ${tmp}
+    cmd="ansible ${hosts} -m shell -a \"${tmp}\""
+    ;;
   reboot)
+    opts="${opts} --sudo"
     args="-u ${user} --private-key=${key} -i ${inventory} ${module} ${opts}"
     cmd="ansible ${hosts} -m command -a /sbin/reboot --sudo"
+    ;;
+  shutdown)
+    opts="${opts} --sudo"
+    args="-u ${user} --private-key=${key} -i ${inventory} ${module} ${opts}"
+    cmd="ansible ${hosts} -m command -a \"/sbin/shutdown -h now\" --sudo"
     ;;
   help|*)
     help/play
     ;;
 esac
 
-# echo ${cmd} ${args}
-eval "$cmd $args"
+if test -r ${config} ; then
+  pre="ANSIBLE_CONFIG=${config}"
+fi
+# echo "$cmd $args"
+eval "$pre $cmd $args"

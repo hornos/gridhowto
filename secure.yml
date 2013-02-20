@@ -4,6 +4,6 @@
 - name: Secure the server
   hosts: all
 
-- include: secure_ssh_server.yml
-- include: secure_su.yml
-- include: secure_login_defs.yml
+- include: ssh_server.yml
+- include: su.yml
+- include: login_defs.yml

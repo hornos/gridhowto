@@ -17,7 +17,7 @@
                   regexp="broadcast ${network_system_bcast} autokey version 4"
                   insertafter="# broadcast server"
                   line="broadcast ${network_system_bcast} autokey version 4"
-                  backup=yes
+                  # backup=yes
       notify:
         - restart ntpd
 
