@@ -29,6 +29,15 @@ case $gbn in
   play)
     cmd="ansible-playbook ${module} -l ${hosts}"
     ;;
+  show)
+    cmd="ansible-playbook ${module} -l ${hosts}"
+    echo ""
+    echo "The following tasks will be played:"
+    echo ""
+    cat ${module} | egrep "name:" | sed s/.*name://
+    echo ""
+    read -p "Press any key to continue or Ctrl+C to exit!" pass
+    ;;
   admin)
     cmd="ansible ${hosts} -m ${module}"
     ;;
