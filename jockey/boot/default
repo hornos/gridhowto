@@ -1,0 +1,11 @@
+PROMPT 1
+TIMEOUT 5
+DEFAULT centos6.3
+LABEL linux
+	localboot 0
+LABEL memtest
+	kernel memtest
+LABEL centos6.3
+	MENU LABEL CentOS 6.3 x86_64
+	KERNEL centos6.3/vmlinuz
+	APPEND initrd=centos6.3/initrd.img ksdevice=eth0 method=cdrom ks=http://KICKSTART

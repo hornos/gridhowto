@@ -1,0 +1,19 @@
+worker_processes 1;
+daemon off;
+events {
+  worker_connections 1024;
+}
+
+http {
+  default_type application/octet-stream;
+  sendfile on;
+
+  server {
+    listen HTTP_LISTEN;
+    server_name jockey;
+    location / {
+      root HTTP_ROOT;
+      autoindex on;
+    }
+  }
+}

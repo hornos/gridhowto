@@ -1,0 +1,127 @@
+#!/bin/bash
+gbn=$(basename $0)
+gdn=$(cd $(dirname $0); pwd)
+jockey_root=${gdn}
+
+### defaults for OS X
+jockey_ip=10.1.1.254
+usrlocal=/usr/local
+
+### args
+cmd=${1:-test}
+shift
+arg1=$1
+shift
+arg2=$1
+
+
+### dnsmasq
+masq_conf=${jockey_root}/.masq
+masq_root=${jockey_root}/boot
+
+ipxe_root=${masq_root}/pxelinux.cfg
+
+### http server (nginx)
+http_conf=${jockey_root}/.http
+http_listen=${arg1:-${jockey_ip}}:8080
+http_root=${masq_root}
+
+
+### functions
+function control/exit() {
+  local _c
+  for _c in ${http_conf} ${masq_conf} ; do
+    if [ -r ${_c} ] ; then
+      rm -f ${_c}
+    fi
+  done
+}
+trap control/exit INT TERM EXIT
+
+function help/control() {
+  cat <<EOF
+
+Primordial boot manager
+
+Usage: jockey cmd  args    description
+              kick MAC IP  - create a kickstart for a MAC address on host IP
+              pass         - generate a password
+              dump         - listen to bootp requests
+              http [IP]    - start ngnix http server on host IP
+              masq [IP]    - start dnsmasq server on host IP
+EOF
+  exit 1
+}
+
+function control/_pass() {
+  awk '{print(substr($0,1,4))"-"(substr($0,5,4))"-"(substr($0,9,4))"-"(substr($0,13,4))}'
+}
+
+function control/pass() {
+  local _r=""
+  for i in {1..5}; do _r=${_r}$RANDOM; done
+
+  echo ${_r} | control/_pass
+}
+
+function control/netpass() {
+  curl -s "https://www.random.org/strings/?num=1&len=16&digits=on&unique=off&&rnd=new&format=plain" | \
+  control/_pass
+}
+
+### main
+case ${cmd} in
+  test)
+    curl http://${http_listen}
+  ;;
+
+  pass|netpass)
+    control/${cmd}
+  ;;
+
+  kick)
+    if [ -z "${arg1}" ] ; then help/control; fi
+
+    mac=${arg1}
+    http_listen=${arg2:-${jockey_ip}}:8080
+
+    pass=$(control/pass)
+    echo "root password: ${pass}"
+    root_pass=$(openssl passwd -1 "${pass}")
+    ks=$(echo "${mac}" | sed s/:/-/g)
+    cat ${jockey_root}/kickstart | \
+    awk -v p=${root_pass} '{gsub("ROOT_PASSWORD",p); print}' \
+    > ${http_root}/${ks}.ks
+
+    kickstart=${http_listen}/${ks}.ks
+    cat ${jockey_root}/boot/default | \
+    awk -v k=${kickstart} '{gsub("KICKSTART",k); print}' \
+    > ${ipxe_root}/01-${ks}
+  ;;
+
+  dump)
+    tcpdump -i ${arg} port bootps
+  ;;
+
+  http)
+    cat ${jockey_root}/http | \
+    awk -v p=${http_root} -v l=${http_listen} '{gsub("HTTP_ROOT",p); gsub("HTTP_LISTEN",l); print}' \
+    > ${http_conf}
+    echo "Starting HTTP Server..."
+    echo "Press Ctrl+C to exit"
+    ${usrlocal}/sbin/nginx -c ${http_conf}
+  ;;
+
+  masq)
+    cat ${jockey_root}/masq | \
+    awk -v p=${masq_root} -v l=${jockey_ip} '{gsub("DNSMASQ_LISTEN",l); gsub("DNSMASQ_ROOT",p); print}' \
+    > ${masq_conf}
+
+    echo "Starting DNSmasq server..."
+    echo "Press Ctrl+C to exit"
+    sudo ${usrlocal}/sbin/dnsmasq -d -C ${masq_conf}
+  ;;
+  *)
+    help/jockey
+  ;;
+esac

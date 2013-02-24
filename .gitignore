@@ -1,3 +1,11 @@
 keys/*
 .DS_*
-
+.*
+src/*
+jockey/boot/leases
+jockey/boot/centos6.3/*
+jockey/boot/pxelinux.cfg/*
+jockey/boot/*.ks
+jockey/boot/*.0
+jockey/boot/*.c32
+jockey/boot/memtest
