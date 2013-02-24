@@ -99,9 +99,9 @@ case ${cmd} in
     echo "root password for ${mac}: ${pass}"
     echo ""
     root_pass=$(openssl passwd -1 "${pass}")
-    ks=$(echo "${mac}" | sed s/:/-/g)
+    ks=$(echo "${mac}" | sed s/:/-/g | tr '[:upper:]' '[:lower:]')
     cat ${jockey_root}/kickstart | \
-    awk -v p=${root_pass} '{gsub("ROOT_PASSWORD",p); print}' \
+    awk -v p=${root_pass} -v l=${http_listen} '{gsub("ROOT_PASSWORD",p); gsub("HTTP_LISTEN",l); print}' \
     > ${http_root}/${ks}.ks
 
     kickstart=${http_listen}/${ks}.ks
@@ -168,6 +168,6 @@ case ${cmd} in
     esac
   ;;
   *)
-    help/jockey
+    help/control
   ;;
 esac

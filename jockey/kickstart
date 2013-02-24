@@ -7,7 +7,7 @@ install
 # reboot
 cdrom
 # remote install
-# url --url
+# url --url http://HTTP_LISTEN/centos6.3/repo
 
 skipx
 text
@@ -56,7 +56,7 @@ logvol /opt           --name=opt   --vgname=vg_root --fstype=ext4 --size=10000
 # ethX external ?
 
 ### NETWORK
-network --activate --onboot=yes --bootproto=static --ip=10.1.1.1 --netmask=255.255.0.0 --device=eth0
+network --onboot=yes --bootproto=static --ip=10.1.1.1 --netmask=255.255.0.0 --device=eth0 --activate
 network --onboot=yes --bootproto=static --ip=10.2.1.1 --netmask=255.255.0.0 --device=eth1
 network --onboot=yes --bootproto=static --ip=10.3.1.1 --netmask=255.255.0.0 --device=eth2
 network --onboot=yes --bootproto=dhcp --device=eth3

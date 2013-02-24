@@ -60,7 +60,7 @@ domain=grid
 # an explicit netmask instead.
 
 ### ROOT SERVER
-dhcp-range=tag:root,10.1.1.1,10.1.1.128,255.255.255.0,static
+dhcp-range=10.1.1.1,10.1.1.250,255.255.255.0,24h
 
 # Supply parameters for specified hosts using DHCP. There are lots
 # of valid alternatives, so we will give examples of each. Note that
@@ -82,10 +82,9 @@ dhcp-range=tag:root,10.1.1.1,10.1.1.128,255.255.255.0,static
 #dhcp-host=11:22:33:44:55:66,set:red
 
 ### ROOT SERVER BOOTP
-dhcp-host=08:00:27:14:68:75,10.1.1.1,infinite,set:root
+# dhcp-host=08:00:27:14:68:75,10.1.1.1,infinite,set:root
 # dhcp-host=08:00:27:14:68:75,10.1.1.2,infinite,set:root
 # dhcp-host=08:00:27:14:68:75,10.1.1.3,infinite,set:root
-
 
 # Never offer DHCP service to a machine whose Ethernet
 # address is 11:22:33:44:55:66
@@ -101,7 +100,7 @@ dhcp-host=08:00:27:14:68:75,10.1.1.1,infinite,set:root
 # or /etc/ethers. Equivalent to ISC "deny unknown-clients".
 # This relies on the special "known" tag which is set when
 # a host is matched.
-dhcp-ignore=tag:!known
+#dhcp-ignore=tag:!known
 
 
 # Send options to hosts which ask for a DHCP lease.

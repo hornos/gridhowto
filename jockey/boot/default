@@ -9,7 +9,7 @@ LABEL memtest
 LABEL detect
 	KERNEL hdt.c32
 	APPEND modules=hdt/modules.pcimap pciids=hdt/pci.ids memtest=memtest
-LABEL _DEFAULT
-	MENU LABEL _DEFAULT
-	KERNEL _DEFAULT/vmlinuz
-	APPEND initrd=_DEFAULT/initrd.img ksdevice=eth0 method=cdrom ks=http://KICKSTART
+LABEL centos6.3
+	MENU LABEL centos6.3
+	KERNEL centos6.3/vmlinuz
+	APPEND initrd=centos6.3/initrd.img ksdevice=eth0 method=cdrom ks=http://KICKSTART
