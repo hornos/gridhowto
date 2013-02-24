@@ -71,7 +71,7 @@ Kickstart a MAC address with the installation, eg.:
 
     ./control kick 08:00:27:14:68:75
 
-The `kick` command creates a kickstart file in `boot` and a pxelinux configuration in `boot/pxelinux.cfg`. It also generates a root password which you can use for the stage 2 provisioning.
+The `kick` command creates a kickstart file in `boot` and a pxelinux configuration in `boot/pxelinux.cfg`. It also generates a root password which you can use for the stage 2 provisioning. Edit kickstarts after kicked.
 
 Finish the preparatin by starting the boot servers (http, dnsmasq) each in a separate terminal:
 
@@ -83,6 +83,18 @@ Boot servers listen on the IP you specified by the `host` command. The boot proc
     ./control local 08:00:27:14:68:75
 
 This command changes the pxelinx menu to local boot.
+
+### Install from URL
+Mount install media and link to under `boot/centos6.3/repo`. Edit the kickstart file and change `cdrom` to:
+
+    url --url http://10.1.1.254:8080/centos6.3/repo
+
+### VNC-based Grpahical Install
+For headless installation use VNC. Edit the corresponding file in `boot/pxelinux.cfg` and set the following kernel parameters:
+
+  APPEND vnc ...
+
+VNC is started without password. Connect your VNC client to eg. `10.1.1.1:1`.
 
 ### Hardware Detection
 For syslinux HW detection you need the following files:
