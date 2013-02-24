@@ -31,8 +31,6 @@
                 regexp='^kern.*'
                 insertafter='^#kern.*'
                 line='kern.* /var/log/kernel'
-    notify:
-    - reload rsyslog
 
 # for RHEL 5
 #  - name: Stop syslog
@@ -40,13 +38,8 @@
 #             state=stopped
 #             enabled=no
 
-  - name: Start rsyslog
+  - name: Restart rsyslog
     service: name=rsyslog
-             state=started
+             state=restarted
              enabled=yes
-
-  handlers:
-    - name: reload rsyslog
-      service: name=rsyslog
-               state=reloaded
  

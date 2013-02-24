@@ -1,0 +1,53 @@
+# This play enables dnsmasq DNS cache. Put /etc/hosts 
+# entries into /etc/dnsmasq.d/ .
+---
+- hosts: all
+
+  tasks:
+  - name: Install dnsmasq
+    yum: name=dnsmasq
+         state=installed
+
+  - name: Install dnsmasq-utils
+    yum: name=dnsmasq-utils
+         state=installed
+
+  - name: Install bind-utils
+    yum: name=bind-utils
+         state=installed
+
+  - name: Enable /etc/dnsmasq.d
+    lineinfile: dest=/etc/dnsmasq.conf
+                regexp='^conf-dir.*'
+                insertafter='^#conf-dir.*'
+                line='conf-dir=/etc/dnsmasq.d'
+
+  - name: Create hosts.d directory
+    file: path=/etc/hosts.d
+          owner=root
+          group=root
+          state=directory
+
+  - name: Enable /etc/hosts.d
+    lineinfile: dest=/etc/dnsmasq.conf
+                regexp='^addn-hosts.*'
+                insertafter='^#addn-hosts.*'
+                line='addn-hosts=/etc/hosts.d'
+
+  - name: Hook self DNS
+    lineinfile: dest=/etc/resolv.conf
+                regexp='^nameserver 127.0.0.1'
+                insertbefore='^nameserver.*'
+                line='nameserver 127.0.0.1'
+
+  - name: Root server hostnames
+    template: src=etc/hosts.d/root.j2
+              dest=/etc/hosts.d/root
+              owner=bin
+              group=wheel
+              mode=0644
+
+  - name: Restart dnsmasq
+    service: name=dnsmasq
+             state=restarted
+             enabled=yes

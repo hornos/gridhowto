@@ -4,4 +4,4 @@
 
 - include: ntp_server.yml
 - include: rsyslog.yml
-- include: rsyslog_server.yml
+- include: rsyslog_loghost.yml

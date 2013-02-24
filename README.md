@@ -52,7 +52,7 @@ Space jockey is a very simple bootp tool. It does not compare with Cobbler or Xc
 
 From now on all commands are relative to the `jockey` directory:
 
-    cd $HOME/ansible/gridhowto/jockey
+    cd $HOME/gridhowto/jockey
 
 If you don't know which machine to boot you can check bootp requests from the root servers by:
 
@@ -76,7 +76,7 @@ Kickstart a MAC address with the installation, eg.:
 
     ./control kick 08:00:27:14:68:75
 
-The `kick` command creates a kickstart file in `boot` and a pxelinux configuration in `boot/pxelinux.cfg`. It also generates a root password which you can use for the stage 2 provisioning. Edit kickstarts after kicked.
+The `kick` command creates a kickstart file in `boot` and a pxelinux configuration in `boot/pxelinux.cfg`. It also generates a root password which you can use for the stage 2 provisioning. Edit kickstarts after kicked. Root passwords are in `*.pass` files.
 
 Finish the preparatin by starting the boot servers (http, dnsmasq) each in a separate terminal:
 
@@ -87,17 +87,17 @@ Boot servers listen on the IP you specified by the `host` command. The boot proc
 
     ./control local 08:00:27:14:68:75
 
-This command changes the pxelinx menu to local boot.
+This command changes the pxelinux to local boot. Switch IPMI to local boot for real servers.
 
 ### Install from URL
 Mount install media and link to under `boot/centos6.3/repo`. Edit the kickstart file and change `cdrom` to:
 
     url --url http://10.1.1.254:8080/centos6.3/repo
 
-### VNC-based Grpahical Install
+### VNC-based Graphical Install
 For headless installation use VNC. Edit the corresponding file in `boot/pxelinux.cfg` and set the following kernel parameters:
 
-  APPEND vnc ...
+    APPEND vnc ...
 
 VNC is started without password. Connect your VNC client to eg. `10.1.1.1:1`.
 
@@ -160,7 +160,13 @@ A good starting point for a kickstart can be found in the EAL4 package:
     rpm2cpio lspp-eal4-config-dell-1.0-1.el5.noarch.rpm | cpio -idmv
 
 ## Ansible Bootstrap
-Create and edit `$HOME/ansible/hosts`:
+Ansible is used to further provision root servers on the stage 2 level. Stage 2 is responsible to reach the production ready state of the grid.
+
+From now on all commands are relative to `$HOME/gridhowto`:
+
+    cd $HOME/gridhowto
+
+Edit `hosts` file:
 
     [root]
     root-01 ansible_ssh_host=10.1.1.1
@@ -168,43 +174,41 @@ Create and edit `$HOME/ansible/hosts`:
 
 Check the connection:
 
-    ansible root -u root -m raw -a "hostname" -k
+    ansible root-01 -i hosts -m raw -a "hostname" -u root -k
 
-Play the bootstrap:
+The bootstrap playbook creates the admin wheel user:
 
-    cd $HOME/ansible/plays
     ssh-keygen -f keys/admin
-    ansible-playbook root bootstrap.yml -k -i hosts
+    bin/play root-01 bootstrap.yml -k -u root
+    bin/play root-02 bootstrap.yml -k -u root
 
 Test the bootstrap:
 
-    ansible root -m ping -u admin --private-key=keys/admin -k -i hosts
-
-This command has a shorthand notation. From now on this notation will be used.
-
     bin/admin root ping -k
 
-Secure the Server:
+By securing the server you lock out root. Only admin is allowed to login with keys:
 
     bin/play root secure.yml -k --sudo
 
-### Misc
 Reboot or shutdown the machines by:
 
     bin/reboot root -k
     bin/shutdown root -k
 
-Create a logical partition:
+Create a new LVM partition:
 
-    bin/admin root command -a \"lvcreate -l 30%FREE -n data vg_root\" -k --sudo
-
+    bin/admin root run "lvcreate -l 30%FREE -n data vg_root" -k --sudo
 
 
 ## Basic Services
 ### Time Service (NTP)
 Root servers provide NTP for the cluster. If you have a very large cluster root servers talk only to satellite servers aka rack leaders. Root servers are stratum 2 time servers. Each root server broadcasts time to the system network with crypto enabled.
 
-Enable broadcast NTP on root servers:
+Enable basic services:
 
-    bin/play root ntp_server.yml -k --sudo
-    
+    bin/play root basic.yml -k --sudo
+
+### Log Service (rsyslog)
+
+### Firewall (Shorewall)
+
