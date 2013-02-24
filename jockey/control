@@ -3,19 +3,23 @@ gbn=$(basename $0)
 gdn=$(cd $(dirname $0); pwd)
 jockey_root=${gdn}
 
+default=centos6.3
+
 ### defaults for OS X
-jockey_ip=10.1.1.254
+host=${jockey_root}/.host
+if [ -r ${host} ] ; then
+  source ${host}
+fi
 usrlocal=/usr/local
 
 ### args
 cmd=${1:-test}
 shift
-arg1=$1
-shift
-arg2=$1
-
+arg=$1
 
 ### dnsmasq
+jockey_ip=${ip:-10.1.1.254}
+
 masq_conf=${jockey_root}/.masq
 masq_root=${jockey_root}/boot
 
@@ -23,9 +27,11 @@ ipxe_root=${masq_root}/pxelinux.cfg
 
 ### http server (nginx)
 http_conf=${jockey_root}/.http
-http_listen=${arg1:-${jockey_ip}}:8080
+http_listen=${jockey_ip}:8080
 http_root=${masq_root}
 
+nginx_bin=${usrlocal}/sbin/nginx
+dnsmasq_bin=${usrlocal}/sbin/dnsmasq
 
 ### functions
 function control/exit() {
@@ -44,11 +50,12 @@ function help/control() {
 Primordial boot manager
 
 Usage: jockey cmd  args    description
-              kick MAC IP  - create a kickstart for a MAC address on host IP
+              host IP      - set host IP
+              kick MAC     - create a kickstart for a MAC address on host IP
               pass         - generate a password
               dump         - listen to bootp requests
-              http [IP]    - start ngnix http server on host IP
-              masq [IP]    - start dnsmasq server on host IP
+              http         - start ngnix http server on host IP
+              masq         - start dnsmasq server on host IP
 EOF
   exit 1
 }
@@ -71,22 +78,26 @@ function control/netpass() {
 
 ### main
 case ${cmd} in
-  test)
-    curl http://${http_listen}
-  ;;
-
   pass|netpass)
     control/${cmd}
   ;;
 
-  kick)
-    if [ -z "${arg1}" ] ; then help/control; fi
+  host)
+    echo "ip=${arg}" | tee ${host}
+  ;;
 
-    mac=${arg1}
-    http_listen=${arg2:-${jockey_ip}}:8080
+  kick)
+    if [ -z "${arg}" ] ; then help/control; fi
+
+    mac=${arg}
+    http_listen=${jockey_ip}:8080
 
     pass=$(control/pass)
-    echo "root password: ${pass}"
+    echo ""
+    echo "Space Jockey Kickstart Generator"
+    echo ""
+    echo "root password for ${mac}: ${pass}"
+    echo ""
     root_pass=$(openssl passwd -1 "${pass}")
     ks=$(echo "${mac}" | sed s/:/-/g)
     cat ${jockey_root}/kickstart | \
@@ -95,7 +106,20 @@ case ${cmd} in
 
     kickstart=${http_listen}/${ks}.ks
     cat ${jockey_root}/boot/default | \
-    awk -v k=${kickstart} '{gsub("KICKSTART",k); print}' \
+    awk -v k=${kickstart} -v d=${default} '{gsub("KICKSTART",k); gsub("_DEFAULT",d); print}' \
+    > ${ipxe_root}/01-${ks}
+  ;;
+
+  local|memtest|detect)
+    if [ -z "${arg}" ] ; then help/control; fi
+
+    mac=${arg}
+    http_listen=${jockey_ip}:8080
+    ks=$(echo "${mac}" | sed s/:/-/g)
+    kickstart=${http_listen}/${ks}.ks
+    default=${cmd}
+    cat ${jockey_root}/boot/default | \
+    awk -v k=${kickstart} -v d=${default} '{gsub("KICKSTART",k); gsub("_DEFAULT",d); print}' \
     > ${ipxe_root}/01-${ks}
   ;;
 
@@ -109,17 +133,17 @@ case ${cmd} in
     > ${http_conf}
     echo "Starting HTTP Server..."
     echo "Press Ctrl+C to exit"
-    ${usrlocal}/sbin/nginx -c ${http_conf}
+    ${nginx_bin} -c ${http_conf}
   ;;
 
-  masq)
+  boot)
     cat ${jockey_root}/masq | \
     awk -v p=${masq_root} -v l=${jockey_ip} '{gsub("DNSMASQ_LISTEN",l); gsub("DNSMASQ_ROOT",p); print}' \
     > ${masq_conf}
 
     echo "Starting DNSmasq server..."
     echo "Press Ctrl+C to exit"
-    sudo ${usrlocal}/sbin/dnsmasq -d -C ${masq_conf}
+    sudo ${dnsmasq_bin} -d -C ${masq_conf}
   ;;
   *)
     help/jockey

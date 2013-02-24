@@ -16,14 +16,9 @@ Run the source command:
     source $HOME/.bashrc
 
 ## Root servers
-Install at least 2 root servers for HA. Try to use multi-master setups and avoid string heartbeat integration and floating addresses. Try to use real distributed services.
+Install at least 2 root servers for HA. Try to use multi-master setups and avoid heartbeat integration and floating addresses.
 
-Generate root password:
-
-    cd $HOME/ansible/plays
-    bin/passwd
-
-The following network zones are recommended for the cluster. External interfaces or gateways connect cluster forming a grid. The BMC network can be on the same interface as system. Storage and MPI is usually on InfiniBand and utilize RDMA. The system network is used to boot and provision the cluster.
+The following network topology is recommended for the cluster. The BMC network can be on the same interface as system (eth0). Storage and MPI is usually on InfiniBand for RDMA. The system network is used to boot and provision the cluster.
 
     IF   Network  Address Range
     bmc  bmc      10.0.0.0/16
@@ -32,21 +27,81 @@ The following network zones are recommended for the cluster. External interfaces
     eth2 mpi      10.3.0.0/16
     ethX external ?
 
-This network configuration is in `network.yml`.
+The network configuration is found in `network.yml`.
 
-## Partitions
-Use HW raid for physical volumes.
+### Root servers in VirtualBox 
+You can make a virtual infrastructure in VirtualBox. Create the following virtual networks:
 
-    LVM Label | Mount point
-    -         | /boot
-    vg_rootNN
-      swap    | -
-      tmp     | /tmp
-      var     | /var
-      log     | /var/log
-      home    | /home
-      root    | /
-      opt     | /opt
+    Network   VBox Net IPv4 Addr  Mask DHCP
+    system    vboxnetN 10.1.1.254 16   off
+    storage   vboxnetM 10.2.1.254 16   off
+    mpi       intnet
+    external  NAT/Bridged
+
+## Primordial Installation
+The primordial installation is to install the root servers of the grid, it is an entry point. Later on the root servers are used for large-scale cluster installation. For the primordial installation you need OS X, nginx and a dnsmasq server. To install the boot servers:
+
+    brew install dnsmasq nginx
+
+From now on all commands are relative to the `jockey` directory:
+
+    cd $HOME/ansible/gridhowto/jockey
+
+If you don't know which machine to boot you can check bootp requests from the root servers by:
+
+    ./control dump IF
+
+where IF is the interface to listen on eg. vboxnet0.
+
+DNSmasq is an all-inclusive DNS/DHCP/BOOTP server. Its configuration is found in the `masq` file. Edit the `ROOT SERVER BOOTP` section and enlist root servers, eg:
+
+    dhcp-host=08:00:27:14:68:75,10.1.1.1,infinite
+
+The recommended way is to put an installation DVD in each server and leave the disk in the server. You can consider it as a rescue system which is always available. All you need now is to bootstrap the installer.
+
+Create the `boot/centos6.3` directory and put `vmlinuz` and `initrd.img` from the CentOS install media. Edit the `kickstart` file to customize the installation, especially `NETWORK` and `HOSTNAME` section. Put `pxelinux.0, ldlinux.c32, chain.c32` from the syslinux package into `boot`.
+
+Set the address of the host machine (your laptop's corresponding interface), eg.:
+
+    ./control host 10.1.1.254
+
+Kickstart a MAC address with the installation, eg.:
+
+    ./control kick 08:00:27:14:68:75
+
+The `kick` command creates a kickstart file in `boot` and a pxelinux configuration in `boot/pxelinux.cfg`. It also generates a root password for you which you can use for the stage 2 provisioning.
+
+Finish the preparatin by starting the boot servers (http, dnsmasq) each in a separate terminal:
+
+    ./control http
+    ./control boot
+
+Boot servers listen on the IP you specified by the `host` command. The boot process should start now and the automatic installation continues. If finished change the boot order of the machine by:
+
+    ./control local 08:00:27:14:68:75
+
+This command changes the pxelinx menu to local boot.
+
+### Hardware Detection
+For syslinux HW detection you need the following files:
+
+    boot/hdt.c32
+    boot/libcom32.c32
+    boot/libgpl.c32
+    boot/libmenu.c32
+    boot/libutil.c32
+    boot/hdt/pci.ids
+
+Switch to detection by:
+
+    ./control detect 08:00:27:14:68:75 
+
+### Kickstart from scratch
+A good starting point for a kickstart can be found in the EAL4 package:
+
+    cd src
+    wget ftp://ftp.pbone.net/mirror/ftp.redhat.com/pub/redhat/linux/eal/EAL4_RHEL5/DELL/RPMS/lspp-eal4-config-dell-1.0-1.el5.noarch.rpm
+    rpm2cpio lspp-eal4-config-dell-1.0-1.el5.noarch.rpm | cpio -idmv
 
 ## Ansible Bootstrap
 Create and edit `$HOME/ansible/hosts`:
@@ -77,6 +132,23 @@ Secure the Server:
 
     bin/play root secure.yml -k --sudo
 
+### Misc
+Reboot or shutdown the machines by:
+
+    bin/reboot root -k
+    bin/shutdown root -k
+
+Create a logical partition:
+
+    bin/admin root command -a \"lvcreate -l 30%FREE -n data vg_root\" -k --sudo
+
+
+
 ## Basic Services
 ### Time Service (NTP)
 Root servers provide NTP for the cluster. If you have a very large cluster root servers talk only to satellite servers aka rack leaders. Root servers are stratum 2 time servers. Each root server broadcasts time to the system network with crypto enabled.
+
+Enable broadcast NTP on root servers:
+
+    bin/play root ntp_server.yml -k --sudo
+

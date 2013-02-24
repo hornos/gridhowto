@@ -9,3 +9,6 @@ jockey/boot/*.ks
 jockey/boot/*.0
 jockey/boot/*.c32
 jockey/boot/memtest
+jockey/boot/hdt/pci.ids
+jockey/boot/hdt/modules.pcimap
+
