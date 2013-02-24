@@ -201,14 +201,23 @@ Create a new LVM partition:
 
 
 ## Basic Services
-### Time Service (NTP)
+### Time Service
 Root servers provide NTP for the cluster. If you have a very large cluster root servers talk only to satellite servers aka rack leaders. Root servers are stratum 2 time servers. Each root server broadcasts time to the system network with crypto enabled.
 
-Enable basic services:
+Basic services contain NTP, Rsyslog and DNSmasq hosts cache:
 
     bin/play root basic.yml -k --sudo
 
-### Log Service (rsyslog)
+Root server names are cached in `/etc/hosts.d/root`.
 
-### Firewall (Shorewall)
+### Log Service
 
+### Firewall
+
+### Ganglia
+
+### Glusterfs
+
+### DRBD
+
+### Mysql cluster
