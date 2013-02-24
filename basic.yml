@@ -1,0 +1,7 @@
+---
+- name: Basic server install
+  hosts: all
+
+- include: ntp_server.yml
+- include: rsyslog.yml
+- include: rsyslog_server.yml

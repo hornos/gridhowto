@@ -1,0 +1,52 @@
+# This play enables rsyslog disables syslog and makes a basic configuration.
+# All subsequent play should put configuration into /etc/rsyslog.d/ and
+# notify reload rsyslog.
+---
+- hosts: all
+
+  tasks:
+  - name: Install rsyslog
+    yum: name=rsyslog
+         state=installed
+
+  - name: Create rsyslog.d directory
+    file: path=/etc/rsyslog.d
+          owner=root
+          group=root
+          state=directory
+
+  - name: Change to ISO 8601 timestamp
+    lineinfile: dest=/etc/rsyslog.conf
+                regexp="^\\\$Action"
+                line="\$ActionFileDefaultTemplate RSYSLOG_FileFormat"
+
+  - name: Include /etc/rsyslog.d
+    lineinfile: dest=/etc/rsyslog.conf
+                regexp="^\\\$IncludeConfig"
+                insertafter="^\\\$ModLoad imuxsock"
+                line="\$IncludeConfig /etc/rsyslog.d/*.conf"
+
+  - name: Enable kernel logging
+    lineinfile: dest=/etc/rsyslog.conf
+                regexp='^kern.*'
+                insertafter='^#kern.*'
+                line='kern.* /var/log/kernel'
+    notify:
+    - reload rsyslog
+
+# for RHEL 5
+#  - name: Stop syslog
+#    service: name=syslog
+#             state=stopped
+#             enabled=no
+
+  - name: Start rsyslog
+    service: name=rsyslog
+             state=started
+             enabled=yes
+
+  handlers:
+    - name: reload rsyslog
+      service: name=rsyslog
+               state=reloaded
+ 

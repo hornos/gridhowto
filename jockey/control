@@ -60,8 +60,12 @@ EOF
   exit 1
 }
 
-function control/_pass() {
+function control/__pass() {
   awk '{print(substr($0,1,4))"-"(substr($0,5,4))"-"(substr($0,9,4))"-"(substr($0,13,4))}'
+}
+
+function control/_pass() {
+  awk '{print((substr($0,1,4))(substr($0,5,4)))}'
 }
 
 function control/pass() {

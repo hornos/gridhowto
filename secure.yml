@@ -7,3 +7,4 @@
 - include: ssh_server.yml
 - include: su.yml
 - include: login_defs.yml
+- include: entropy.yml

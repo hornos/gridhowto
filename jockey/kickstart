@@ -112,18 +112,8 @@ PATH=/bin:/usr/bin:/sbin:/usr/sbin:$PATH
 ### HOSTNAME
 echo "10.1.1.1 root-01" >> /etc/hosts
 
-check_sys_time () {
-  echo
-  echo "Please verify the system time and date:"
-  echo "    Local time:           "`date`
-  echo "    Universal time (UTC): "`TZ=UTC date`
-  echo
-  echo "If the time or time zone is wrong, please correct it now using"
-  echo "tools such as 'date', 'hwclock', or 'tzselect' as appropriate."
-}
+# creat and admin user
+# TODO: selinux
+# useradd -m -c "Admin" -G wheel -p "ROOT_PASSWORD" admin
 
-# chkconfig sshd on
-# service sshd start
-
-check_sys_time
 ### post end

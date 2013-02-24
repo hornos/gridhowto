@@ -1,0 +1,9 @@
+### begin ###
+$WorkDirectory /var/lib/rsyslog
+$ActionQueueFileName fwloghost
+$ActionQueueMaxDiskSpace 1g
+$ActionQueueSaveOnShutdown on
+$ActionQueueType LinkedList
+$ActionResumeRetryCount -1
+*.* @@loghost
+### end ###

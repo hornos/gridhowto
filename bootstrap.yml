@@ -1,13 +1,13 @@
 # This play bootstraps ansible
 # generate root administrator keys by:
-# mkdir $HOME/ansible/plays/keys
-# cd $HOME/ansible/plays/keys
-# ssh-keygen -b 2048 -C "Ansible Root Administrator" -f ./root-admin
+# mkdir keys
+# cd keys
+# ssh-keygen -b 2048 -C "Ansible Root Administrator" -f admin
 ---
 - hosts: all
 
   vars_files:
-    - vars.yml
+    - bootstrap_vars.yml
 
   tasks:
     - name: Install python-simplejson
@@ -15,7 +15,7 @@
 
     - name: Install sudo
       yum: name=sudo state=installed
-    
+
     - name: Create Root Administrator
       user: name=admin
             comment='Ansible Root Administrator'
@@ -42,9 +42,8 @@
             mode=0700
 
     - name: Copy Root Administrator SSH keys
-      copy: src=$admin_key
+      copy: src=${admin_key}.pub
             dest=/home/${admin_user}/.ssh/authorized_keys
             owner=$admin_user
             group=$admin_user
             mode=0600
-
