@@ -5,7 +5,7 @@ This howto is for CentOS based clusters. You can try the setup in VirtualBox as 
 Install ansible on the local client. Ansible should be installed into `$HOME/ansible`:
 
     cd $HOME
-    git://github.com/ansible/ansible.git
+    git clone git://github.com/ansible/ansible.git
 
 Edit your `$HOME/.bashrc`:
 
@@ -16,6 +16,11 @@ Run the source command:
     source $HOME/.bashrc
 
 ## Root servers
+Install gridhowto:
+
+    cd $HOME
+    git clone git://github.com/hornos/gridhowto.git
+
 Install at least 2 root servers for HA. Try to use multi-master setups and avoid heartbeat integration and floating addresses.
 
 The following network topology is recommended for the cluster. The BMC network can be on the same interface as system (eth0). Storage and MPI is usually on InfiniBand for RDMA. The system network is used to boot and provision the cluster.
@@ -55,7 +60,7 @@ If you don't know which machine to boot you can check bootp requests from the ro
 
 where IF is the interface to listen on eg. vboxnet0.
 
-DNSmasq is an all-inclusive DNS/DHCP/BOOTP server. Its configuration is found in the `masq` file. Edit the `ROOT SERVER BOOTP` section and enlist root servers, eg:
+DNSmasq is an all-inclusive DNS/DHCP/BOOTP server. Its configuration is found in the `masq` file. Edit the `ROOT SERVER BOOTP` section is you want static assignment, eg:
 
     dhcp-host=08:00:27:14:68:75,10.1.1.1,infinite
 
@@ -202,3 +207,4 @@ Root servers provide NTP for the cluster. If you have a very large cluster root 
 Enable broadcast NTP on root servers:
 
     bin/play root ntp_server.yml -k --sudo
+    

@@ -1,6 +1,7 @@
 keys/*
 .DS_*
 .*
+*.pass
 src/*
 jockey/boot/leases
 jockey/boot/centos6.3/*
@@ -11,4 +12,3 @@ jockey/boot/*.c32
 jockey/boot/memtest
 jockey/boot/hdt/pci.ids
 jockey/boot/hdt/modules.pcimap
-
