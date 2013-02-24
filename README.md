@@ -38,8 +38,10 @@ You can make a virtual infrastructure in VirtualBox. Create the following virtua
     mpi       intnet
     external  NAT/Bridged
 
+Setup the virtual server to have 2TB of disk 4 network cards and network boot enabled.
+
 ## Primordial Installation
-The primordial installation is to install the root servers of the grid, it is an entry point. Later on the root servers are used for large-scale cluster installation. For the primordial installation you need OS X, nginx and a dnsmasq server. To install the boot servers:
+Space jockey is a very simple bootp tool. It does not compare with Cobbler or Xcat. Its main purpose is to boot and install minimal servers from your laptop, it is an entry point. Later on the root servers are used for large-scale cluster installation. You can configure root servers by ansible. In the 2nd stage Xcat or Cobbler is installed by a playbook and used to provision the compute cluster. For the primordial installation you need OS X, nginx and a dnsmasq server. To install the boot servers:
 
     brew install dnsmasq nginx
 
@@ -69,7 +71,7 @@ Kickstart a MAC address with the installation, eg.:
 
     ./control kick 08:00:27:14:68:75
 
-The `kick` command creates a kickstart file in `boot` and a pxelinux configuration in `boot/pxelinux.cfg`. It also generates a root password for you which you can use for the stage 2 provisioning.
+The `kick` command creates a kickstart file in `boot` and a pxelinux configuration in `boot/pxelinux.cfg`. It also generates a root password which you can use for the stage 2 provisioning.
 
 Finish the preparatin by starting the boot servers (http, dnsmasq) each in a separate terminal:
 
@@ -95,6 +97,43 @@ For syslinux HW detection you need the following files:
 Switch to detection by:
 
     ./control detect 08:00:27:14:68:75 
+
+### Basic IPMI Management
+Setup IPMI adresses according to the network topology. Dip OS X into the IPMI LAN:
+
+    sudo ifconfig en0 alias 10.0.1.254 255.255.0.0
+
+Set the IPMI user and password:
+
+    ./control ipmi user admin admin
+
+Get a serial-over-lan console:
+
+    ./control ipmi tool 10.0.1.1 sol active
+
+Get the power status:
+
+    ./control ipmi tool 10.0.1.1 chassis status
+Reboot a machine:
+
+    ./control ipmi tool 10.0.1.1 power reset
+
+Force PXE boot on the next boot only:
+
+    ./control ipmi tool 10.0.1.1 chassis bootdev pxe
+
+Reboot the IPMI card:
+
+    ./control ipmi tool 10.0.1.1 mc reset cold
+
+Get sensor output:
+
+    ./control ipmi tool 10.0.1.1 sdr list
+
+Get the error log:
+
+    ./control ipmi tool 10.0.1.1 sel elist
+
 
 ### Kickstart from scratch
 A good starting point for a kickstart can be found in the EAL4 package:
@@ -151,4 +190,3 @@ Root servers provide NTP for the cluster. If you have a very large cluster root 
 Enable broadcast NTP on root servers:
 
     bin/play root ntp_server.yml -k --sudo
-

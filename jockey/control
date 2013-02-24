@@ -145,6 +145,28 @@ case ${cmd} in
     echo "Press Ctrl+C to exit"
     sudo ${dnsmasq_bin} -d -C ${masq_conf}
   ;;
+
+  ipmi)
+    sub=${arg}
+    shift
+    arg=$1
+    ipmi=${jockey_root}/.ipmi
+    if [ -r ${ipmi} ] ; then
+      source ${ipmi}
+    fi
+
+    case $sub in
+      user)
+        shift
+        echo "user=${arg};pass=${1:-admin}" > ${ipmi}
+      ;;
+      tool)
+        ip=${arg}
+        shift
+        ipmitool -I lanplus -U ${user} -P ${pass} -H ${ip} $*
+      ;;
+    esac
+  ;;
   *)
     help/jockey
   ;;
