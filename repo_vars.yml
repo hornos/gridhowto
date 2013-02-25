@@ -1,0 +1,2 @@
+epel_url: https://dl.fedoraproject.org/pub/epel/6/x86_64/
+epel_rpm: epel-release-6-8.noarch.rpm

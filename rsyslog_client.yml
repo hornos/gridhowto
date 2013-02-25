@@ -1,0 +1,21 @@
+# This play enables rsyslog server on TCP 514 and notifies rsyslog to reload
+---
+- hosts: all
+  vars_files:
+    - ${inventory_hostname}_vars.yml
+
+  tasks:
+  - name: Rsyslog send to loghost
+    template: src=etc/rsyslog.d/05-client.conf.j2
+              dest=/etc/rsyslog.d/25-client.conf
+              owner=root
+              group=root
+              mode=0644
+
+    notify:
+    - restart rsyslog
+
+  handlers:
+    - name: restart rsyslog
+      service: name=rsyslog
+               state=restarted

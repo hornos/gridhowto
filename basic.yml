@@ -2,6 +2,9 @@
 - name: Basic server install
   hosts: all
 
+- include: dnsmasq.yml
 - include: ntp_server.yml
 - include: rsyslog.yml
 - include: rsyslog_loghost.yml
+- include: rsyslog_fromhost.yml
+# - include: rsyslog_client.yml

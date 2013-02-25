@@ -1,9 +1,11 @@
-### begin ###
+{% for dst in rsyslog_sendto %}
+### begin {{dst}} ###
 $WorkDirectory /var/lib/rsyslog
-$ActionQueueFileName fwloghost
+$ActionQueueFileName {{dst}}
 $ActionQueueMaxDiskSpace 1g
 $ActionQueueSaveOnShutdown on
 $ActionQueueType LinkedList
 $ActionResumeRetryCount -1
-*.* @@{{loghost}}
-### end ###
+*.* @@{{dst}}
+### end {{dst}} ###
+{% endfor %}

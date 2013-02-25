@@ -1,0 +1,4 @@
+rsyslog_fromhost:
+  - "10.1."
+rsyslog_sendto:
+  - root-02
