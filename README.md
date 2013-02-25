@@ -159,7 +159,7 @@ This section is based on http://wiki.gentoo.org/wiki/BIOS_Update . You have to u
     unzip sys-freedos-linux.zip && ./sys-freedos.pl --disk=freedos
     mkdir $PWD/mnt; mount -o loop freedos /mnt
 
-Copy the firmware upgrade files to `$PWD/mnt` and umount disk. Put `memdisk` and `freedos` to `/boot` and switch to firmware:
+Copy the firmware upgrade files to `$PWD/mnt` and umount the disk. Put `memdisk` and `freedos` to `boot` directory and switch to firmware (and reboot the machine):
 
     ./control firmware 08:00:27:14:68:75
 

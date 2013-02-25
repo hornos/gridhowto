@@ -10,7 +10,11 @@ host=${jockey_root}/.host
 if [ -r ${host} ] ; then
   source ${host}
 fi
-usrlocal=/usr/local
+
+usrlocal=/usr
+if [ ! -z "${OSTYPE/darwin/}" ]; then
+  usrlocal=/usr/local
+fi
 
 ### args
 cmd=${1:-test}
