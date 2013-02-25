@@ -4,6 +4,9 @@ DEFAULT _DEFAULT
 LABEL local
 	KERNEL chain.c32
 	APPEND hd0 0
+LABEL firmware
+	KERNEL memdisk
+	APPEND initrd=freedos
 LABEL memtest
 	KERNEL memtest
 LABEL detect

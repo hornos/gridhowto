@@ -23,7 +23,7 @@ Install gridhowto:
 
 Install at least 2 root servers for HA. Try to use multi-master setups and avoid heartbeat integration and floating addresses.
 
-The following network topology is recommended for the cluster. The BMC network can be on the same interface as system (eth0). Storage and MPI is usually on InfiniBand for RDMA. The system network is used to boot and provision the cluster.
+The following network topology is recommended for the cluster. The BMC network can be on the same interface as system (eth0). The system network is used to boot and provision the cluster.
 
     IF   Network  Address Range
     bmc  bmc      10.0.0.0/16
@@ -32,7 +32,7 @@ The following network topology is recommended for the cluster. The BMC network c
     eth2 mpi      10.3.0.0/16
     ethX external ?
 
-The network configuration is found in `network.yml`.
+The network configuration is found in `network.yml`. Each network interface can be a bond. On high-performance systems storage and mpi is InfiniBand or other high-speed network. If you have less than 4 interfaces use alias networks. Note that
 
 ### Root servers in VirtualBox 
 You can make a virtual infrastructure in VirtualBox. Create the following virtual networks:
@@ -151,6 +151,17 @@ Get the error log:
 
     ./control ipmi tool 10.0.1.1 sel elist
 
+### Firmware Upgrade with FreeDOS
+This section is based on http://wiki.gentoo.org/wiki/BIOS_Update . You have to use a linux host to create the bootdisk image. You have to download freedos tools from ibiblio.org:
+
+    dd if=/dev/zero of=freedos bs=1024 count=20480
+    mkfs.msdos freedos
+    unzip sys-freedos-linux.zip && ./sys-freedos.pl --disk=freedos
+    mkdir $PWD/mnt; mount -o loop freedos /mnt
+
+Copy the firmware upgrade files to `$PWD/mnt` and umount disk. Put `memdisk` and `freedos` to `/boot` and switch to firmware:
+
+    ./control firmware 08:00:27:14:68:75
 
 ### Kickstart from scratch
 A good starting point for a kickstart can be found in the EAL4 package:
@@ -201,23 +212,38 @@ Create a new LVM partition:
 
 
 ## Basic Services
-### Time Service
 Root servers provide NTP for the cluster. If you have a very large cluster root servers talk only to satellite servers aka rack leaders. Root servers are stratum 2 time servers. Each root server broadcasts time to the system network with crypto enabled.
 
 Basic services contain NTP, Rsyslog and DNSmasq hosts cache:
 
     bin/play root basic.yml -k --sudo
 
-Root server names are cached in `/etc/hosts.d/root`.
-
-### Log Service
+Root server names are cached in `/etc/hosts.d/root`. Put DNS cache files (hosts) in `/etc/hosts.d` and notify dnsmasq to reload.
 
 ### Firewall
+Activate EPEL repo:
 
-### Ganglia
+    bin/play root repo.yml -k --sudo
+
+    bin/play root firewall.yml -k --sudo
+
+## Ganglia
+
+## Cluster FS 1
 
 ### Glusterfs
 
 ### DRBD
 
-### Mysql cluster
+## HA Mysql
+
+## HA Slurm
+
+## HA XCat
+
+## Grid
+### Globus
+#### PKI
+#### GSI-SSH
+#### GridFTP
+### GateONE

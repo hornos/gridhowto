@@ -9,6 +9,9 @@ jockey/boot/pxelinux.cfg/*
 jockey/boot/*.ks
 jockey/boot/*.0
 jockey/boot/*.c32
+jockey/boot/*.bss
 jockey/boot/memtest
+jockey/boot/memdisk
+jockey/boot/freedos
 jockey/boot/hdt/pci.ids
 jockey/boot/hdt/modules.pcimap

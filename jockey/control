@@ -115,7 +115,7 @@ case ${cmd} in
     > ${ipxe_root}/01-${ks}
   ;;
 
-  local|memtest|detect)
+  local|memtest|detect|firmware)
     if [ -z "${arg}" ] ; then help/control; fi
 
     mac=${arg}
