@@ -1,4 +1,4 @@
 {% for src in rsyslog_fromhost %}
 if $fromhost-ip startswith '{{src}}' then -?MonthlyPerHostLogs
-{% endfor %}
 & ~
+{% endfor %}
