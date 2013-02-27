@@ -102,14 +102,14 @@ case ${cmd} in
 
     pass=$(control/pass)
     echo ""
-    echo "Space Jockey Kickstart Generator"
+    echo "Space Jockey Kickstart Generator for Linux"
     echo ""
     echo "root password for ${mac}: ${pass}"
     echo ""
     root_pass=$(openssl passwd -1 "${pass}")
     ks=$(echo "${mac}" | sed s/:/-/g | tr '[:upper:]' '[:lower:]')
     echo "${pass}" > ${jockey_root}/${ks}.pass
-    cat ${jockey_root}/kickstart | \
+    cat ${jockey_root}/kickstart.centos | \
     awk -v p=${root_pass} -v l=${http_listen} '{gsub("ROOT_PASSWORD",p); gsub("HTTP_LISTEN",l); print}' \
     > ${http_root}/${ks}.ks
 
@@ -130,6 +130,40 @@ case ${cmd} in
     cat ${jockey_root}/boot/default | \
     awk -v k=${kickstart} -v d=${default} '{gsub("KICKSTART",k); gsub("_DEFAULT",d); print}' \
     > ${ipxe_root}/01-${ks}
+  ;;
+
+  esxi)
+    if [ -z "${arg}" ] ; then help/control; fi
+
+    mac=${arg}
+    http_listen=${jockey_ip}:8080
+    default=${cmd}
+
+    pass=$(control/pass)
+    echo ""
+    echo "Space Jockey Kickstart Generator for ESXi"
+    echo ""
+    echo "root password for ${mac}: ${pass}"
+    echo ""
+    root_pass=$(openssl passwd -1 "${pass}")
+    ks=$(echo "${mac}" | sed s/:/-/g | tr '[:upper:]' '[:lower:]')
+    echo "${pass}" > ${jockey_root}/${ks}.pass
+
+    ### kickstart
+    # cat ${jockey_root}/kickstart.esxi | \
+    # awk -v p=${root_pass} -v l=${http_listen} '{gsub("ROOT_PASSWORD",p); gsub("HTTP_LISTEN",l); print}' \
+    # > ${http_root}/${ks}.ks
+
+    kickstart=${http_listen}/${ks}.ks
+    cat ${jockey_root}/boot/default | \
+    awk -v d=${default} '{gsub("_DEFAULT",d); print}' \
+    > ${ipxe_root}/01-${ks}
+
+    cat ${jockey_root}/boot/esxi/repo/BOOT.CFG | \
+    sed "s/\//repo\//g" | \
+    awk -v l="http://${kickstart}" '{gsub("^kernelopt.*","kernelopt=ks=" l);print}' \
+    > ${jockey_root}/boot/esxi/boot.cfg
+
   ;;
 
   dump)

@@ -16,3 +16,7 @@ LABEL centos6.3
 	MENU LABEL centos6.3
 	KERNEL centos6.3/vmlinuz
 	APPEND initrd=centos6.3/initrd.img ksdevice=eth0 method=cdrom ks=http://KICKSTART
+LABEL esxi
+	MENU LABEL esxi
+	KERNEL mboot.c32
+	APPEND -c esxi/boot.cfg
