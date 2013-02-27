@@ -1,0 +1,18 @@
+# 
+# Accept the VMware End User License Agreement
+vmaccepteula
+
+# Set the root password for the DCUI and Tech Support Mode
+rootpw ROOT_PASSWORD
+
+# Install on the first local disk available on machine
+install --firstdisk --overwritevmfs
+
+network --bootproto=static --hostname="esxi-system" --ip=10.1.1.1 --nameserver=10.1.1.254 --gateway=10.1.1.245 --netmask=255.255.0.0 --device=vmnic0
+# network --bootproto=dhcp --device=vmnic0
+
+# A sample post-install script
+%post --interpreter=python --ignorefailure=true
+import time
+stampFile = open('/finished.stamp', mode='w')
+stampFile.write( time.asctime() )
