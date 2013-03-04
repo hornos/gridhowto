@@ -20,3 +20,11 @@ LABEL esxi
 	MENU LABEL esxi
 	KERNEL mboot.c32
 	APPEND -c esxi/boot.cfg
+LABEL cirros
+	MENU LABEL cirros
+	KERNEL cirros/vmlinuz
+	APPEND initrd=cirros/initrd.img
+LABEL tiny
+	MENU LABEL tiny
+	KERNEL tiny/vmlinuz
+	APPEND initrd=tiny/core.gz

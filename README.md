@@ -66,7 +66,7 @@ DNSmasq is an all-inclusive DNS/DHCP/BOOTP server. Its configuration is found in
 
 The recommended way is to put an installation DVD in each server and leave the disk in the server. You can consider it as a rescue system which is always available. All you need now is to bootstrap the installer.
 
-Create the `boot/centos6.3` directory and put `vmlinuz` and `initrd.img` from the CentOS install media. Edit the `kickstart` file to customize the installation, especially `NETWORK` and `HOSTNAME` section. Put `pxelinux.0, ldlinux.c32, chain.c32` from the syslinux package into `boot`.
+Create the `boot/centos6.3` directory and put `vmlinuz` and `initrd.img` from the CentOS install media. Edit the `kickstart` file to customize the installation, especially `NETWORK` and `HOSTNAME` section. Put `pxelinux.0, chain.c32` from the syslinux 4.X package into `boot`.
 
 Set the address of the host machine (your laptop's corresponding interface), eg.:
 
@@ -76,7 +76,7 @@ Kickstart a MAC address with the installation, eg.:
 
     ./control kick 08:00:27:14:68:75
 
-The `kick` command creates a kickstart file in `boot` and a pxelinux configuration in `boot/pxelinux.cfg`. It also generates a root password which you can use for the stage 2 provisioning. Edit kickstarts after kicked. Root passwords are in `*.pass` files.
+The `kick` command creates a kickstart file in `boot` and a pxelinux configuration in `boot/pxelinux.cfg`. It also generates a root password which you can use for the stage 2 provisioning. Edit kickstarts (`boot/*.ks` files) after kicked. Root passwords are in `*.pass` files.
 
 Finish the preparatin by starting the boot servers (http, dnsmasq) each in a separate terminal:
 
@@ -102,14 +102,7 @@ For headless installation use VNC. Edit the corresponding file in `boot/pxelinux
 VNC is started without password. Connect your VNC client to eg. `10.1.1.1:1`.
 
 ### Hardware Detection
-For syslinux HW detection you need the following files:
-
-    boot/hdt.c32
-    boot/libcom32.c32
-    boot/libgpl.c32
-    boot/libmenu.c32
-    boot/libutil.c32
-    boot/hdt/pci.ids
+For syslinux HW detection you need `boot/hdt.c32`
 
 Switch to detection by:
 
@@ -162,6 +155,13 @@ This section is based on http://wiki.gentoo.org/wiki/BIOS_Update . You have to u
 Copy the firmware upgrade files to `$PWD/mnt` and umount the disk. Put `memdisk` and `freedos` to `boot` directory and switch to firmware (and reboot the machine):
 
     ./control firmware 08:00:27:14:68:75
+
+### Install ESXi 5.X
+You have to use syslinux 4.X . Mount ESXi install media under `boot/esxi/repo`. Put `mboot.c32` from the install media into jockey's root directory. Kickstart the machine to boot ESXi installer:
+
+    ./control esxi 08:00:27:14:68:75
+
+Edit the kickstart file if you want to change the default settings.
 
 ### Kickstart from scratch
 A good starting point for a kickstart can be found in the EAL4 package:
@@ -220,10 +220,11 @@ Basic services contain NTP, Rsyslog and DNSmasq hosts cache:
 
 Root server names are cached in `/etc/hosts.d/root`. Put DNS cache files (hosts) in `/etc/hosts.d` and notify dnsmasq to reload.
 
-### Firewall
-Activate EPEL repo:
+### EPEL Repository
 
     bin/play root repo.yml -k --sudo
+
+### Firewall
 
     bin/play root firewall.yml -k --sudo
 

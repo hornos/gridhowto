@@ -1,0 +1,53 @@
+---
+- hosts: all
+
+  tasks:
+  - name: Install shorewall
+    yum: name=shorewall
+         state=installed
+
+  - name: Install zones
+    template: src=etc/shorewall/zones.j2
+              dest=/etc/shorewall/zones
+              owner=root
+              group=root
+              mode=0640
+
+  - name: Install interfaces
+    template: src=etc/shorewall/interfaces.j2
+              dest=/etc/shorewall/interfaces
+              owner=root
+              group=root
+              mode=0640
+
+  - name: Install policy
+    template: src=etc/shorewall/policy.j2
+              dest=/etc/shorewall/policy
+              owner=root
+              group=root
+              mode=0640
+
+  - name: Install rules
+    template: src=etc/shorewall/rules.j2
+              dest=/etc/shorewall/rules
+              owner=root
+              group=root
+              mode=0640
+
+  - name: Enable shorewall
+    template: src=etc/shorewall/shorewall.conf.j2
+              dest=/etc/shorewall.conf
+              owner=root
+              group=root
+              mode=0640
+
+  - name: Stop iptables
+    service: name=iptables
+             state=stopped
+             enabled=no
+
+  - name: Restart shorewall
+    command: service shorewall restart
+#    service: name=shorewall
+#             state=restarted
+#             enabled=yes

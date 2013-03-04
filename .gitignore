@@ -5,6 +5,8 @@ keys/*
 src/*
 jockey/boot/leases
 jockey/boot/centos6.3/*
+jockey/boot/cirros/*
+jockey/boot/tiny/*
 jockey/boot/esxi/*
 jockey/boot/pxelinux.cfg/*
 jockey/boot/*.ks
