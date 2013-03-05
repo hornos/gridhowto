@@ -52,11 +52,11 @@ Space jockey is a very simple bootp tool. It does not compare with Cobbler or Xc
 
 From now on all commands are relative to the `jockey` directory:
 
-    cd $HOME/gridhowto/jockey
+    cd $HOME/gridhowto/space
 
 If you don't know which machine to boot you can check bootp requests from the root servers by:
 
-    ./control dump IF
+    ./jockey dump IF
 
 where IF is the interface to listen on eg. vboxnet0.
 
@@ -70,22 +70,22 @@ Create the `boot/centos6.3` directory and put `vmlinuz` and `initrd.img` from th
 
 Set the address of the host machine (your laptop's corresponding interface), eg.:
 
-    ./control host 10.1.1.254
+    ./jockey host 10.1.1.254
 
 Kickstart a MAC address with the installation, eg.:
 
-    ./control kick 08:00:27:14:68:75
+    ./jockey kick 08:00:27:14:68:75
 
 The `kick` command creates a kickstart file in `boot` and a pxelinux configuration in `boot/pxelinux.cfg`. It also generates a root password which you can use for the stage 2 provisioning. Edit kickstarts (`boot/*.ks` files) after kicked. Root passwords are in `*.pass` files.
 
 Finish the preparatin by starting the boot servers (http, dnsmasq) each in a separate terminal:
 
-    ./control http
-    ./control boot
+    ./jockey http
+    ./jockey boot
 
 Boot servers listen on the IP you specified by the `host` command. The boot process should start now and the automatic installation continues. If finished change the boot order of the machine by:
 
-    ./control local 08:00:27:14:68:75
+    ./jockey local 08:00:27:14:68:75
 
 This command changes the pxelinux to local boot. Switch IPMI to local boot for real servers.
 
@@ -106,43 +106,7 @@ For syslinux HW detection you need `boot/hdt.c32`
 
 Switch to detection by:
 
-    ./control detect 08:00:27:14:68:75 
-
-### Basic IPMI Management
-Setup IPMI adresses according to the network topology. Dip OS X into the IPMI LAN:
-
-    sudo ifconfig en0 alias 10.0.1.254 255.255.0.0
-
-Set the IPMI user and password:
-
-    ./control ipmi user admin admin
-
-Get a serial-over-lan console:
-
-    ./control ipmi tool 10.0.1.1 sol active
-
-Get the power status:
-
-    ./control ipmi tool 10.0.1.1 chassis status
-Reboot a machine:
-
-    ./control ipmi tool 10.0.1.1 power reset
-
-Force PXE boot on the next boot only:
-
-    ./control ipmi tool 10.0.1.1 chassis bootdev pxe
-
-Reboot the IPMI card:
-
-    ./control ipmi tool 10.0.1.1 mc reset cold
-
-Get sensor output:
-
-    ./control ipmi tool 10.0.1.1 sdr list
-
-Get the error log:
-
-    ./control ipmi tool 10.0.1.1 sel elist
+    ./jockey detect 08:00:27:14:68:75 
 
 ### Firmware Upgrade with FreeDOS
 This section is based on http://wiki.gentoo.org/wiki/BIOS_Update . You have to use a linux host to create the bootdisk image. You have to download freedos tools from ibiblio.org:
@@ -154,14 +118,19 @@ This section is based on http://wiki.gentoo.org/wiki/BIOS_Update . You have to u
 
 Copy the firmware upgrade files to `$PWD/mnt` and umount the disk. Put `memdisk` and `freedos` to `boot` directory and switch to firmware (and reboot the machine):
 
-    ./control firmware 08:00:27:14:68:75
+    ./jockey firmware 08:00:27:14:68:75
 
 ### Install ESXi 5.X
 You have to use syslinux 4.X . Mount ESXi install media under `boot/esxi/repo`. Put `mboot.c32` from the install media into jockey's root directory. Kickstart the machine to boot ESXi installer:
 
-    ./control esxi 08:00:27:14:68:75
+    ./jockey esxi 08:00:27:14:68:75
 
 Edit the kickstart file if you want to change the default settings.
+
+### Other Mini-Linux Variants
+You can boot Cirros and Tiny Linux as well. For CirrOS put `initrd.img` and `vmlinuz` into `boot/cirros`, for Tiny Linux put `core.gz` and `vmlinuz` into `boot/tiny`, and switch eg. to Tiny:
+
+    ./jockey tiny 08:00:27:14:68:75
 
 ### Kickstart from scratch
 A good starting point for a kickstart can be found in the EAL4 package:
@@ -169,6 +138,61 @@ A good starting point for a kickstart can be found in the EAL4 package:
     cd src
     wget ftp://ftp.pbone.net/mirror/ftp.redhat.com/pub/redhat/linux/eal/EAL4_RHEL5/DELL/RPMS/lspp-eal4-config-dell-1.0-1.el5.noarch.rpm
     rpm2cpio lspp-eal4-config-dell-1.0-1.el5.noarch.rpm | cpio -idmv
+
+## IPMI Basics
+If you happen to have real metal servers you need to deal with IPMI as well. Enterprise class machiens contain a small computer which you can use to remote control the machine. IPMI interfaces connect to the bmc network. Install ipmitools:
+
+    brew install ipmitool
+
+You can register IPMI users with different access levels. Connect to the remote machine with the default settings:
+
+    ipmitool -I lanplus -U admin -P admin -H <BMC IP>
+
+Get a remote remote console:
+
+    xterm -e "ipmitool -I lanplus -U admin -P admin -H <BMC IP> sol activate"
+
+Get sensor listing:
+
+    ipmitool -I lanplus -U admin -P admin -H <BMC IP> sdr
+
+### IPMI Management with Space Jockey
+Setup IPMI adresses according to the network topology. Dip OS X into the IPMI LAN:
+
+    sudo ifconfig en0 alias 10.0.1.254 255.255.0.0
+
+Set the IPMI user and password:
+
+    ./jockey ipmi user admin admin
+
+Get a serial-over-lan console:
+
+    ./jockey ipmi tool 10.0.1.1 sol active
+
+Get the power status:
+
+    ./jockey ipmi tool 10.0.1.1 chassis status
+Reboot a machine:
+
+    ./jockey ipmi tool 10.0.1.1 power reset
+
+Force PXE boot on the next boot only:
+
+    ./jockey ipmi tool 10.0.1.1 chassis bootdev pxe
+
+Reboot the IPMI card:
+
+    ./jockey ipmi tool 10.0.1.1 mc reset cold
+
+Get sensor output:
+
+    ./jockey ipmi tool 10.0.1.1 sdr list
+
+Get the error log:
+
+    ./jockey ipmi tool 10.0.1.1 sel elist
+
+## InfinBand Basics
 
 ## Ansible Bootstrap
 Ansible is used to further provision root servers on the stage 2 level. Stage 2 is responsible to reach the production ready state of the grid.

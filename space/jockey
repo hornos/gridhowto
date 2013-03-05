@@ -38,7 +38,7 @@ nginx_bin=${usrlocal}/sbin/nginx
 dnsmasq_bin=${usrlocal}/sbin/dnsmasq
 
 ### functions
-function control/exit() {
+function jockey/exit() {
   local _c
   for _c in ${http_conf} ${masq_conf} ; do
     if [ -r ${_c} ] ; then
@@ -48,7 +48,7 @@ function control/exit() {
 }
 trap control/exit INT TERM EXIT
 
-function help/control() {
+function help/jockey() {
   cat <<EOF
 
 Primordial boot manager
@@ -64,30 +64,30 @@ EOF
   exit 1
 }
 
-function control/__pass() {
+function jockey/__pass() {
   awk '{print(substr($0,1,4))"-"(substr($0,5,4))"-"(substr($0,9,4))"-"(substr($0,13,4))}'
 }
 
-function control/_pass() {
+function jockey/_pass() {
   awk '{print((substr($0,1,4))(substr($0,5,4)))}'
 }
 
-function control/pass() {
+function jockey/pass() {
   local _r=""
   for i in {1..5}; do _r=${_r}$RANDOM; done
 
-  echo ${_r} | control/_pass
+  echo ${_r} | jockey/_pass
 }
 
-function control/netpass() {
+function jockey/netpass() {
   curl -s "https://www.random.org/strings/?num=1&len=16&digits=on&unique=off&&rnd=new&format=plain" | \
-  control/_pass
+  jockey/_pass
 }
 
 ### main
 case ${cmd} in
   pass|netpass)
-    control/${cmd}
+    jockey/${cmd}
   ;;
 
   host)
@@ -95,12 +95,12 @@ case ${cmd} in
   ;;
 
   kick)
-    if [ -z "${arg}" ] ; then help/control; fi
+    if [ -z "${arg}" ] ; then help/jockey; fi
 
     mac=${arg}
     http_listen=${jockey_ip}:8080
 
-    pass=$(control/pass)
+    pass=$(jockey/pass)
     echo ""
     echo "Space Jockey Kickstart Generator for Linux"
     echo ""
@@ -120,7 +120,7 @@ case ${cmd} in
   ;;
 
   local|memtest|detect|firmware|cirros)
-    if [ -z "${arg}" ] ; then help/control; fi
+    if [ -z "${arg}" ] ; then help/jockey; fi
 
     mac=${arg}
     http_listen=${jockey_ip}:8080
@@ -133,13 +133,13 @@ case ${cmd} in
   ;;
 
   esxi)
-    if [ -z "${arg}" ] ; then help/control; fi
+    if [ -z "${arg}" ] ; then help/jockey; fi
 
     mac=${arg}
     http_listen=${jockey_ip}:8080
     default=${cmd}
 
-    pass=$(control/pass)
+    pass=$(jockey/pass)
     echo ""
     echo "Space Jockey Kickstart Generator for ESXi"
     echo ""
@@ -211,6 +211,6 @@ case ${cmd} in
     esac
   ;;
   *)
-    help/control
+    help/jockey
   ;;
 esac
