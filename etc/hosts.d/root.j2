@@ -1,4 +1,3 @@
-# root server DNS cache
 {% for host in groups['root'] %}
 {{ hostvars[host]['ansible_eth0']['ipv4']['address'] }} {{host}}
 {% endfor %}

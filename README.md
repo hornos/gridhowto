@@ -192,7 +192,12 @@ Get the error log:
 
     ./jockey ipmi tool 10.0.1.1 sel elist
 
-## InfinBand Basics
+### The Parallel Genders Trick
+
+## InfiniBand Basics
+InfiniBand is a switched fabric communications link used in high-performance computing and enterprise data centers. If you need RDMA you need InfiniBand. You have to run the subnet manager (OpenSM) which assigns Local IDentifiers (LIDs) to each port connected to the InfiniBand fabric, and develops a routing table based off of the assigned LIDs.There are two types of SMs, software based and hardware based. Hardware based subnet managers are typically part of the firmware of the attached InfiniBand switch. Buy a switch with HW-based SM.
+
+
 
 ## Ansible Bootstrap
 Ansible is used to further provision root servers on the stage 2 level. Stage 2 is responsible to reach the production ready state of the grid.
@@ -244,13 +249,22 @@ Basic services contain NTP, Rsyslog and DNSmasq hosts cache:
 
 Root server names are cached in `/etc/hosts.d/root`. Put DNS cache files (hosts) in `/etc/hosts.d` and notify dnsmasq to reload.
 
-### EPEL Repository
+### Enable Repositories and install basic packages
+The first command enables the EPEL repository, the 2nd command installs node.js and Supervisor.
 
     bin/play root repo.yml -k --sudo
+    bin/play root nodejs.yml -k --sudo
 
 ### Firewall
 
     bin/play root firewall.yml -k --sudo
+
+## Tinc VPN
+
+### Root Server VPN
+
+
+### Tinc Over TOR
 
 ## Ganglia
 

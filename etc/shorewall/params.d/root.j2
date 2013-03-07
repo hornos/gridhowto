@@ -1,0 +1,10 @@
+{% set first=1 %}
+ROOT={%- for host in groups['root'] %}
+{%- if not first %}
+,
+{%- endif %}
+{%- if first %}
+{%- set first=0 %}
+{%- endif %}
+{{- hostvars[host]['ansible_eth0']['ipv4']['address'] }}
+{%- endfor %}

@@ -1,2 +1,3 @@
 epel_url: https://dl.fedoraproject.org/pub/epel/6/x86_64/
 epel_rpm: epel-release-6-8.noarch.rpm
+hornos_url: http://download.opensuse.org/repositories/home:/hornos:/centos/CentOS_CentOS-6/home:hornos:centos.repo

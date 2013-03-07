@@ -34,11 +34,17 @@
                 insertafter='^#addn-hosts.*'
                 line='addn-hosts=/etc/hosts.d'
 
-  - name: Hook self DNS
+  - name: Hook self DNS in /etc/resolv.conf
     lineinfile: dest=/etc/resolv.conf
                 regexp='^nameserver 127.0.0.1'
                 insertbefore='^nameserver.*'
                 line='nameserver 127.0.0.1'
+
+  - name: Hook self DNS in DHCP (eth3)
+    template: src=etc/dhcp/dhclient-eth3.conf.j2
+              dest=/etc/dhcp/dhclient-eth3.conf
+              owner=root
+              group=root
 
   - name: Root server hostnames
     template: src=etc/hosts.d/root.j2

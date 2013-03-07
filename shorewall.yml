@@ -6,6 +6,18 @@
     yum: name=shorewall
          state=installed
 
+  - name: Create /etc/shorewall/params.d
+    file: path=/etc/shorewall/params.d
+          owner=root
+          group=root
+          state=directory
+
+  - name: Create /etc/shorewall/rules.d
+    file: path=/etc/shorewall/rules.d
+          owner=root
+          group=root
+          state=directory
+
   - name: Install zones
     template: src=etc/shorewall/zones.j2
               dest=/etc/shorewall/zones
@@ -41,13 +53,41 @@
               group=root
               mode=0640
 
+  - name: Install /etc/shorewall/params.d/root
+    template: src=etc/shorewall/params.d/root.j2
+              dest=/etc/shorewall/params.d/root
+              owner=root
+              group=root
+              mode=0640
+
+  - name: Enable root in /etc/shorewall/params
+    lineinfile: dest=/etc/shorewall/params
+                regexp='^INCLUDE /etc/shorewall/params.d/root'
+                insertbefore='^#LAST'
+                line='INCLUDE /etc/shorewall/params.d/root'
+
+
+  - name: Install /etc/shorewall/rules.d/root
+    template: src=etc/shorewall/rules.d/root.j2
+              dest=/etc/shorewall/rules.d/root
+              owner=root
+              group=root
+              mode=0640
+
+  - name: Enable root in /etc/shorewall/rules
+    lineinfile: dest=/etc/shorewall/rules
+                regexp='^INCLUDE /etc/shorewall/rules.d/root'
+                insertbefore='^#LAST'
+                line='INCLUDE /etc/shorewall/rules.d/root'
+
+
   - name: Stop iptables
     service: name=iptables
              state=stopped
              enabled=no
 
-  - name: Restart shorewall
-    command: service shorewall restart
+#  - name: Restart shorewall
+#    shell: /etc/init.d/shorewall restart
 #    service: name=shorewall
 #             state=restarted
 #             enabled=yes

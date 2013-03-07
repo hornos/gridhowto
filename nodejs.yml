@@ -1,0 +1,32 @@
+# This play installs nodejs and supervisor
+---
+- hosts: all
+  vars_files:
+    - repo_vars.yml
+
+  tasks:
+#  - name: Wheel /etc/yum.repos.d
+#    file: path=/etc/yum.repos.d
+#          group=wheel
+#          mode=0775
+#          state=directory
+
+  - name: Download Hornos CentOS repo
+    get_url: url=${hornos_url}
+             dest=/etc/yum.repos.d/hornos.repo
+             owner=root
+             group=root
+
+  - name: Install node.js
+    yum: name=nodejs
+         state=installed
+
+  - name: Install supervisor
+    yum: name=supervisor
+         state=installed
+
+  - name: Start supervisord
+    service: name=supervisord
+             state=started
+             enabled=yes
+
