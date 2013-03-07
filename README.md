@@ -219,21 +219,23 @@ Check the connection:
 The bootstrap playbook creates the admin wheel user:
 
     ssh-keygen -f keys/admin
-    bin/play root-01 bootstrap.yml -k -u root
-    bin/play root-02 bootstrap.yml -k -u root
+    bin/play @root-01 bootstrap -u root
+    bin/play @root-02 bootstrap -u root
+
+The following operator shortcuts are used: `@` is `-k` and `@@` is `-k --sudo`.
 
 Test the bootstrap:
 
-    bin/admin root ping -k
+    bin/admin @root ping
 
 By securing the server you lock out root. Only admin is allowed to login with keys:
 
-    bin/play root secure.yml -k --sudo
+    bin/play @@root secure
 
 Reboot or shutdown the machines by:
 
-    bin/reboot root -k
-    bin/shutdown root -k
+    bin/reboot @root
+    bin/shutdown @root
 
 Create a new LVM partition:
 
@@ -245,28 +247,29 @@ Root servers provide NTP for the cluster. If you have a very large cluster root 
 
 Basic services contain NTP, Rsyslog and DNSmasq hosts cache:
 
-    bin/play root basic.yml -k --sudo
+    bin/play @@root basic
 
-Root server names are cached in `/etc/hosts.d/root`. Put DNS cache files (hosts) in `/etc/hosts.d` and notify dnsmasq to reload.
+Root server names are cached in `/etc/hosts.d/root`. Put DNS cache files (hosts) in `/etc/hosts.d` and notify dnsmasq to reload. DHCP client overwrites `resolv.conf` so you have to set an interface specific conf in `etc/dhcp` if you use DHCP. Rsyslog does cross-logging between root servers.
 
-### Enable Repositories and install basic packages
-The first command enables the EPEL repository, the 2nd command installs node.js and Supervisor.
+## Ganglia
+Ganglia is a scalable distributed monitoring system for high-performance computing systems such as clusters and Grids. It is based on a hierarchical design targeted at federations of clusters. You can think of it as a low-level cluster top.
 
-    bin/play root repo.yml -k --sudo
-    bin/play root nodejs.yml -k --sudo
+### Configure Multicast
 
 ### Firewall
+Enable basic Shorewall firewall on the root servers:
 
-    bin/play root firewall.yml -k --sudo
+    bin/play @@root shorewall
+    bin/run @@root "service shorewall restart"
+
+#### Ferm
+
 
 ## Tinc VPN
 
 ### Root Server VPN
 
-
 ### Tinc Over TOR
-
-## Ganglia
 
 ## Cluster FS 1
 

@@ -1,0 +1,31 @@
+---
+- hosts: all
+
+  vars_files:
+    - ganglia_vars.yml
+
+  tasks:
+  - name: Install ganglia
+    yum: name=ganglia
+         state=installed
+
+  - name: Install ganglia-gmetad
+    yum: name=ganglia-gmetad
+         state=installed
+
+  - name: Install ganglia-gmond
+    yum: name=ganglia-gmond
+         state=installed
+
+  - name: Install ganglia-gmond-python
+    yum: name=ganglia-gmond-python
+         state=installed
+
+  - name: Install ganglia-web
+    yum: name=ganglia-web
+         state=installed
+
+  - name: Install libnodeupdown-backend-ganglia
+    yum: name=libnodeupdown-backend-ganglia
+         state=installed
+ 

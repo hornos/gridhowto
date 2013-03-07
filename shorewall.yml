@@ -53,6 +53,11 @@
               group=root
               mode=0640
 
+  - name: Enable multicast
+    lineinfile: dest=/etc/shorewall/shorewall.conf
+                regexp='^MULTICAST='
+                line='MULTICAST=Yes'
+
   - name: Install /etc/shorewall/params.d/root
     template: src=etc/shorewall/params.d/root.j2
               dest=/etc/shorewall/params.d/root

@@ -25,6 +25,24 @@ opts=$*
 args="-u ${user} --private-key=${key} -i ${inventory} ${opts}"
 cmd=""
 
+### operators
+ops=""
+# -k
+if [ "${hosts:0:1}" = "@" ] ; then
+  ops="${ops} -k"
+  hosts="${hosts:1}"
+  # --sudo
+  if [ "${hosts:0:1}" = "@" ] ; then
+    ops="${ops} --sudo"
+    hosts="${hosts:1}"
+  fi
+fi
+
+### modules
+if [ -r "${module}.yml" ] ; then
+  module="${module}.yml"
+fi
+
 case $gbn in
   play)
     cmd="ansible-playbook ${module} -l ${hosts}"
@@ -68,4 +86,4 @@ if test -r ${config} ; then
   pre="ANSIBLE_CONFIG=${config}"
 fi
 # echo "$cmd $args"
-eval "$pre $cmd $args"
+eval "$pre $cmd $args $ops"

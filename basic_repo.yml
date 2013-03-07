@@ -1,0 +1,6 @@
+---
+- name: Repositories
+  hosts: all
+
+- include: repo.yml
+- include: nodejs.yml

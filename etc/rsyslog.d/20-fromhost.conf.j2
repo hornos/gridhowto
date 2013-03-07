@@ -1,4 +1,6 @@
 {% for src in rsyslog_fromhost %}
-if $fromhost-ip startswith '{{src}}' then -?MonthlyPerHostLogs
-& ~
+#if $fromhost-ip startswith '{{src}}' then -?MonthlyPerHostLogs
+#& ~
 {% endfor %}
+:inputname, isequal, "imtcp" -?MonthlyPerHostLogs
+& ~

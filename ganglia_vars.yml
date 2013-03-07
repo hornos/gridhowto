@@ -1,0 +1,4 @@
+# route add -host 239.2.11.71 dev eth0
+---
+mcast_addr = 239.2.11.71
+mcast_dev = eth0
