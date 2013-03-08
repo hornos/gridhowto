@@ -17,9 +17,9 @@
     yum: name=ganglia-gmond
          state=installed
 
-  - name: Install ganglia-gmond-python
-    yum: name=ganglia-gmond-python
-         state=installed
+#  - name: Install ganglia-gmond-python
+#    yum: name=ganglia-gmond-python
+#         state=installed
 
   - name: Install ganglia-web
     yum: name=ganglia-web
@@ -29,3 +29,39 @@
     yum: name=libnodeupdown-backend-ganglia
          state=installed
  
+#  - name: Add multicast route
+#    command: /sbin/route add -host ${mcast_addr} dev ${mcast_dev}
+
+  - name: Ganglia monitor
+    template: src=etc/ganglia/gmond.conf.j2
+              dest=/etc/ganglia/gmond.conf
+              owner=root
+              group=root
+              mode=0644
+
+  - name: Ganglia meta-data
+    template: src=etc/ganglia/gmetad.conf.j2
+              dest=/etc/ganglia/gmetad.conf
+              owner=root
+              group=root
+              mode=0644
+
+  - name: Restart gmond
+    service: name=gmond
+             state=restarted
+             enabled=yes
+
+  - name: Restart gmetad
+    service: name=gmetad
+             state=restarted
+             enabled=yes
+
+  - name: Allow HTTP connect
+    seboolean: name=httpd_can_network_connect
+               state=true
+               persistent=yes
+
+  - name: Restart HTTP
+    service: name=httpd
+             state=restarted
+             enabled=yes

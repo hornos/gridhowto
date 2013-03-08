@@ -6,17 +6,41 @@
     yum: name=shorewall
          state=installed
 
+### PARAMETERS
   - name: Create /etc/shorewall/params.d
     file: path=/etc/shorewall/params.d
           owner=root
           group=root
           state=directory
 
-  - name: Create /etc/shorewall/rules.d
-    file: path=/etc/shorewall/rules.d
+  - name: Install /etc/shorewall/params.d/root
+    template: src=etc/shorewall/params.d/root.j2
+              dest=/etc/shorewall/params.d/root
+              owner=root
+              group=root
+              mode=0640
+
+  - name: Install params
+    template: src=etc/shorewall/params.j2
+              dest=/etc/shorewall/params
+              owner=root
+              group=root
+              mode=0640
+
+
+### ZONES
+  - name: Create /etc/shorewall/zones.d
+    file: path=/etc/shorewall/zones.d
           owner=root
           group=root
           state=directory
+
+  - name: Install /etc/shorewall/zones.d/root
+    template: src=etc/shorewall/zones.d/root.j2
+              dest=/etc/shorewall/zones.d/root
+              owner=root
+              group=root
+              mode=0640
 
   - name: Install zones
     template: src=etc/shorewall/zones.j2
@@ -25,9 +49,40 @@
               group=root
               mode=0640
 
-  - name: Install interfaces
-    template: src=etc/shorewall/interfaces.j2
-              dest=/etc/shorewall/interfaces
+
+### HOSTS
+  - name: Create /etc/shorewall/hosts.d
+    file: path=/etc/shorewall/hosts.d
+          owner=root
+          group=root
+          state=directory
+
+  - name: Install /etc/shorewall/hosts.d/root
+    template: src=etc/shorewall/hosts.d/root.j2
+              dest=/etc/shorewall/hosts.d/root
+              owner=root
+              group=root
+              mode=0640
+
+  # Edit multicast interface here
+  - name: Install hosts
+    template: src=etc/shorewall/hosts.j2
+              dest=/etc/shorewall/hosts
+              owner=root
+              group=root
+              mode=0640
+
+
+### POLICY
+  - name: Create /etc/shorewall/policy.d
+    file: path=/etc/shorewall/policy.d
+          owner=root
+          group=root
+          state=directory
+
+  - name: Install /etc/shorewall/policy.d/root
+    template: src=etc/shorewall/policy.d/root.j2
+              dest=/etc/shorewall/policy.d/root
               owner=root
               group=root
               mode=0640
@@ -39,38 +94,13 @@
               group=root
               mode=0640
 
-  - name: Install rules
-    template: src=etc/shorewall/rules.j2
-              dest=/etc/shorewall/rules
-              owner=root
-              group=root
-              mode=0640
+### RULES
 
-  - name: Enable shorewall
-    template: src=etc/shorewall/shorewall.conf.j2
-              dest=/etc/shorewall.conf
-              owner=root
-              group=root
-              mode=0640
-
-  - name: Enable multicast
-    lineinfile: dest=/etc/shorewall/shorewall.conf
-                regexp='^MULTICAST='
-                line='MULTICAST=Yes'
-
-  - name: Install /etc/shorewall/params.d/root
-    template: src=etc/shorewall/params.d/root.j2
-              dest=/etc/shorewall/params.d/root
-              owner=root
-              group=root
-              mode=0640
-
-  - name: Enable root in /etc/shorewall/params
-    lineinfile: dest=/etc/shorewall/params
-                regexp='^INCLUDE /etc/shorewall/params.d/root'
-                insertbefore='^#LAST'
-                line='INCLUDE /etc/shorewall/params.d/root'
-
+  - name: Create /etc/shorewall/rules.d
+    file: path=/etc/shorewall/rules.d
+          owner=root
+          group=root
+          state=directory
 
   - name: Install /etc/shorewall/rules.d/root
     template: src=etc/shorewall/rules.d/root.j2
@@ -86,13 +116,41 @@
                 line='INCLUDE /etc/shorewall/rules.d/root'
 
 
+
+### OTHER
+  - name: Install interfaces
+    template: src=etc/shorewall/interfaces.j2
+              dest=/etc/shorewall/interfaces
+              owner=root
+              group=root
+              mode=0640
+
+  - name: Install routestopped
+    template: src=etc/shorewall/routestopped.j2
+              dest=/etc/shorewall/routestopped
+              owner=root
+              group=root
+              mode=0640
+
+  - name: Enable shorewall
+    template: src=etc/shorewall/shorewall.conf.j2
+              dest=/etc/shorewall.conf
+              owner=root
+              group=root
+              mode=0640
+
+#  - name: Enable multicast
+#    lineinfile: dest=/etc/shorewall/shorewall.conf
+#                regexp='^MULTICAST='
+#                line='MULTICAST=Yes'
+
+
   - name: Stop iptables
     service: name=iptables
              state=stopped
              enabled=no
 
-#  - name: Restart shorewall
-#    shell: /etc/init.d/shorewall restart
-#    service: name=shorewall
-#             state=restarted
-#             enabled=yes
+  - name: Restart shorewall
+    service: name=shorewall
+             state=restarted
+             enabled=yes

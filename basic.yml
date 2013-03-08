@@ -4,3 +4,4 @@
 
 - include: basic_root.yml
 - include: basic_repo.yml
+- include: basic_selinux.yml

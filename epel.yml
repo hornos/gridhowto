@@ -2,13 +2,13 @@
 ---
 - hosts: all
   vars_files:
-    - repo_vars.yml
+    - epel_vars.yml
 
   tasks:
 
   - name: Download EPEL repo
-    get_url: url=${epel_url}/${epel_rpm} dest=/root
+    get_url: url=${url}/${rpm} dest=/root
 
   - name: Install EPEL repo
-    command: rpm -Uvh /root/${epel_rpm}
-    ignore_errors: yes
+    command: yum -y localinstall /root/${rpm}
+

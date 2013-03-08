@@ -2,5 +2,5 @@
 - name: Repositories
   hosts: all
 
-- include: repo.yml
+- include: epel.yml
 - include: nodejs.yml

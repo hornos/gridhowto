@@ -1,9 +1,8 @@
-# explicit ssh
-ACCEPT sys:$ROOT   $FW                  tcp    22
-
+ACCEPT     ext           $FW       tcp        22
+ACCEPT     sys           $FW       tcp        22
 # rsyslog
-ACCEPT sys:$ROOT   $FW                  tcp    514
-
-
-
-#LAST LINE
+# ACCEPT sys:$ROOT   $FW                  tcp    514
+ACCEPT     sys           $FW       tcp       514
+# ganglia
+ACCEPT     sys           $FW       udp      8649
+ACCEPT     sys           $FW       tcp      8649

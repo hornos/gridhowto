@@ -2,7 +2,7 @@
 ---
 - hosts: all
   vars_files:
-    - ${inventory_hostname}_vars.yml
+    - vars/${inventory_hostname}.yml
 
   tasks:
   - name: Rsyslog from from clients

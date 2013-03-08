@@ -1,5 +1,5 @@
 #ACTION    SOURCE        DEST      PROTO      DEST
 #                                             PORT(S)
-ACCEPT     ext           $FW       tcp        22
-ACCEPT     sys           $FW       tcp        22
+SECTION NEW
+SHELL cat /etc/shorewall/rules.d/*.rules 2> /dev/null || true
 #LAST LINE -- ADD YOUR ENTRIES BEFORE THIS ONE -- DO NOT REMOVE

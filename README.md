@@ -252,15 +252,16 @@ Basic services contain NTP, Rsyslog and DNSmasq hosts cache:
 Root server names are cached in `/etc/hosts.d/root`. Put DNS cache files (hosts) in `/etc/hosts.d` and notify dnsmasq to reload. DHCP client overwrites `resolv.conf` so you have to set an interface specific conf in `etc/dhcp` if you use DHCP. Rsyslog does cross-logging between root servers.
 
 ## Ganglia
-Ganglia is a scalable distributed monitoring system for high-performance computing systems such as clusters and Grids. It is based on a hierarchical design targeted at federations of clusters. You can think of it as a low-level cluster top.
+Ganglia is a scalable distributed monitoring system for high-performance computing systems such as clusters and Grids. It is based on a hierarchical design targeted at federations of clusters. You can think of it as a low-level cluster top. Ganglia is running with unicast addresses and root servers cross-monitor each other.
 
-### Configure Multicast
+    bin/play @@root ganglia
 
 ### Firewall
 Enable basic Shorewall firewall on the root servers:
 
     bin/play @@root shorewall
-    bin/run @@root "service shorewall restart"
+
+Note that emergency rules are defined in `etc/shorewall/rulestopped.j2`. Enable SSH on the provision interfaces. 
 
 #### Ferm
 

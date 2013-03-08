@@ -1,0 +1,13 @@
+---
+- hosts: all
+  vars_files:
+    - haproxy_vars.yml
+
+  tasks:
+
+  - name: Download haproxy
+    get_url: url=${url}/${rpm} dest=/root
+
+  - name: Install haproxy
+    command: yum -y localinstall /root/${rpm}
+

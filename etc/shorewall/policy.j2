@@ -1,14 +1,6 @@
 #SOURCE    DEST        POLICY      LOG LEVEL    LIMIT:BURST
-sys        sys         ACCEPT
-sto        sto         ACCEPT
-mpi        mpi         ACCEPT
-
-$FW        sys         ACCEPT
-$FW        sto         ACCEPT
-$FW        mpi         ACCEPT
-
-$FW        ext         ACCEPT
-
+SHELL cat /etc/shorewall/policy.d/* 2> /dev/null || true
 all        all         DROP      info
+
 #LAST LINE -- ADD YOUR ENTRIES BEFORE THIS ONE -- DO NOT REMOVE
 
