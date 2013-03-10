@@ -5,7 +5,7 @@ install
 # reboot
 cdrom
 # remote install
-# url --url http://HTTP_LISTEN/centos6.3/repo
+# url --url http://HTTP_LISTEN/centos64/repo
 
 skipx
 text

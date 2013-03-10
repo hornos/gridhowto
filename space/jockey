@@ -3,7 +3,7 @@ gbn=$(basename $0)
 gdn=$(cd $(dirname $0); pwd)
 jockey_root=${gdn}
 
-default=centos6.3
+default=centos63
 
 ### defaults for OS X
 host=${jockey_root}/.host
@@ -46,7 +46,7 @@ function jockey/exit() {
     fi
   done
 }
-trap control/exit INT TERM EXIT
+trap jockey/exit INT TERM EXIT
 
 function help/jockey() {
   cat <<EOF
@@ -94,9 +94,10 @@ case ${cmd} in
     echo "ip=${arg}" | tee ${host}
   ;;
 
-  kick)
+  centos63|centos64)
     if [ -z "${arg}" ] ; then help/jockey; fi
 
+    default=${cmd}
     mac=${arg}
     http_listen=${jockey_ip}:8080
 
@@ -109,7 +110,7 @@ case ${cmd} in
     root_pass=$(openssl passwd -1 "${pass}")
     ks=$(echo "${mac}" | sed s/:/-/g | tr '[:upper:]' '[:lower:]')
     echo "${pass}" > ${jockey_root}/${ks}.pass
-    cat ${jockey_root}/kickstart.centos | \
+    cat ${jockey_root}/kickstart.${default} | \
     awk -v p=${root_pass} -v l=${http_listen} '{gsub("ROOT_PASSWORD",p); gsub("HTTP_LISTEN",l); print}' \
     > ${http_root}/${ks}.ks
 

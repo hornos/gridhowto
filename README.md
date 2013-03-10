@@ -256,6 +256,8 @@ Ganglia is a scalable distributed monitoring system for high-performance computi
 
     bin/play @@root ganglia
 
+Ganglia will install haproxy
+
 ### Firewall
 Enable basic Shorewall firewall on the root servers:
 

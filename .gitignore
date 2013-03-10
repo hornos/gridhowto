@@ -4,7 +4,8 @@ keys/*
 *.pass
 src/*
 space/boot/leases
-space/boot/centos6.3/*
+space/boot/centos63/*
+space/boot/centos64/*
 space/boot/cirros/*
 space/boot/tiny/*
 space/boot/esxi/*
