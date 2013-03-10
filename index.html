@@ -1,64 +1,50 @@
 <!DOCTYPE html>
 <html>
+
   <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Gridhowto : Grid Ansible Slurm Centos" />
 
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
-    <title>Gridhowto by hornos</title>
+    <title>Gridhowto</title>
   </head>
 
   <body>
-    <header>
-      <div class="inner">
-        <h1>Gridhowto</h1>
-        <h2>Grid Ansible Slurm Centos</h2>
-        <a href="https://github.com/hornos/gridhowto" class="button"><small>View project on</small>GitHub</a>
-      </div>
-    </header>
 
-    <div id="content-wrapper">
-      <div class="inner clearfix">
-        <section id="main-content">
-          <h1>Grid Howto</h1>
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/hornos/gridhowto">View on GitHub</a>
+
+          <h1 id="project_title">Gridhowto</h1>
+          <h2 id="project_tagline">Grid Ansible Slurm Centos</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/hornos/gridhowto/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/hornos/gridhowto/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>Grid Howto</h1>
 
 <p>This howto is for CentOS based clusters. You can try the setup in VirtualBox as well, although you will lack BMC and IB features.</p>
 
-<p>Install ansible on the local client. Ansible should be installed into <code>$HOME/ansible</code>:</p>
+<p>The following terminology is used: <em>client</em> is a remote or virtual machine you want ot provision, <em>host</em> is your machine (laptop) from which you provision and control the clients.</p>
 
-<pre><code>cd $HOME
-git clone git://github.com/ansible/ansible.git
+<p>In the first step <em>root servers</em> are installed. Later on, root servers are used for large-scale cluster installation. We will use Space Jockey to provision root servers. Space Jockey is a very simple bootp tool, it does not compare with Cobbler or Xcat. Its main purpose is to boot and install root servers from your laptop. For this primordial installation you need OS X, nginx and dnsmasq.</p>
+
+<p>Download the gridhowto:</p>
+
+<pre><code>cd; git clone git://github.com/hornos/gridhowto.git
 </code></pre>
 
-<p>Edit your <code>$HOME/.bashrc</code>:</p>
-
-<pre><code>source $HOME/ansible/hacking/env-setup &amp;&gt; /dev/null
-</code></pre>
-
-<p>Run the source command:</p>
-
-<pre><code>source $HOME/.bashrc
-</code></pre>
-
-<h2>Root servers</h2>
-
-<p>Install gridhowto:</p>
-
-<pre><code>cd $HOME
-git clone git://github.com/hornos/gridhowto.git
-</code></pre>
-
-<p>Install at least 2 root servers for HA. Try to use multi-master setups and avoid heartbeat integration and floating addresses.</p>
-
-<p>The following network topology is recommended for the cluster. The BMC network can be on the same interface as system (eth0). The system network is used to boot and provision the cluster.</p>
+<p>The following network topology is recommended. The BMC network can be on the same interface as system (eth0). The system network is used to boot and provision the cluster.</p>
 
 <pre><code>IF   Network  Address Range
 bmc  bmc      10.0.0.0/16
@@ -68,9 +54,9 @@ eth2 mpi      10.3.0.0/16
 ethX external ?
 </code></pre>
 
-<p>The network configuration is found in <code>network.yml</code>. Each network interface can be a bond. On high-performance systems storage and mpi is InfiniBand or other high-speed network. If you have less than 4 interfaces use alias networks. Note that</p>
+<p>The network configuration is found in <code>network.yml</code>. Each network interface can be a bond. On high-performance systems storage and mpi is InfiniBand or other high-speed network. If you have less than 4 interfaces use alias networks. Separate external network form the others.</p>
 
-<h3>Root servers in VirtualBox</h3>
+<h3>Root Servers in VirtualBox</h3>
 
 <p>You can make a virtual infrastructure in VirtualBox. Create the following virtual networks:</p>
 
@@ -81,47 +67,49 @@ mpi       intnet
 external  NAT/Bridged
 </code></pre>
 
-<p>Setup the virtual server to have 2TB of disk 4 network cards and network boot enabled.</p>
+<p>Setup the virtual server to have 2TB of disk and 4 network cards as well as network boot enabled.</p>
 
 <h2>Primordial Installation</h2>
 
-<p>Space jockey is a very simple bootp tool. It does not compare with Cobbler or Xcat. Its main purpose is to boot and install minimal servers from your laptop, it is an entry point. Later on the root servers are used for large-scale cluster installation. You can configure root servers by ansible. In the 2nd stage Xcat or Cobbler is installed by a playbook and used to provision the compute cluster. For the primordial installation you need OS X, nginx and a dnsmasq server. To install the boot servers:</p>
+<p>Install boot servers on the host:</p>
 
 <pre><code>brew install dnsmasq nginx
 </code></pre>
 
-<p>From now on all commands are relative to the <code>jockey</code> directory:</p>
+<p>From now on all commands are relative to the <code>space</code> directory:</p>
 
 <pre><code>cd $HOME/gridhowto/space
 </code></pre>
 
-<p>If you don't know which machine to boot you can check bootp requests from the root servers by:</p>
+<p>If you don't know which machine to boot you can check bootp requests from the root servers:</p>
 
-<pre><code>./jockey dump IF
+<pre><code>./jockey dump &lt;INTERFACE&gt;
 </code></pre>
 
-<p>where IF is the interface to listen on eg. vboxnet0.</p>
+<p>where the last argument is the interface to listen on eg. vboxnet0.</p>
 
-<p>DNSmasq is an all-inclusive DNS/DHCP/BOOTP server. Its configuration is found in the <code>masq</code> file. Edit the <code>ROOT SERVER BOOTP</code> section is you want static assignment, eg:</p>
+<p>The recommended way insert an installation DVD in each server and leave the disk in the drive. You can consider it as a rescue system.</p>
 
-<pre><code>dhcp-host=08:00:27:14:68:75,10.1.1.1,infinite
-</code></pre>
+<p>Create the <code>boot/centos64</code> directory and put <code>vmlinuz</code> and <code>initrd.img</code> from the CentOS install media (<code>isolinux</code> directory). Edit the <code>kickstart.centos64</code> file if you want to customize the installatio (especially <code>NETWORK</code> and <code>HOSTNAME</code> section). Put <code>pxelinux.0, chain.c32</code> from the syslinux 4.X package into <code>boot</code>.</p>
 
-<p>The recommended way is to put an installation DVD in each server and leave the disk in the server. You can consider it as a rescue system which is always available. All you need now is to bootstrap the installer.</p>
-
-<p>Create the <code>boot/centos6.3</code> directory and put <code>vmlinuz</code> and <code>initrd.img</code> from the CentOS install media. Edit the <code>kickstart</code> file to customize the installation, especially <code>NETWORK</code> and <code>HOSTNAME</code> section. Put <code>pxelinux.0, chain.c32</code> from the syslinux 4.X package into <code>boot</code>.</p>
-
-<p>Set the address of the host machine (your laptop's corresponding interface), eg.:</p>
+<p>Set the address of the host machine (your laptop's corresponding interface). In this example </p>
 
 <pre><code>./jockey host 10.1.1.254
 </code></pre>
 
-<p>Kickstart a MAC address with the installation, eg.:</p>
+<p>or you can give an interface and let the script autodetect the host IP:</p>
 
-<pre><code>./jockey kick 08:00:27:14:68:75
+<pre><code>./jockey @host vboxnet5
 </code></pre>
 
-<p>The <code>kick</code> command creates a kickstart file in <code>boot</code> and a pxelinux configuration in <code>boot/pxelinux.cfg</code>. It also generates a root password which you can use for the stage 2 provisioning. Edit kickstarts (<code>boot/*.ks</code> files) after kicked. Root passwords are in <code>*.pass</code> files.</p>
+<p>Kickstart a MAC address with the CentOS installation:</p>
+
+<pre><code>./jockey centos64 08:00:27:14:68:75
+</code></pre>
+
+<p>You can use <code>-</code> instead of <code>:</code>. Letters are converted to lowercase.</p>
+
+<p>The <code>centos64</code> command creates a kickstart file in <code>boot</code> and a pxelinux configuration in <code>boot/pxelinux.cfg</code>. It also generates a root password which you can use for the stage 2 provisioning. Edit kickstarts (<code>boot/*.ks</code> files) after kicked. Root passwords are in <code>*.pass</code> files. After you secured the install root user is not allowed to login remotely.</p>
 
 <p>Finish the preparatin by starting the boot servers (http, dnsmasq) each in a separate terminal:</p>
 
@@ -134,14 +122,16 @@ external  NAT/Bridged
 <pre><code>./jockey local 08:00:27:14:68:75
 </code></pre>
 
-<p>This command changes the pxelinux to local boot. Switch IPMI to local boot for real servers.</p>
+<p>This command changes the pxelinux order to local boot. You can also switch to local boot by IPMI for real servers.</p>
 
 <h3>Install from URL</h3>
 
-<p>Mount install media and link to under <code>boot/centos6.3/repo</code>. Edit the kickstart file and change <code>cdrom</code> to:</p>
+<p>Mount install media and link under <code>boot/centos64/repo</code>. Edit the kickstart file and change <code>cdrom</code> to:</p>
 
-<pre><code>url --url http://10.1.1.254:8080/centos6.3/repo
+<pre><code>url --url http://10.1.1.254:8080/centos64/repo
 </code></pre>
+
+<p>Where the URL is the address of the nginx server running on the host.</p>
 
 <h3>VNC-based Graphical Install</h3>
 
@@ -154,16 +144,19 @@ external  NAT/Bridged
 
 <h3>Hardware Detection</h3>
 
-<p>For syslinux HW detection you need <code>boot/hdt.c32</code></p>
+<p>For hardware detection you need to have the following files installed from syslinux:</p>
 
-<p>Switch to detection by:</p>
+<pre><code>boot/hdt.c32
+</code></pre>
+
+<p>Switch to detection (and reboot the machine):</p>
 
 <pre><code>./jockey detect 08:00:27:14:68:75 
 </code></pre>
 
 <h3>Firmware Upgrade with FreeDOS</h3>
 
-<p>This section is based on <a href="http://wiki.gentoo.org/wiki/BIOS_Update">http://wiki.gentoo.org/wiki/BIOS_Update</a> . You have to use a linux host to create the bootdisk image. You have to download freedos tools from ibiblio.org:</p>
+<p>This section is based on <a href="http://wiki.gentoo.org/wiki/BIOS_Update">http://wiki.gentoo.org/wiki/BIOS_Update</a> . You have to use a Linux host to create the bootdisk image. You have to download freedos tools from ibiblio.org:</p>
 
 <pre><code>dd if=/dev/zero of=freedos bs=1024 count=20480
 mkfs.msdos freedos
@@ -270,9 +263,29 @@ rpm2cpio lspp-eal4-config-dell-1.0-1.el5.noarch.rpm | cpio -idmv
 <pre><code>./jockey ipmi tool 10.0.1.1 sel elist
 </code></pre>
 
-<h2>InfinBand Basics</h2>
+<h3>The Parallel Genders Trick</h3>
+
+<h2>InfiniBand Basics</h2>
+
+<p>InfiniBand is a switched fabric communications link used in high-performance computing and enterprise data centers. If you need RDMA you need InfiniBand. You have to run the subnet manager (OpenSM) which assigns Local IDentifiers (LIDs) to each port connected to the InfiniBand fabric, and develops a routing table based off of the assigned LIDs.There are two types of SMs, software based and hardware based. Hardware based subnet managers are typically part of the firmware of the attached InfiniBand switch. Buy a switch with HW-based SM.</p>
 
 <h2>Ansible Bootstrap</h2>
+
+<p>Install ansible on the host. Ansible should be installed into <code>$HOME/ansible</code>:</p>
+
+<pre><code>cd $HOME
+git clone git://github.com/ansible/ansible.git
+</code></pre>
+
+<p>Edit your <code>$HOME/.bashrc</code>:</p>
+
+<pre><code>source $HOME/ansible/hacking/env-setup &amp;&gt; /dev/null
+</code></pre>
+
+<p>Run the source command:</p>
+
+<pre><code>source $HOME/.bashrc
+</code></pre>
 
 <p>Ansible is used to further provision root servers on the stage 2 level. Stage 2 is responsible to reach the production ready state of the grid.</p>
 
@@ -290,30 +303,34 @@ root-02 ansible_ssh_host=10.1.1.2
 
 <p>Check the connection:</p>
 
-<pre><code>ansible root-01 -i hosts -m raw -a "hostname" -u root -k
+<pre><code>bin/ping root@root-01
 </code></pre>
 
-<p>The bootstrap playbook creates the admin wheel user:</p>
+<p>The bootstrap playbook creates the admin wheel user. You have to bootstrap each machine separately since root passwords are different:</p>
 
 <pre><code>ssh-keygen -f keys/admin
-bin/play root-01 bootstrap.yml -k -u root
-bin/play root-02 bootstrap.yml -k -u root
+pushd keys; ln -s admin root; popd
+bin/play root@root-01 bootstrap
+bin/play root@root-02 bootstrap
+...
 </code></pre>
+
+<p>The following operator shortcuts are used: <code>@</code> is <code>-k</code> and <code>@@</code> is <code>-k --sudo</code>.</p>
 
 <p>Test the bootstrap:</p>
 
-<pre><code>bin/admin root ping -k
+<pre><code>bin/ping admin@root
 </code></pre>
 
-<p>By securing the server you lock out root. Only admin is allowed to login with keys:</p>
+<p>By securing the server you lock out root. Only admin is allowed to login with keys thereafter:</p>
 
-<pre><code>bin/play root secure.yml -k --sudo
+<pre><code>bin/play @@root secure
 </code></pre>
 
 <p>Reboot or shutdown the machines by:</p>
 
-<pre><code>bin/reboot root -k
-bin/shutdown root -k
+<pre><code>bin/reboot @@root
+bin/shutdown @@root
 </code></pre>
 
 <p>Create a new LVM partition:</p>
@@ -327,22 +344,36 @@ bin/shutdown root -k
 
 <p>Basic services contain NTP, Rsyslog and DNSmasq hosts cache:</p>
 
-<pre><code>bin/play root basic.yml -k --sudo
+<pre><code>bin/play @@root basic
 </code></pre>
 
-<p>Root server names are cached in <code>/etc/hosts.d/root</code>. Put DNS cache files (hosts) in <code>/etc/hosts.d</code> and notify dnsmasq to reload.</p>
+<p>Root server names are cached in <code>/etc/hosts.d/root</code>. Put DNS cache files (hosts) in <code>/etc/hosts.d</code> and notify dnsmasq to reload. DHCP client overwrites <code>resolv.conf</code> so you have to set an interface specific conf in <code>etc/dhcp</code> if you use DHCP. Rsyslog does cross-logging between root servers.</p>
 
-<h3>EPEL Repository</h3>
+<h2>Ganglia</h2>
 
-<pre><code>bin/play root repo.yml -k --sudo
+<p>Ganglia is a scalable distributed monitoring system for high-performance computing systems such as clusters and Grids. It is based on a hierarchical design targeted at federations of clusters. You can think of it as a low-level cluster top. Ganglia is running with unicast addresses and root servers cross-monitor each other.</p>
+
+<pre><code>bin/play @@root ganglia
 </code></pre>
+
+<p>Ganglia will install haproxy</p>
 
 <h3>Firewall</h3>
 
-<pre><code>bin/play root firewall.yml -k --sudo
+<p>Enable basic Shorewall firewall on the root servers:</p>
+
+<pre><code>bin/play @@root shorewall
 </code></pre>
 
-<h2>Ganglia</h2>
+<p>Note that emergency rules are defined in <code>etc/shorewall/rulestopped.j2</code>. Enable SSH on the provision interfaces. </p>
+
+<h4>Ferm</h4>
+
+<h2>Tinc VPN</h2>
+
+<h3>Root Server VPN</h3>
+
+<h3>Tinc Over TOR</h3>
 
 <h2>Cluster FS 1</h2>
 
@@ -367,25 +398,18 @@ bin/shutdown root -k
 <h4>GridFTP</h4>
 
 <h3>GateONE</h3>
-        </section>
-
-        <aside id="sidebar">
-          <a href="https://github.com/hornos/gridhowto/zipball/master" class="button">
-            <small>Download</small>
-            .zip file
-          </a>
-          <a href="https://github.com/hornos/gridhowto/tarball/master" class="button">
-            <small>Download</small>
-            .tar.gz file
-          </a>
-
-          <p class="repo-owner"><a href="https://github.com/hornos/gridhowto"></a> is maintained by <a href="https://github.com/hornos">hornos</a>.</p>
-
-          <p>This page was generated by <a href="pages.github.com">GitHub Pages</a> using the Architect theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.</p>
-        </aside>
-      </div>
+      </section>
     </div>
 
-  
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Gridhowto maintained by <a href="https://github.com/hornos">hornos</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
   </body>
 </html>
