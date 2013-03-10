@@ -2,14 +2,9 @@
 ---
 - hosts: all
   vars_files:
-    - repo_vars.yml
+    - epel_vars.yml
 
   tasks:
-#  - name: Wheel /etc/yum.repos.d
-#    file: path=/etc/yum.repos.d
-#          group=wheel
-#          mode=0775
-#          state=directory
 
   - name: Download Hornos CentOS repo
     get_url: url=${hornos_url}

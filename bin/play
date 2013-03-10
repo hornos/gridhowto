@@ -1,8 +1,6 @@
 #!/bin/bash
 gdn=$(pwd $(dirname $0))
 gbn=$(basename $0)
-user=admin
-key=./keys/${user}
 inventory=./hosts
 config=./config
 
@@ -22,10 +20,15 @@ module=${1:-ping}
 shift
 opts=$*
 
-args="-u ${user} --private-key=${key} -i ${inventory} ${opts}"
-cmd=""
-
 ### operators
+user=${hosts/@*}
+if [ ! -z "$user" ] ; then
+  hosts=${hosts/${user}}
+fi
+if [ -z "$user" ] ; then
+  user=admin
+fi
+
 ops=""
 # -k
 if [ "${hosts:0:1}" = "@" ] ; then
@@ -37,6 +40,11 @@ if [ "${hosts:0:1}" = "@" ] ; then
     hosts="${hosts:1}"
   fi
 fi
+
+### common args
+key=./keys/${user}
+args="-u ${user} --private-key=${key} -i ${inventory} ${opts}"
+cmd=""
 
 ### modules
 if [ -r "${module}.yml" ] ; then
@@ -68,14 +76,15 @@ case $gbn in
     cmd="ansible ${hosts} -m shell -a \"${tmp}\""
     ;;
   reboot)
-    opts="${opts} --sudo"
-    args="-u ${user} --private-key=${key} -i ${inventory} ${module} ${opts}"
-    cmd="ansible ${hosts} -m command -a /sbin/reboot --sudo"
+    args="-u ${user} --private-key=${key} -i ${inventory} ${opts}"
+    cmd="ansible ${hosts} -m command -a /sbin/reboot"
     ;;
   shutdown)
-    opts="${opts} --sudo"
-    args="-u ${user} --private-key=${key} -i ${inventory} ${module} ${opts}"
-    cmd="ansible ${hosts} -m command -a \"/sbin/shutdown -h now\" --sudo"
+    args="-u ${user} --private-key=${key} -i ${inventory} ${opts}"
+    cmd="ansible ${hosts} -m command -a \"/sbin/shutdown -h now\""
+    ;;
+  ping)
+    cmd="ansible ${hosts} -m ping"
     ;;
   help|*)
     help/play

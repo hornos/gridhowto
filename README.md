@@ -2,28 +2,15 @@ Grid Howto
 ==========
 This howto is for CentOS based clusters. You can try the setup in VirtualBox as well, although you will lack BMC and IB features.
 
-Install ansible on the local client. Ansible should be installed into `$HOME/ansible`:
+The following terminology is used: *client* is a remote or virtual machine you want ot provision, *host* is your machine (laptop) from which you provision and control the clients.
 
-    cd $HOME
-    git clone git://github.com/ansible/ansible.git
+In the first step *root servers* are installed. Later on, root servers are used for large-scale cluster installation. We will use Space Jockey to provision root servers. Space Jockey is a very simple bootp tool, it does not compare with Cobbler or Xcat. Its main purpose is to boot and install root servers from your laptop. For this primordial installation you need OS X, nginx and dnsmasq.
 
-Edit your `$HOME/.bashrc`:
+Download the gridhowto:
 
-    source $HOME/ansible/hacking/env-setup &> /dev/null
+    cd; git clone git://github.com/hornos/gridhowto.git
 
-Run the source command:
-
-    source $HOME/.bashrc
-
-## Root servers
-Install gridhowto:
-
-    cd $HOME
-    git clone git://github.com/hornos/gridhowto.git
-
-Install at least 2 root servers for HA. Try to use multi-master setups and avoid heartbeat integration and floating addresses.
-
-The following network topology is recommended for the cluster. The BMC network can be on the same interface as system (eth0). The system network is used to boot and provision the cluster.
+The following network topology is recommended. The BMC network can be on the same interface as system (eth0). The system network is used to boot and provision the cluster.
 
     IF   Network  Address Range
     bmc  bmc      10.0.0.0/16
@@ -32,9 +19,9 @@ The following network topology is recommended for the cluster. The BMC network c
     eth2 mpi      10.3.0.0/16
     ethX external ?
 
-The network configuration is found in `network.yml`. Each network interface can be a bond. On high-performance systems storage and mpi is InfiniBand or other high-speed network. If you have less than 4 interfaces use alias networks. Note that
+The network configuration is found in `network.yml`. Each network interface can be a bond. On high-performance systems storage and mpi is InfiniBand or other high-speed network. If you have less than 4 interfaces use alias networks. Separate external network form the others.
 
-### Root servers in VirtualBox 
+### Root Servers in VirtualBox 
 You can make a virtual infrastructure in VirtualBox. Create the following virtual networks:
 
     Network   VBox Net IPv4 Addr  Mask DHCP
@@ -43,40 +30,42 @@ You can make a virtual infrastructure in VirtualBox. Create the following virtua
     mpi       intnet
     external  NAT/Bridged
 
-Setup the virtual server to have 2TB of disk 4 network cards and network boot enabled.
+Setup the virtual server to have 2TB of disk and 4 network cards as well as network boot enabled.
 
 ## Primordial Installation
-Space jockey is a very simple bootp tool. It does not compare with Cobbler or Xcat. Its main purpose is to boot and install minimal servers from your laptop, it is an entry point. Later on the root servers are used for large-scale cluster installation. You can configure root servers by ansible. In the 2nd stage Xcat or Cobbler is installed by a playbook and used to provision the compute cluster. For the primordial installation you need OS X, nginx and a dnsmasq server. To install the boot servers:
+Install boot servers on the host:
 
     brew install dnsmasq nginx
 
-From now on all commands are relative to the `jockey` directory:
+From now on all commands are relative to the `space` directory:
 
     cd $HOME/gridhowto/space
 
-If you don't know which machine to boot you can check bootp requests from the root servers by:
+If you don't know which machine to boot you can check bootp requests from the root servers:
 
-    ./jockey dump IF
+    ./jockey dump <INTERFACE>
 
-where IF is the interface to listen on eg. vboxnet0.
+where the last argument is the interface to listen on eg. vboxnet0.
 
-DNSmasq is an all-inclusive DNS/DHCP/BOOTP server. Its configuration is found in the `masq` file. Edit the `ROOT SERVER BOOTP` section is you want static assignment, eg:
+The recommended way insert an installation DVD in each server and leave the disk in the drive. You can consider it as a rescue system.
 
-    dhcp-host=08:00:27:14:68:75,10.1.1.1,infinite
+Create the `boot/centos64` directory and put `vmlinuz` and `initrd.img` from the CentOS install media (`isolinux` directory). Edit the `kickstart.centos64` file if you want to customize the installatio (especially `NETWORK` and `HOSTNAME` section). Put `pxelinux.0, chain.c32` from the syslinux 4.X package into `boot`.
 
-The recommended way is to put an installation DVD in each server and leave the disk in the server. You can consider it as a rescue system which is always available. All you need now is to bootstrap the installer.
-
-Create the `boot/centos6.3` directory and put `vmlinuz` and `initrd.img` from the CentOS install media. Edit the `kickstart` file to customize the installation, especially `NETWORK` and `HOSTNAME` section. Put `pxelinux.0, chain.c32` from the syslinux 4.X package into `boot`.
-
-Set the address of the host machine (your laptop's corresponding interface), eg.:
+Set the address of the host machine (your laptop's corresponding interface). In this example 
 
     ./jockey host 10.1.1.254
 
-Kickstart a MAC address with the installation, eg.:
+or you can give an interface and let the script autodetect the host IP:
 
-    ./jockey kick 08:00:27:14:68:75
+    ./jockey @host vboxnet5
 
-The `kick` command creates a kickstart file in `boot` and a pxelinux configuration in `boot/pxelinux.cfg`. It also generates a root password which you can use for the stage 2 provisioning. Edit kickstarts (`boot/*.ks` files) after kicked. Root passwords are in `*.pass` files.
+Kickstart a MAC address with the CentOS installation:
+
+    ./jockey centos64 08:00:27:14:68:75
+
+You can use `-` instead of `:`. Letters are converted to lowercase.
+
+The `centos64` command creates a kickstart file in `boot` and a pxelinux configuration in `boot/pxelinux.cfg`. It also generates a root password which you can use for the stage 2 provisioning. Edit kickstarts (`boot/*.ks` files) after kicked. Root passwords are in `*.pass` files. After you secured the install root user is not allowed to login remotely.
 
 Finish the preparatin by starting the boot servers (http, dnsmasq) each in a separate terminal:
 
@@ -87,12 +76,14 @@ Boot servers listen on the IP you specified by the `host` command. The boot proc
 
     ./jockey local 08:00:27:14:68:75
 
-This command changes the pxelinux to local boot. Switch IPMI to local boot for real servers.
+This command changes the pxelinux order to local boot. You can also switch to local boot by IPMI for real servers.
 
 ### Install from URL
-Mount install media and link to under `boot/centos6.3/repo`. Edit the kickstart file and change `cdrom` to:
+Mount install media and link under `boot/centos64/repo`. Edit the kickstart file and change `cdrom` to:
 
-    url --url http://10.1.1.254:8080/centos6.3/repo
+    url --url http://10.1.1.254:8080/centos64/repo
+
+Where the URL is the address of the nginx server running on the host.
 
 ### VNC-based Graphical Install
 For headless installation use VNC. Edit the corresponding file in `boot/pxelinux.cfg` and set the following kernel parameters:
@@ -102,14 +93,16 @@ For headless installation use VNC. Edit the corresponding file in `boot/pxelinux
 VNC is started without password. Connect your VNC client to eg. `10.1.1.1:1`.
 
 ### Hardware Detection
-For syslinux HW detection you need `boot/hdt.c32`
+For hardware detection you need to have the following files installed from syslinux:
 
-Switch to detection by:
+    boot/hdt.c32
+
+Switch to detection (and reboot the machine):
 
     ./jockey detect 08:00:27:14:68:75 
 
 ### Firmware Upgrade with FreeDOS
-This section is based on http://wiki.gentoo.org/wiki/BIOS_Update . You have to use a linux host to create the bootdisk image. You have to download freedos tools from ibiblio.org:
+This section is based on http://wiki.gentoo.org/wiki/BIOS_Update . You have to use a Linux host to create the bootdisk image. You have to download freedos tools from ibiblio.org:
 
     dd if=/dev/zero of=freedos bs=1024 count=20480
     mkfs.msdos freedos
@@ -198,8 +191,20 @@ Get the error log:
 InfiniBand is a switched fabric communications link used in high-performance computing and enterprise data centers. If you need RDMA you need InfiniBand. You have to run the subnet manager (OpenSM) which assigns Local IDentifiers (LIDs) to each port connected to the InfiniBand fabric, and develops a routing table based off of the assigned LIDs.There are two types of SMs, software based and hardware based. Hardware based subnet managers are typically part of the firmware of the attached InfiniBand switch. Buy a switch with HW-based SM.
 
 
-
 ## Ansible Bootstrap
+Install ansible on the host. Ansible should be installed into `$HOME/ansible`:
+
+    cd $HOME
+    git clone git://github.com/ansible/ansible.git
+
+Edit your `$HOME/.bashrc`:
+
+    source $HOME/ansible/hacking/env-setup &> /dev/null
+
+Run the source command:
+
+    source $HOME/.bashrc
+
 Ansible is used to further provision root servers on the stage 2 level. Stage 2 is responsible to reach the production ready state of the grid.
 
 From now on all commands are relative to `$HOME/gridhowto`:
@@ -214,28 +219,30 @@ Edit `hosts` file:
 
 Check the connection:
 
-    ansible root-01 -i hosts -m raw -a "hostname" -u root -k
+    bin/ping root@root-01
 
-The bootstrap playbook creates the admin wheel user:
+The bootstrap playbook creates the admin wheel user. You have to bootstrap each machine separately since root passwords are different:
 
     ssh-keygen -f keys/admin
-    bin/play @root-01 bootstrap -u root
-    bin/play @root-02 bootstrap -u root
+    pushd keys; ln -s admin root; popd
+    bin/play root@root-01 bootstrap
+    bin/play root@root-02 bootstrap
+    ...
 
 The following operator shortcuts are used: `@` is `-k` and `@@` is `-k --sudo`.
 
 Test the bootstrap:
 
-    bin/admin @root ping
+    bin/ping admin@root
 
-By securing the server you lock out root. Only admin is allowed to login with keys:
+By securing the server you lock out root. Only admin is allowed to login with keys thereafter:
 
     bin/play @@root secure
 
 Reboot or shutdown the machines by:
 
-    bin/reboot @root
-    bin/shutdown @root
+    bin/reboot @@root
+    bin/shutdown @@root
 
 Create a new LVM partition:
 

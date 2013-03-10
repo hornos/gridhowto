@@ -91,7 +91,14 @@ case ${cmd} in
   ;;
 
   host)
-    echo "ip=${arg}" | tee ${host}
+    if [ "${cmd:0:1}" = "@" ] ; then
+      dev="${arg}"
+      ip=$(ifconfig vboxnet5 inet | grep inet | cut -d" " -f 2)
+    else
+      ip="${arg}"
+    fi
+
+    echo "ip=${ip}" | tee ${host}
   ;;
 
   centos63|centos64)
