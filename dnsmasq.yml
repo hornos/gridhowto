@@ -3,6 +3,9 @@
 ---
 - hosts: all
 
+  vars_files:
+    - networks.yml
+
   tasks:
   - name: Install dnsmasq
     yum: name=dnsmasq
@@ -49,6 +52,13 @@
   - name: Root server hostnames
     template: src=etc/hosts.d/root.j2
               dest=/etc/hosts.d/root
+              owner=bin
+              group=wheel
+              mode=0644
+
+  - name: Add networks in /etc/networks
+    template: src=etc/networks.j2
+              dest=/etc/networks
               owner=bin
               group=wheel
               mode=0644

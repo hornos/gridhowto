@@ -3,6 +3,7 @@
 
   vars_files:
     - ganglia_vars.yml
+    - networks.yml
 
   tasks:
   - name: Install ganglia
@@ -60,6 +61,16 @@
     seboolean: name=httpd_can_network_connect
                state=true
                persistent=yes
+
+#  - name: Put HTTP in permissive mode
+#    command: /usr/sbin/semanage permissive -a httpd_t
+
+  - name: Allow networks
+    template: src=etc/httpd/conf.d/ganglia.conf.j2
+              dest=/etc/httpd/conf.d/ganglia.conf
+              owner=root
+              group=root
+              mode=0644
 
   - name: Restart HTTP
     service: name=httpd

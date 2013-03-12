@@ -4,4 +4,4 @@
 # mcast_dev: eth0
 
 cluster_name: root
-
+allow_from: system

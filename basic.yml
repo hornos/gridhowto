@@ -2,6 +2,6 @@
 - name: Basic Setup
   hosts: all
 
+- include: basic_selinux.yml
 - include: basic_root.yml
 - include: basic_repo.yml
-- include: basic_selinux.yml

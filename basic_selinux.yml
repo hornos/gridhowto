@@ -17,3 +17,11 @@
   - name: Install libselinux-python
     yum: name=libselinux-python
          state=installed
+
+  - name: Install semanage
+    yum: name=policycoreutils-python
+         state=installed
+
+  - name: Permissive policy
+    selinux: policy=targeted
+             state=permissive
