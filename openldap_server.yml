@@ -1,0 +1,56 @@
+---
+- hosts: all
+
+  vars_files:
+    - openldap_vars.yml
+    - networks.yml
+
+  tasks:
+  - name: Install openldap-servers
+    yum: name=openldap-servers
+         state=installed
+
+  - name: Install openldap-clients
+    yum: name=openldap-clients
+         state=installed
+
+  - name: Set LDAP Root DC
+    lineinfile: dest=/etc/openldap/slapd.d/cn\=config/olcDatabase\=\{2\}bdb.ldif
+                regexp="^olcSuffix"
+                line="olcSuffix:${rootdc}"
+
+  - name: Set LDAP Root DN
+    lineinfile: dest=/etc/openldap/slapd.d/cn\=config/olcDatabase\=\{2\}bdb.ldif
+                regexp="^olcRootDN"
+                line="olcRootDN:cn=Manager,${rootdc}"
+
+  - name: Set LDAP Root PW
+    lineinfile: dest=/etc/openldap/slapd.d/cn\=config/olcDatabase\=\{2\}bdb.ldif
+                regexp="^olcRootPW:"
+                insertafter="^olcRootDN"
+                line="olcRootPW:${rootpw}"
+
+  - name: Set LDAP Monitor Root
+    lineinfile: dest=/etc/openldap/slapd.d/cn\=config/olcDatabase\=\{1\}monitor.ldif
+                regexp='l,cn=auth'
+                line=" l,cn=auth\" read by dn.base=\"cn=Manager,${rootdc}\" read by * none"
+
+  - name: Restart LDAP server
+    service: name=slapd
+             state=restarted
+
+  - name: Install PHP LDAP admin
+    yum: name=phpldapadmin
+         state=installed
+
+  - name: Allow networks
+    template: src=etc/httpd/conf.d/phpldapadmin.conf.j2
+              dest=/etc/httpd/conf.d/phpldapadmin.conf
+              owner=root
+              group=root
+              mode=0644
+
+  - name: Restart HTTP
+    service: name=httpd
+             state=restarted
+             enabled=yes

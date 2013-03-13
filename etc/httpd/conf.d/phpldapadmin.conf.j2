@@ -1,6 +1,6 @@
-Alias /ganglia /usr/share/ganglia
+Alias /ldap /usr/share/phpldapadmin/htdocs
 
-<Location /ganglia>
+<Location /ldap>
   Order deny,allow
   Deny from all
   Allow from {{ networks['system'] }}/{{ masks['system'] }}

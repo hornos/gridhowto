@@ -1,0 +1,5 @@
+# default password is root
+# generate a new by slappasswd
+---
+rootpw: '{SSHA}UAtq1umh9T6IFOjoKDKh5ISC2qS/eoDe'
+rootdc: 'dc=grid'
