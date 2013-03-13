@@ -1,0 +1,25 @@
+# test user group
+dn: cn=test,ou=Group,{{rootdc}}
+objectClass: posixGroup
+objectClass: top
+cn: test
+userPassword: {crypt}x
+gidNumber: 10000
+
+# test user
+dn: uid=test,ou=People,{{rootdc}}
+uid: test
+cn: test
+objectClass: account
+objectClass: posixAccount
+objectClass: top
+objectClass: shadowAccount
+userPassword: {crypt}x
+shadowLastChange: 13048
+shadowMax: 99999
+shadowWarning: 7
+loginShell: /bin/bash
+uidNumber: 10000
+gidNumber: 10000
+homeDirectory: /home/test
+gecos: test

@@ -48,7 +48,36 @@
               dest=/etc/httpd/conf.d/phpldapadmin.conf
               owner=root
               group=root
-              mode=0644
+              mode=0640
+
+  - name: Install phpldapadmin config
+    template: src=etc/phpldapadmin/config.php.j2
+              dest=/etc/phpldapadmin/config.php
+              owner=root
+              group=apache
+              mode=0640
+
+  - name: Install base.ldif
+    template: src=etc/openldap/base.ldif.j2
+              dest=/etc/openldap/base.ldif
+              owner=root
+              group=root
+              mode=0640
+
+  - name: Load base.ldif
+    command: /usr/bin/ldapadd -f /etc/openldap/base.ldif -x -D "cn=Manager,${rootdc}" -w ${rootpass}
+    ignore_errors: yes
+
+  - name: Install test.ldif
+    template: src=etc/openldap/test.ldif.j2
+              dest=/etc/openldap/test.ldif
+              owner=root
+              group=root
+              mode=0640
+
+  - name: Load test.ldif
+    command: /usr/bin/ldapadd -f /etc/openldap/test.ldif -x -D "cn=Manager,${rootdc}" -w ${rootpass}
+    ignore_errors: yes
 
   - name: Restart HTTP
     service: name=httpd

@@ -1,5 +1,8 @@
 # default password is root
 # generate a new by slappasswd
+# http://www.ibm.com/developerworks/library/l-openldap/
 ---
 rootpw: '{SSHA}UAtq1umh9T6IFOjoKDKh5ISC2qS/eoDe'
-rootdc: 'dc=grid'
+rootdc: 'dc=hpc,dc=grid,dc=hu'
+topdc: 'hpc'
+rootpass: 'root'
