@@ -34,6 +34,9 @@ clearpart --all --initlabel
 part /boot --ondrive=sda --asprimary --label=boot --fstype ext4 --size 512
 part swap  --ondrive=sda --asprimary --label=swap --hibernation
 part pv.01 --ondrive=sda --asprimary --label=lvm --grow --size=1
+# if you need encryption
+# https://systems.janestreet.com/?q=node/8
+# part pv.01 --ondrive=sda --asprimary --label=lvm --grow --size=1 --encrypted --passphrase=ROOT_PASSWORD_PLAIN
 
 volgroup vg_root pv.01
 logvol /              --name=root  --vgname=vg_root --fstype=ext4 --size=5000

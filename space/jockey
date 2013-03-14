@@ -117,10 +117,13 @@ case ${cmd} in
     root_pass=$(openssl passwd -1 "${pass}")
     ks=$(echo "${mac}" | sed s/:/-/g | tr '[:upper:]' '[:lower:]')
     echo "${pass}" > ${jockey_root}/${ks}.pass
+
+    # kickstart
     cat ${jockey_root}/kickstart.${default} | \
-    awk -v p=${root_pass} -v l=${http_listen} '{gsub("ROOT_PASSWORD",p); gsub("HTTP_LISTEN",l); print}' \
+    awk -v p=${root_pass} -v q=${pass} -v l=${http_listen} '{gsub("ROOT_PASSWORD_PLAIN",q); gsub("ROOT_PASSWORD",p); gsub("HTTP_LISTEN",l); print}' \
     > ${http_root}/${ks}.ks
 
+    # pxelinux
     kickstart=${http_listen}/${ks}.ks
     cat ${jockey_root}/boot/default | \
     awk -v k=${kickstart} -v d=${default} '{gsub("KICKSTART",k); gsub("_DEFAULT",d); print}' \
