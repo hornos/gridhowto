@@ -1,0 +1,43 @@
+# http://www.softether.org/
+---
+- hosts: all
+
+  vars_files:
+    - vpnserver_vars.yml
+
+  tasks:
+  - name: Install gcc
+    yum: name=gcc
+         state=installed
+
+  - name: Download vpnserver
+    get_url: url="${url}/${tgz}"
+             dest="/root/${tgz}"
+
+  - name: Unpack vpnserver
+    command: tar xvzf "/root/${tgz}" -C /usr/local
+
+  - name: Build vpnserver
+    shell: echo -e "1\n1\n1\n" | make -C /usr/local/vpnserver
+
+  - name: Set modes on /usr/local/vpnserver
+    shell: chmod -R 600 /usr/local/vpnserver
+
+  - name: Set modes on /usr/local/vpnserver
+    shell: chmod -R u+X /usr/local/vpnserver
+
+  - name: Set modes on /usr/local/vpnserver/vpncmd
+    shell: chmod 700 /usr/local/vpnserver/vpncmd
+
+  - name: Set modes on /usr/local/vpnserver/vpnserver
+    shell: chmod 700 /usr/local/vpnserver/vpnserver
+
+  - name: Install start script
+    template: src=etc/init.d/vpnserver.j2
+              dest=/etc/init.d/vpnserver
+              owner=root
+              group=root
+              mode=0755
+
+  - name: Enable vpnserver
+    command: /sbin/chkconfig --add vpnserver
