@@ -1,0 +1,23 @@
+---
+- hosts: all
+  vars_files:
+    - modules_vars.yml
+
+  tasks:
+
+  - name: Download modules
+    get_url: url=${url}/${rpm} dest=/root
+
+  - name: Install modules
+    command: yum -y localinstall /root/${rpm}
+
+  - name: Install modulespath
+    template: src=usr/share/Modules/init/modulespath.j2
+              dest=/usr/share/Modules/init/.modulespath
+              owner=root
+              group=root
+              mode=0644
+
+  - name: Create modulefiles
+    file: path=/etc/modulefiles
+          state=directory
