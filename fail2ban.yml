@@ -1,0 +1,33 @@
+---
+- hosts: all
+
+  tasks:
+  - name: Install fail2ban
+    yum: name=fail2ban
+         state=installed
+
+  - name: Enable shorewall
+    lineinfile: dest=/etc/fail2ban/jail.conf
+                regexp='^banaction'
+                line='banaction = shorewall'
+                insertafter='^\[DEFAULT\]'
+
+  - name: Set loglevel
+    lineinfile: dest=/etc/fail2ban/fail2ban.conf
+                regexp='^loglevel'
+                line='loglevel=2'
+
+  - name: Enable fail2ban
+    lineinfile: dest=/etc/shorewall/shorewall.conf
+                regexp='^BLACKLISTNEWONLY'
+                line='BLACKLISTNEWONLY=No'
+
+  - name: Restart fail2ban
+    service: name=fail2ban
+             state=restarted
+             enabled=yes
+# TODO: notify
+  - name: Restart shorewall
+    service: name=shorewall
+             state=restarted
+             enabled=yes

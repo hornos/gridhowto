@@ -8,6 +8,7 @@ space/boot/centos63/*
 space/boot/centos64/*
 space/boot/cirros/*
 space/boot/tiny/*
+space/boot/kali/*
 space/boot/esxi/*
 space/boot/pxelinux.cfg/*
 space/boot/*.ks

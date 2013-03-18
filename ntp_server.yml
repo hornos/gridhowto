@@ -10,12 +10,13 @@
     - name: Install NTP Server
       yum: name=ntp state=installed
 
+# TODO: template
     - name: Setup NTP Server
       lineinfile: dest=/etc/ntp.conf
                   state=present
                   regexp="^broadcast .* autokey version 4"
                   insertafter="# broadcast server"
-                  line="broadcast ${broadcasts['system']} autokey version 4"
+                  line="broadcast $broadcasts['system'] autokey version 4"
                   # backup=yes
       notify:
         - restart ntpd

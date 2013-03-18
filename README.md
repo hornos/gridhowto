@@ -125,6 +125,15 @@ You can boot Cirros and Tiny Linux as well. For CirrOS put `initrd.img` and `vml
 
     ./jockey tiny 08:00:27:14:68:75
 
+### Kali Linux
+To perform a netinstall of Kali Linux:
+
+    mkdir -p boot/kali
+    pushd boot/kali
+    curl http://repo.kali.org/kali/dists/kali/main/installer-amd64/current/images/netboot/netboot.tar.gz | tar xvzf -
+    popd
+    ./jockey kali 08:00:27:14:68:75
+
 ### Kickstart from scratch
 A good starting point for a kickstart can be found in the EAL4 package:
 
@@ -272,14 +281,10 @@ Enable basic Shorewall firewall on the root servers:
 
 Note that emergency rules are defined in `etc/shorewall/rulestopped.j2`. Enable SSH on the provision interfaces. 
 
-#### Ferm
+#### Fail2ban
+On external services you can enable fail2ban:
 
-
-## Tinc VPN
-
-### Root Server VPN
-
-### Tinc Over TOR
+   bin/play @@root fail2ban
 
 ## Cluster FS 1
 
@@ -299,3 +304,8 @@ Note that emergency rules are defined in `etc/shorewall/rulestopped.j2`. Enable 
 #### GSI-SSH
 #### GridFTP
 ### GateONE
+## Tinc VPN
+
+### Root Server VPN
+
+### Tinc Over TOR

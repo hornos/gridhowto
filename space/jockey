@@ -130,7 +130,7 @@ case ${cmd} in
     > ${ipxe_root}/01-${ks}
   ;;
 
-  local|memtest|detect|firmware|cirros)
+  local|memtest|detect|firmware|cirros|tiny|kali)
     if [ -z "${arg}" ] ; then help/jockey; fi
 
     mac=${arg}

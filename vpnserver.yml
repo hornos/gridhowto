@@ -54,4 +54,7 @@
               mode=0600 
 
   - name: Enable vpnserver
-    command: /sbin/chkconfig --add vpnserver
+    service: name=vpnserver
+             state=stopped
+             enabled=no
+

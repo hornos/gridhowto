@@ -76,12 +76,13 @@ case $gbn in
     cmd="ansible ${hosts} -m shell -a \"${tmp}\""
     ;;
   reboot)
-    args="-u ${user} --private-key=${key} -i ${inventory} ${opts}"
     cmd="ansible ${hosts} -m command -a /sbin/reboot"
     ;;
   shutdown)
-    args="-u ${user} --private-key=${key} -i ${inventory} ${opts}"
     cmd="ansible ${hosts} -m command -a \"/sbin/shutdown -h now\""
+    ;;
+  update)
+    cmd="ansible ${hosts} -m command -a \"yum -y update\""
     ;;
   ping)
     cmd="ansible ${hosts} -m ping"
