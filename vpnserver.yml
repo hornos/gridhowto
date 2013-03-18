@@ -39,5 +39,19 @@
               group=root
               mode=0755
 
+  - name: Install module script
+    template: src=etc/modulefiles/vpnserver.j2
+              dest=/etc/modulefiles/vpnserver
+              owner=root
+              group=root
+              mode=0644
+
+  - name: Allow Admin IPs
+    template: src=usr/local/vpnserver/adminip.txt.j2
+              dest=/usr/local/vpnserver/adminip.txt
+              owner=root
+              group=root
+              mode=0600 
+
   - name: Enable vpnserver
     command: /sbin/chkconfig --add vpnserver
