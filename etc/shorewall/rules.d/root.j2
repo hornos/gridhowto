@@ -7,3 +7,14 @@ ACCEPT     sys           $FW       tcp       514
 ACCEPT     sys           $FW       udp      8649
 ACCEPT     sys           $FW       tcp      8649
 ACCEPT     sys           $FW       tcp      80
+# gluster
+# You need one open port, starting at 24009 for each brick.
+# This example opens enough ports for 20 storage servers and three bricks.
+ACCEPT     sys           $FW       tcp      111
+ACCEPT     sys           $FW       udp      111
+ACCEPT     sys           $FW       tcp      24007:24047
+ACCEPT     sys           $FW       tcp      38465:38467
+ACCEPT     $FW           sys       tcp      111
+ACCEPT     $FW           sys       udp      111
+ACCEPT     $FW           sys       tcp      24007:24047
+ACCEPT     $FW           sys       tcp      38465:38467

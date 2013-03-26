@@ -20,6 +20,7 @@
       user: name=admin
             comment='Ansible Root Administrator'
             groups=wheel
+            password=*
 
     - name: Sudoers for wheel
       lineinfile: dest=/etc/sudoers.d/wheel

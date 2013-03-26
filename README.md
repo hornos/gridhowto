@@ -284,13 +284,13 @@ Note that emergency rules are defined in `etc/shorewall/rulestopped.j2`. Enable 
 #### Fail2ban
 On external services you can enable fail2ban:
 
-   bin/play @@root fail2ban
+    bin/play @@root fail2ban
 
 ## Cluster FS 1
 
 ### Glusterfs
 
-### DRBD
+    bin/play @@root glusterfs
 
 ## HA Mysql
 
