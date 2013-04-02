@@ -1,0 +1,31 @@
+---
+- hosts: all
+
+  tasks:
+  - name: Install Webmin Repo
+    template: src=etc/yum.repos.d/webmin.repo.j2
+              dest=/etc/yum.repos.d/webmin.repo
+              owner=root
+              group=root
+              mode=0644
+
+  - name: Install Webmin key
+    command: rpm --import http://www.webmin.com/jcameron-key.asc
+
+  - name: Install Webmin
+    yum: name=webmin
+         state=installed
+
+  - name: Install /etc/shorewall/rules.d/root
+    template: src=etc/shorewall/rules.d/root.j2
+              dest=/etc/shorewall/rules.d/root
+              owner=root
+              group=root
+              mode=0640
+    notify:
+      - restart shorewall
+
+
+  - name: restart shorewall
+    service: name=shorewall
+             state=restarted

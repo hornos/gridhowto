@@ -272,31 +272,38 @@ Ganglia is a scalable distributed monitoring system for high-performance computi
 
     bin/play @@root ganglia
 
-Ganglia will install haproxy
+Ganglia's web intreface is at `http://root-01/ganglia`.
 
 ### Firewall
 Enable basic Shorewall firewall on the root servers:
 
     bin/play @@root shorewall
 
-Note that emergency rules are defined in `etc/shorewall/rulestopped.j2`. Enable SSH on the provision interfaces. 
-
-#### Fail2ban
-On external services you can enable fail2ban:
+Note that emergency rules are defined in `etc/shorewall/rulestopped.j2`. Enable SSH on the provision interfaces. On external services you can enable fail2ban:
 
     bin/play @@root fail2ban
 
-## Cluster FS 1
+## Glusterfs
+Glusterfs playbook creates a common directory (`/common`) on the root servers:
 
-### Glusterfs
+    bin/play @@root gluster
+
+You have to run `/root/gluster_bootstrap` on the first root node to initialize the common directory. Finally, mount:
 
     bin/play @@root glusterfs
 
-## HA Mysql
+## Ceph
+
+## MariaDB with Galera
+
+## Postgres XC
 
 ## HA Slurm
 
 ## HA XCat
+
+  bin/play @@root-01 xcat
+  
 
 ## Grid
 ### Globus

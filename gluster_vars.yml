@@ -1,10 +1,10 @@
 url: http://download.gluster.org/pub/gluster/glusterfs/LATEST/EPEL.repo
 repo: glusterfs-epel.repo
 vg_root: 'vg_root'
-lv_data: 'glusterfs'
+lv_data: 'glusterfs_common_brick1'
 lv_size: 1024
-lv_mnt: '/glusterfs'
-transport: 'tcp'
-volume: 'gluster'
+lv_mnt: '/data/glusterfs/common/brick1'
+transport: 'tcp,rdma'
+volume: 'common'
 replica: 2
 common: '/common'

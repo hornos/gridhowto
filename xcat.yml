@@ -1,0 +1,18 @@
+---
+- hosts: all
+
+  vars_files:
+    - xcat_vars.yml
+
+  tasks:
+
+  - name: Download Glusterfs repo
+    get_url: url=${url}/${repo} dest=/etc/yum.repos.d/${repo}
+
+  - name: Install XCat
+    yum: name=xCAT-server
+         state=installed
+
+#  - name: Download XCat
+#    get_url: url=${url}/${pkg}
+#             dest=/root/${pkg}

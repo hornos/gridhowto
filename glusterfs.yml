@@ -7,63 +7,15 @@
 # --extra-vars "mount=yes"
 ---
 - hosts: all
-  vars:
-    is_format: "'$format' == 'yes'"
-    is_mount: "'$mount' == 'yes'"
 
   vars_files:
-    - glusterfs_vars.yml
+    - gluster_vars.yml
 
   tasks:
 
-  - name: Download Glusterfs repo
-    get_url: url=${url}/${repo} dest=/etc/yum.repos.d/${repo}
-
-  - name: Install Gluster server
-    yum: name=glusterfs-server
-         state=latest
-
-  - name: Create Gluster partition
-    lvol: vg=$vg_root
-          lv=$lv_data
-          size=$lv_size
-
-  - name: Create XFS filesystem
-    command: /sbin/mkfs.xfs -i size=512 /dev/${vg_root}/${lv_data}
-    only_if: '$is_format'
-
-  - name: Creat mount dir
-    file: path=$lv_mnt
-          state=directory
-
-  - name: Create common dir
-    file: path=$common
-          state=directory
-
   - name: Mount Glusterfs
-    mount: name=$lv_mnt
-           src=/dev/${vg_root}/${lv_data}
-           fstype=xfs
-           state=mounted
-
-  - name: Start Glusterfs
-    service: name=glusterd
-             state=started
-
-# TODO: be ansible
-  - name: Install Gluster bootstrap
-    template: src=root/gluster_bootstrap.j2
-              dest=/root/gluster_bootstrap
-              owner=root
-              group=root
-              mode=0700
-
-# WARNING: eth0 is used!
-  - name: Self-mount Gluster volume
-#    command: mount.glusterfs ${ansible_eth0.ipv4.address}:${lv_mnt} $common
-#    only_if: '$is_mount'
-    mount: name=$common
-           src=${ansible_eth0.ipv4.address}:/${lv_mnt}
+    mount: name=/common
+           src=127.0.0.1:/common
            fstype=glusterfs
+           opts=acl,defaults,log-level=WARNING,log-file=/var/log/gluster.log
            state=mounted
-    only_if: '$is_mount'

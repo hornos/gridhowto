@@ -1,0 +1,4 @@
+url: http://sourceforge.net/projects/xcat/files/yum/stable/xcat-core
+repo: xCAT-core.repo
+# url: http://sourceforge.net/projects/xcat/files/xcat/2.8.x_Linux
+# pkg: xcat-core-2.8.tar.bz2

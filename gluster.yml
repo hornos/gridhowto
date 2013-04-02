@@ -12,7 +12,7 @@
     is_mount: "'$mount' == 'yes'"
 
   vars_files:
-    - glusterfs_vars.yml
+    - gluster_vars.yml
 
   tasks:
 
@@ -49,3 +49,13 @@
   - name: Start Glusterfs
     service: name=glusterd
              state=started
+             enabled=yes
+
+# setfattr -x trusted.glusterfs.volume-id /data/glusterfs/common/brick1
+
+  - name: Install Gluster bootstrap
+    template: src=root/gluster_bootstrap.j2
+              dest=/root/gluster_bootstrap
+              owner=root
+              group=root
+              mode=0700

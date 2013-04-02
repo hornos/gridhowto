@@ -51,23 +51,25 @@ echo "Peers: $ROOT_IP"
 echo ""
 for i in $ROOT_IP ; do
   if [ "$(hostname -i)" != "$i" ] ; then
-    echo "Peer probe $i?"
+    read -p "Peer probe $i?"
     gluster peer probe $i
   fi
 done
 
 echo ""
-read -p "Status?"
 gluster peer status
 
+echo ""
 read -p "Create volume $VOLUME on $ROOT_DISK?"
 gluster volume create $VOLUME replica $REPLICA transport {{transport}} $ROOT_DISK
 
+echo ""
 read -p "Start volume $VOLUME"
 gluster volume start $VOLUME
 
+echo ""
 read -p "Volume info $VOLUME?"
 gluster volume info
 
-read -p "Set authentication on $VOLUME?"
-gluster volume set $VOLUME auth.allow $ROOT_AUTH
+# read -p "Set authentication on $VOLUME?"
+# gluster volume set $VOLUME auth.allow $ROOT_AUTH
