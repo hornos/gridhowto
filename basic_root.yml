@@ -9,3 +9,4 @@
 - include: rsyslog_fromhost.yml
 - include: rsyslog_client.yml
 - include: modules.yml
+- include: misc.yml

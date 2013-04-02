@@ -1,0 +1,26 @@
+---
+- hosts: all
+
+  tasks:
+  - name: Install MariaDB Repo
+    template: src=etc/yum.repos.d/MariaDB.repo.j2
+              dest=/etc/yum.repos.d/MariaDB.repo
+              owner=root
+              group=root
+              mode=0644
+
+  - name: Uninstall mysql-libs
+    yum: name=mysql-libs
+         state=absent
+
+  - name: Install MariaDB-Galera-server
+    yum: name=MariaDB-Galera-server
+         state=installed
+
+  - name: Install MariaDB-client
+    yum: name=MariaDB-client
+         state=installed
+
+  - name: Install galera
+    yum: name=galera
+         state=installed

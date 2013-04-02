@@ -25,6 +25,7 @@ user=${hosts/@*}
 if [ ! -z "$user" ] ; then
   hosts=${hosts/${user}}
 fi
+
 if [ -z "$user" ] ; then
   user=admin
 fi
@@ -86,6 +87,15 @@ case $gbn in
     ;;
   ping)
     cmd="ansible ${hosts} -m ping"
+    ;;
+  ssh)
+    host=$(cat ${inventory} | \
+    grep ${hosts} | \
+    grep ansible_ssh_host | \
+    sed s/.*=//)
+
+    ssh ${opts} -i keys/${user} ${user}@${host}
+    exit $?
     ;;
   help|*)
     help/play
