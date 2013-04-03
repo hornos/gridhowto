@@ -17,3 +17,7 @@
   - name: Install nmap
     yum: name=nmap
          state=installed
+
+  - name: Install man
+    yum: name=man
+         state=installed

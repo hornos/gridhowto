@@ -1,0 +1,16 @@
+---
+- hosts: all
+
+  vars_files:
+    - elasticsearch_vars.yml
+
+  tasks:
+  - name: Install java
+    yum: name=java-1.7.0-openjdk
+         state=installed
+
+  - name: Download elasticsearch
+    get_url: url=${url}/${tgz} dest=/root/${tgz}
+
+  - name: Uncompress
+    shell: /bin/tar -C /opt -xzf /root/${tgz}
