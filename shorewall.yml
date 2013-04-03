@@ -109,12 +109,18 @@
               group=root
               mode=0640
 
-  - name: Enable root in /etc/shorewall/rules
-    lineinfile: dest=/etc/shorewall/rules
-                regexp='^INCLUDE /etc/shorewall/rules.d/root'
-                insertbefore='^#LAST'
-                line='INCLUDE /etc/shorewall/rules.d/root'
+  - name: Install /etc/shorewall/rules
+    template: src=etc/shorewall/rules.j2
+              dest=/etc/shorewall/rules
+              owner=root
+              group=root
+              mode=0640
 
+#  - name: Enable root in /etc/shorewall/rules
+#    lineinfile: dest=/etc/shorewall/rules
+#                regexp='^INCLUDE /etc/shorewall/rules.d/root'
+#                insertbefore='^#LAST'
+#                line='INCLUDE /etc/shorewall/rules.d/root'
 
 
 ### OTHER

@@ -8,3 +8,4 @@ transport: 'tcp,rdma'
 volume: 'common'
 replica: 2
 common: '/common'
+fio_size: '100M'

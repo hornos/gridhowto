@@ -5,3 +5,15 @@
   - name: Install mc
     yum: name=mc
          state=installed
+
+  - name: Install htop
+    yum: name=htop
+         state=installed
+
+  - name: Install iptraf
+    yum: name=iptraf-ng
+         state=installed
+
+  - name: Install nmap
+    yum: name=nmap
+         state=installed

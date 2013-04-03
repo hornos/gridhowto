@@ -253,6 +253,10 @@ Reboot or shutdown the machines by:
     bin/reboot @@root
     bin/shutdown @@root
 
+Login by SSH:
+
+    bin/ssh admin@root-01
+
 Create a new LVM partition:
 
     bin/admin root run "lvcreate -l 30%FREE -n data vg_root" -k --sudo
@@ -265,7 +269,7 @@ Basic services contain NTP, Rsyslog and DNSmasq hosts cache:
 
     bin/play @@root basic
 
-Root server names are cached in `/etc/hosts.d/root`. Put DNS cache files (hosts) in `/etc/hosts.d` and notify dnsmasq to reload. DHCP client overwrites `resolv.conf` so you have to set an interface specific conf in `etc/dhcp` if you use DHCP. Rsyslog does cross-logging between root servers.
+Root server names are cached in `/etc/hosts.d/root`. Put DNS cache files (hosts) in `/etc/hosts.d` and notify dnsmasq to reload. DHCP client overwrites `resolv.conf` so you have to set an interface specific conf in `etc/dhcp` if you use DHCP. Rsyslog does cross-logging between root servers. If you use DHCP on the external network reboot the machines after the basic playbook to activate the local DNSmasq.
 
 ## Ganglia
 Ganglia is a scalable distributed monitoring system for high-performance computing systems such as clusters and Grids. It is based on a hierarchical design targeted at federations of clusters. You can think of it as a low-level cluster top. Ganglia is running with unicast addresses and root servers cross-monitor each other.
@@ -303,7 +307,7 @@ You have to run `/root/gluster_bootstrap` on the first root node to initialize t
 ## HA XCat
 
   bin/play @@root-01 xcat
-  
+
 
 ## Grid
 ### Globus

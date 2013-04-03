@@ -16,15 +16,18 @@
     yum: name=webmin
          state=installed
 
-  - name: Install /etc/shorewall/rules.d/root
-    template: src=etc/shorewall/rules.d/root.j2
-              dest=/etc/shorewall/rules.d/root
+  - name: Install /etc/shorewall/rules.d/webmin
+    template: src=etc/shorewall/rules.d/webmin.j2
+              dest=/etc/shorewall/rules.d/webmin
               owner=root
               group=root
               mode=0640
-    notify:
-      - restart shorewall
 
+#  - name: Enable webmin in /etc/shorewall/rules
+#    lineinfile: dest=/etc/shorewall/rules
+#                regexp='^INCLUDE /etc/shorewall/rules.d/webmin'
+#                insertbefore='^#LAST'
+#                line='INCLUDE /etc/shorewall/rules.d/webmin'
 
   - name: restart shorewall
     service: name=shorewall

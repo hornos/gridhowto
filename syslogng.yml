@@ -1,0 +1,40 @@
+---
+- hosts: all
+
+  tasks:
+  - name: Install syslog-ng
+    yum: name=syslog-ng
+         state=installed
+
+  - name: Install syslog-ng-libdbi
+    yum: name=syslog-ng-libdbi
+         state=installed
+
+#  - name: Disable rsyslog
+#    service: name=rsyslog
+#             state=stopped
+#             enabled=no
+
+
+  - name: Enable ISO 8601 timestamps
+    lineinfile: dest=/etc/syslog-ng/syslog-ng.conf
+                regexp='ts_format\(iso\);'
+                insertafter='^options {'
+                line='ts_format(iso);'
+
+  - name: Create /etc/syslog-ng/conf.d
+    file: path=/etc/syslog-ng/conf.d
+          owner=root
+          group=root
+          state=directory
+
+  - name: Enable /etc/syslog-ng/conf.d
+    lineinfile: dest=/etc/syslog-ng/syslog-ng.conf
+                regexp='include "conf.d";'
+                insertafter='^filter f_cron'
+                line='include "conf.d";'
+
+  - name: Restart syslog-ng
+    service: name=syslog-ng
+             state=restarted
+             enabled=yes

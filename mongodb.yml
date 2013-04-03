@@ -1,0 +1,22 @@
+---
+- hosts: all
+
+  tasks:
+  - name: Install 10Gen Repo
+    template: src=etc/yum.repos.d/10gen.repo.j2
+              dest=/etc/yum.repos.d/10gen.repo
+              owner=root
+              group=root
+              mode=0644
+
+#  - name: Uninstall mongodb
+#    yum: name=mongodb
+#         state=absent
+
+  - name: Install mongo-10gen
+    yum: name=mongo-10gen
+         state=installed
+
+  - name: Install mongo-10gen-server
+    yum: name=mongo-10gen-server
+         state=installed

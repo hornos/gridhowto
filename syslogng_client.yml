@@ -1,0 +1,16 @@
+---
+- hosts: all
+
+  tasks:
+
+  - name: Enable loghost client
+    template: src=etc/syslog-ng/conf.d/client
+              dest=/etc/syslog-ng/conf.d/20-client
+              owner=root
+              group=root
+              mode=0644
+
+  - name: Restart syslog-ng
+    service: name=syslog-ng
+             state=restarted
+             enabled=yes

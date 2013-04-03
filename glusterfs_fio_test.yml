@@ -1,0 +1,18 @@
+# 
+---
+- hosts: all
+
+  vars_files:
+    - gluster_vars.yml
+
+  tasks:
+  - name: Install FIO
+    yum: name=fio
+         state=installed
+
+  - name: Copy FIO test
+    template: src=root/fio.input.j2
+              dest=/root/fio.input
+              owner=root
+              group=root
+              mode=0644

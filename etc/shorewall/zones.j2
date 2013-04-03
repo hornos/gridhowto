@@ -1,4 +1,5 @@
 #ZONE    TYPE    OPTIONS                 IN                      OUT
 #                                        OPTIONS                 OPTIONS
-SHELL cat /etc/shorewall/zones.d/* 2> /dev/null || true
+#SHELL cat /etc/shorewall/zones.d/* 2> /dev/null || true
+INCLUDE /etc/shorewall/zones.d/root
 #LAST LINE -- ADD YOUR ENTRIES BEFORE THIS ONE -- DO NOT REMOVE

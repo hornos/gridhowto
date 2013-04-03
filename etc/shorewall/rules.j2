@@ -1,5 +1,9 @@
 #ACTION    SOURCE        DEST      PROTO      DEST
 #                                             PORT(S)
+#SECTION ALL
+#SECTION ESTABLISHED
+#SECTION RELATED
 SECTION NEW
-SHELL cat /etc/shorewall/rules.d/*.rules 2> /dev/null || true
+SHELL cat /etc/shorewall/rules.d/* 2> /dev/null || true
+# INCLUDE /etc/shorewall/rules.d/root
 #LAST LINE -- ADD YOUR ENTRIES BEFORE THIS ONE -- DO NOT REMOVE

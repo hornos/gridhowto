@@ -2,11 +2,11 @@
 ### begin {{dst}} ###
 $WorkDirectory /var/lib/rsyslog
 $ActionQueueFileName {{dst}}
-$ActionQueueMaxDiskSpace 128m
+#$ActionQueueMaxDiskSpace 64m
 $ActionQueueSaveOnShutdown on
 $ActionQueueType LinkedList
 $ActionResumeRetryCount -1
-$ActionQueueTimeoutEnqueue 100
+$ActionQueueTimeoutEnqueue 0
 *.* @@{{dst}}
 ### end {{dst}} ###
 {% endfor %}

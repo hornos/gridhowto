@@ -1,6 +1,7 @@
 #SOURCE    DEST        POLICY      LOG LEVEL    LIMIT:BURST
-SHELL cat /etc/shorewall/policy.d/* 2> /dev/null || true
+#SHELL cat /etc/shorewall/policy.d/* 2> /dev/null || true
+INCLUDE /etc/shorewall/policy.d/root
+#LAST LINE -- ADD YOUR ENTRIES BEFORE THIS ONE -- DO NOT REMOVE
 all        all         DROP      info
 
-#LAST LINE -- ADD YOUR ENTRIES BEFORE THIS ONE -- DO NOT REMOVE
 
