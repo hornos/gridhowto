@@ -1,0 +1,46 @@
+
+---
+- hosts: all
+
+  vars_files:
+    - graylog2_vars.yml
+
+  tasks:
+  - name: Download ${pkg}
+    get_url: url=${url}/${tgz} dest=/root/${tgz}
+
+  - name: Uncompress ${tgz}
+    shell: /bin/tar -C /opt -xzf /root/${tgz}
+
+  - name: Link ${pkg}
+    file: src=/opt/${pkg}
+          dest=/opt/graylog2-server
+          owner=root
+          group=root
+          state=link
+
+  - name: Install /etc/graylog2.conf
+    template: src=etc/graylog2.conf.j2
+              dest=/etc/graylog2.conf
+              owner=root
+              group=root
+              mode=0700
+
+  - name: Install /etc/graylog2-elasticsearch.yml
+    template: src=etc/graylog2-elasticsearch.yml.j2
+              dest=/etc/graylog2-elasticsearch.yml
+              owner=root
+              group=root
+              mode=0700
+
+  - name: Install start script
+    template: src=etc/init.d/graylog2-server.j2
+              dest=/etc/init.d/graylog2-server
+              owner=root
+              group=root
+              mode=0755
+
+  - name: Start graylog2-server
+    service: name=graylog2-server
+             state=stopped
+             enabled=no

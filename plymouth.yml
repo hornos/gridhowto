@@ -1,0 +1,7 @@
+---
+- hosts: all
+
+  tasks:
+
+  - name: Set text theme
+    shell: /usr/sbin/plymouth-set-default-theme text --rebuild-initrd

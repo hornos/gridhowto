@@ -1,0 +1,8 @@
+url: http://download.graylog2.org/graylog2-server
+pkg: graylog2-server-0.11.0
+tgz: graylog2-server-0.11.0.tar.gz
+
+graylog_user: 'graylog'
+graylog_pass: 'graylog'
+
+syslog_port: 515

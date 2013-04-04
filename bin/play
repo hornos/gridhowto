@@ -105,5 +105,5 @@ esac
 if test -r ${config} ; then
   pre="ANSIBLE_CONFIG=${config}"
 fi
-# echo "$cmd $args"
+echo "$pre $cmd $args $ops"
 eval "$pre $cmd $args $ops"

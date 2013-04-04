@@ -1,0 +1,5 @@
+url: http://repos.fedorapeople.org/repos/peter/erlang
+repo: epel-erlang.repo
+
+rpm_url: http://www.rabbitmq.com/releases/rabbitmq-server/v3.0.4
+rpm: rabbitmq-server-3.0.4-1.noarch.rpm

@@ -1,5 +1,7 @@
 admin_user: 'admin'
 admin_pass: 'admin'
 
-graylog_user: 'graylog'
-graylog_pass: 'graylog'
+vg_root: 'vg_root'
+lv_data: 'mongodb'
+lv_size: 32768
+lv_mnt: '/data/mongodb'

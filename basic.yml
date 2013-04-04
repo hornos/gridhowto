@@ -8,3 +8,4 @@
 - include: modules.yml
 - include: misc.yml
 - include: inittab.yml
+- include: plymouth.yml

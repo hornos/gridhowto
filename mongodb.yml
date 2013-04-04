@@ -1,8 +1,13 @@
+# Format gluster disk:
+# --extra-vars "format=yes"
 ---
 - hosts: all
+  vars:
+    is_format: "'$format' == 'yes'"
 
   vars_files:
     - mongodb_vars.yml
+    - graylog2_vars.yml
 
   tasks:
   - name: Install 10Gen Repo
@@ -44,6 +49,40 @@
     pip: name=pymongo
          use_mirrors=no
          state=latest
+
+  - name: Stop mongodb
+    service: name=mongod
+             state=stopped
+
+  - name: Create Mongo partition
+    lvol: vg=$vg_root
+          lv=$lv_data
+          size=$lv_size
+
+  - name: Create XFS filesystem
+    command: /sbin/mkfs.xfs -i size=512 /dev/${vg_root}/${lv_data}
+    only_if: '$is_format'
+
+  - name: Creat mount dir
+    file: path=$lv_mnt
+          owner=mongod
+          group=mongod
+          state=directory
+
+  - name: Mount Mongo partition
+    mount: name=$lv_mnt
+           src=/dev/${vg_root}/${lv_data}
+           fstype=xfs
+           state=mounted
+
+  - name: Set mongodb
+    lineinfile: dest=/etc/mongod.conf 
+                regexp='^dbpath'
+                line="dbpath=${lv_mnt}"
+
+  - name: Start mongod
+    service: name=mongod
+             state=started
 
   - name: Create admin user
     mongodb_user: database=admin

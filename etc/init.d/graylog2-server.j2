@@ -1,0 +1,51 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          Graylog2
+# Required-Start:    $all
+# Required-Stop:     $all
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Starts Graylog2
+# Description:       Starts Graylog2 using start-stop-daemon
+### END INIT INFO
+ 
+GL_HOME=/opt/graylog2-server
+GL_JAR=$GL_HOME/graylog2-server.jar
+NAME=graylog2
+DESC=graylog2
+PID_FILE=/tmp/graylog2.pid
+CONFIG_FILE=/etc/graylog2.conf
+ 
+test -f $GL_JAR || exit 0
+ 
+set -e
+ 
+case "$1" in
+  start)
+    echo -n "Starting $DESC... "
+    /usr/bin/java -jar "$GL_JAR" -f "$CONFIG_FILE" \
+    > /var/log/graylog2.log 2>&1 &
+    # echo "started (`cat "$PID_FILE"`)."
+    ;;
+  stop)
+    if ! test -r "${PID_FILE}" ; then
+      exit 1
+    fi
+    PID=`cat "$PID_FILE"`
+    echo -n "Stopping $DESC ($PID)..."
+    kill $PID
+    echo stopped.
+    ;;
+  restart|force-reload)
+    ${0} stop
+    sleep 0.5
+    ${0} start
+    ;;
+  *)
+    N=/etc/init.d/$NAME
+    echo "Usage: $N {start|stop|restart|force-reload}" >&2
+    exit 1
+    ;;
+esac
+ 
+exit 0

@@ -24,6 +24,7 @@
     yum: name=libxml2-devel
          state=installed
 
+# TODO: with mariadb
   - name: Install Mysql
     yum: name=mysql-devel
          state=installed

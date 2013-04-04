@@ -298,6 +298,17 @@ Note that emergency rules are defined in `etc/shorewall/rulestopped.j2`. Enable 
 
     bin/play @@root fail2ban
 
+At this point you should restart the root servers.
+
+## Elasticsearch & MongoDB & Graylog2
+At first, you have to run with `format=yes` to create the mongodb partition under `/data/mongodb`.
+
+    bin/play @@root rabbitmq
+    bin/play @@root elasticsearch
+    bin/play @@root mongodb --extra-vars "format=yes"
+    bin/play @@root graylog2
+
+
 ## Glusterfs
 Glusterfs playbook creates a common directory (`/common`) on the root servers:
 
@@ -305,7 +316,7 @@ Glusterfs playbook creates a common directory (`/common`) on the root servers:
 
 You have to run `/root/gluster_bootstrap` on the first root node to initialize the common directory. Finally, mount:
 
-    bin/play @@root glusterfs
+    bin/play @@root glusterfs --extra-vars "format=yes"
 
 ## Ceph
 
