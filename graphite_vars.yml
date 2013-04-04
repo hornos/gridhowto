@@ -1,0 +1,7 @@
+url: https://launchpad.net/graphite/0.9/0.9.10/+download
+tgz_web: graphite-web-0.9.10.tar.gz
+pkg_web: graphite-web-0.9.10
+tgz_whisper: whisper-0.9.10.tar.gz
+pkg_whisper: whisper-0.9.10
+tgz_carbon: carbon-0.9.10.tar.gz
+pkg_carbon: carbon-0.9.10

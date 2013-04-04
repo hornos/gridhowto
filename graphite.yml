@@ -1,0 +1,101 @@
+
+---
+- hosts: all
+
+  vars_files:
+    - graphite_vars.yml
+
+  tasks:
+  - name: Install python-setuptools
+    yum: name=python-setuptools
+         state=installed
+
+  - name: Install pycairo
+    yum: name=pycairo
+         state=installed
+
+  - name: Install mod_python
+    yum: name=mod_python
+         state=installed
+
+  - name: Install Django
+    yum: name=Django
+         state=installed
+
+  - name: Install python-ldap
+    yum: name=python-ldap
+         state=installed
+
+  - name: Install python-memcached
+    yum: name=python-memcached
+         state=installed
+
+  - name: Install python-sqlite2
+    yum: name=python-sqlite2
+         state=installed
+
+  - name: Install bitmap
+    yum: name=bitmap
+         state=installed
+
+  - name: Install bitmap-fonts
+    yum: name=bitmap-fonts
+         state=installed
+
+  - name: Install python-devel
+    yum: name=python-devel
+         state=installed
+
+  - name: Install python-crypto
+    yum: name=python-crypto
+         state=installed
+
+  - name: Install pyOpenSSL
+    yum: name=pyOpenSSL
+         state=installed
+
+  - name: Install gcc
+    yum: name=gcc
+         state=installed
+
+  - name: Install python-zope-filesystem
+    yum: name=python-zope-filesystem
+         state=installed
+
+  - name: Install python-zope-interface
+    yum: name=python-zope-interface
+         state=installed
+
+  - name: Install git
+    yum: name=git
+         state=installed
+
+  - name: Install gcc-c++
+    yum: name=gcc-c++
+         state=installed
+
+  - name: Install zlib-static
+    yum: name=zlib-static
+         state=installed
+
+  - name: Download ${tgz_whisper}
+    get_url: url=${url}/${tgz_whisper} dest=/root/${tgz_whisper}
+
+  - name: Uncompress ${tgz_whisper}
+    shell: /bin/tar -C /root -xzf /root/${tgz_whisper}
+
+#  - name: Install ${tgz_whisper}
+#    shell: 
+
+  - name: Download ${tgz_carbon}
+    get_url: url=${url}/${tgz_carbon} dest=/root/${tgz_carbon}
+
+  - name: Uncompress ${tgz_carbon}
+    shell: /bin/tar -C /root -xzf /root/${tgz_carbon}
+
+  - name: Download ${tgz_web}
+    get_url: url=${url}/${tgz_web} dest=/root/${tgz_web}
+
+  - name: Uncompress ${tgz_web}
+    shell: /bin/tar -C /root -xzf /root/${tgz_web}
+
