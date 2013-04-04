@@ -21,3 +21,23 @@
   - name: Install man
     yum: name=man
          state=installed
+
+  - name: Install git
+    yum: name=git
+         state=installed
+
+  - name: Install python-pip
+    yum: name=python-pip
+         state=installed
+
+  - name: Install gcc
+    yum: name=gcc
+         state=installed
+
+  - name: Install python-devel
+    yum: name=python-devel
+         state=installed
+
+  - name: Install sysstat
+    yum: name=sysstat
+         state=installed

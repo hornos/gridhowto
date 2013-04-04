@@ -1,0 +1,5 @@
+stop on runlevel [S016]
+
+respawn
+exec /usr/bin/top d {{delay}} s S c -1 >$TTY <$TTY
+usage 'top TTY=/dev/ttyX  - where X is console id'

@@ -1,0 +1,8 @@
+start on stopped rc RUNLEVEL=[2345]
+
+env GSTAT_TTY={{gstat_tty}}
+task
+script
+. /etc/sysconfig/init
+initctl start gstat TTY=$GSTAT_TTY
+end script

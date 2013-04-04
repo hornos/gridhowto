@@ -1,0 +1,8 @@
+start on stopped rc RUNLEVEL=[2345]
+
+env TOP_TTY={{top_tty}}
+task
+script
+. /etc/sysconfig/init
+initctl start top TTY=$TOP_TTY
+end script

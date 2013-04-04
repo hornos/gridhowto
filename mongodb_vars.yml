@@ -1,0 +1,5 @@
+admin_user: 'admin'
+admin_pass: 'admin'
+
+graylog_user: 'graylog'
+graylog_pass: 'graylog'

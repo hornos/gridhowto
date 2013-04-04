@@ -1,0 +1,8 @@
+start on stopped rc RUNLEVEL=[2345]
+
+env IOSTAT_TTY={{iostat_tty}}
+task
+script
+. /etc/sysconfig/init
+initctl start iostat TTY=$IOSTAT_TTY
+end script

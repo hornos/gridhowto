@@ -1,0 +1,8 @@
+start on stopped rc RUNLEVEL=[2345]
+
+env MPSTAT_TTY={{mpstat_tty}}
+task
+script
+. /etc/sysconfig/init
+initctl start mpstat TTY=$MPSTAT_TTY
+end script

@@ -265,11 +265,22 @@ Create a new LVM partition:
 ## Basic Services
 Root servers provide NTP for the cluster. If you have a very large cluster root servers talk only to satellite servers aka rack leaders. Root servers are stratum 2 time servers. Each root server broadcasts time to the system network with crypto enabled.
 
-Basic services contain NTP, Rsyslog and DNSmasq hosts cache:
+Basic services contain NTP, Syslog-ng and DNSmasq hosts cache:
 
     bin/play @@root basic
 
 Root server names are cached in `/etc/hosts.d/root`. Put DNS cache files (hosts) in `/etc/hosts.d` and notify dnsmasq to reload. DHCP client overwrites `resolv.conf` so you have to set an interface specific conf in `etc/dhcp` if you use DHCP. Rsyslog does cross-logging between root servers. If you use DHCP on the external network reboot the machines after the basic playbook to activate the local DNSmasq.
+
+The basic playbook contains az inittab change. TTYs are configured according to:
+
+    tty1 - /var/log/messages
+    tty2 - top by CPU
+    tty3 - top by MEM
+    tty4 - iostat
+    tty5 - mpstat
+    tty6 - gstat -a (Ganglia)
+    tty7 - mingetty
+    tty8 - mingetty (and X)
 
 ## Ganglia
 Ganglia is a scalable distributed monitoring system for high-performance computing systems such as clusters and Grids. It is based on a hierarchical design targeted at federations of clusters. You can think of it as a low-level cluster top. Ganglia is running with unicast addresses and root servers cross-monitor each other.

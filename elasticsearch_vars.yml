@@ -1,2 +1,4 @@
 url: https://download.elasticsearch.org/elasticsearch/elasticsearch
+pkg: elasticsearch-0.20.6
 tgz: elasticsearch-0.20.6.tar.gz
+cluster: graylog2

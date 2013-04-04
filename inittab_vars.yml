@@ -1,0 +1,8 @@
+messages_tty: '/dev/tty1'
+top_tty: '/dev/tty2'
+top_mem_tty: '/dev/tty3'
+iostat_tty: '/dev/tty4'
+mpstat_tty: '/dev/tty5'
+gstat_tty: '/dev/tty6'
+
+delay: 3

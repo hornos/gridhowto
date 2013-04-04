@@ -1,0 +1,8 @@
+start on stopped rc RUNLEVEL=[2345]
+
+env TOP_MEM_TTY={{top_mem_tty}}
+task
+script
+. /etc/sysconfig/init
+initctl start top-mem TTY=$TOP_MEM_TTY
+end script

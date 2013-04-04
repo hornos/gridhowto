@@ -1,3 +1,4 @@
+# Based on: http://www.6tech.org/2013/01/install-graylog-2-on-centos-6-3-elastic-search-20-1/
 ---
 - hosts: all
 
@@ -9,8 +10,60 @@
     yum: name=java-1.7.0-openjdk
          state=installed
 
+  - name: Install git
+    yum: name=git
+         state=installed
+
   - name: Download elasticsearch
     get_url: url=${url}/${tgz} dest=/root/${tgz}
 
   - name: Uncompress
     shell: /bin/tar -C /opt -xzf /root/${tgz}
+
+  - name: Link ${pkg}
+    file: src=/opt/${pkg}
+          dest=/opt/elasticsearch
+          owner=root
+          group=root
+          state=link
+
+  - name: Install elastic search wrapper
+    git: repo=git://github.com/elasticsearch/elasticsearch-servicewrapper.git
+         dest=/opt/elasticsearch-servicewrapper
+
+  - name: Move wrapper
+    shell: mv /opt/elasticsearch-servicewrapper/service /opt/elasticsearch/bin/
+    ignore_errors: yes
+
+  - name: Install service wrapper
+    shell: /opt/elasticsearch/bin/service/elasticsearch install
+    ignore_errors: yes
+
+  - name: Install /usr/bin/elasticsearch_ctl
+    file: src=/opt/elasticsearch/bin/service/elasticsearch
+          dest=/usr/bin/elasticsearch_ctl
+          owner=root
+          group=root
+          state=absent
+
+  - name: Configure cluster ${cluster}
+    template: src=opt/elasticsearch/config/elasticsearch.yml.j2
+              dest=/opt/elasticsearch/config/elasticsearch.yml
+              owner=root
+              group=root
+              mode=0644
+
+# TODO
+  - name: Enable elasticsearch
+    service: name=elasticsearch
+             state=started
+             enabled=yes
+    ignore_errors: yes
+
+  - name: Restart elasticsearch
+    shell: /etc/init.d/elasticsearch restart
+    ignore_errors: yes
+
+# check
+# curl -XGET 'http://localhost:9200/_cluster/health?pretty=true'
+

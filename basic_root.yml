@@ -10,5 +10,3 @@
 #- include: rsyslog_client.yml
 - include: syslogng.yml
 - include: syslogng_loghost.yml
-- include: modules.yml
-- include: misc.yml

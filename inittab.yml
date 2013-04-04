@@ -1,0 +1,112 @@
+---
+- hosts: all
+
+  vars_files:
+    - inittab_vars.yml
+
+  tasks:
+
+  - name: Install htop
+    yum: name=htop
+         state=installed
+
+  - name: Install sysstat
+    yum: name=sysstat
+         state=installed
+
+  - name: Set ttys
+    lineinfile: dest=/etc/sysconfig/init
+                regexp='^ACTIVE_CONSOLES'
+                line='ACTIVE_CONSOLES=/dev/tty[7-8]'
+
+  - name: Set X tty
+    lineinfile: dest=/etc/init/start-ttys.conf
+                regexp='^env X_TTY'
+                line='env X_TTY=/dev/tty8'
+
+  - name: Install Init start-messages
+    template: src=etc/init/start-messages.conf.j2
+              dest=/etc/init/start-messages.conf
+              owner=root
+              group=root
+              mode=0640
+
+  - name: Install Init messages
+    template: src=etc/init/messages.conf.j2
+              dest=/etc/init/messages.conf
+              owner=root
+              group=root
+              mode=0640
+
+  - name: Install Init start-top
+    template: src=etc/init/start-top.conf.j2
+              dest=/etc/init/start-top.conf
+              owner=root
+              group=root
+              mode=0640
+
+  - name: Install Init top
+    template: src=etc/init/top.conf.j2
+              dest=/etc/init/top.conf
+              owner=root
+              group=root
+              mode=0640
+
+  - name: Install Init start-top-mem
+    template: src=etc/init/start-top-mem.conf.j2
+              dest=/etc/init/start-top-mem.conf
+              owner=root
+              group=root
+              mode=0640
+
+  - name: Install Init top-mem
+    template: src=etc/init/top-mem.conf.j2
+              dest=/etc/init/top-mem.conf
+              owner=root
+              group=root
+              mode=0640
+
+  - name: Install Init start-iostat
+    template: src=etc/init/start-iostat.conf.j2
+              dest=/etc/init/start-iostat.conf
+              owner=root
+              group=root
+              mode=0640
+
+  - name: Install Init iostat
+    template: src=etc/init/iostat.conf.j2
+              dest=/etc/init/iostat.conf
+              owner=root
+              group=root
+              mode=0640
+
+  - name: Install Init start-mpstat
+    template: src=etc/init/start-mpstat.conf.j2
+              dest=/etc/init/start-mpstat.conf
+              owner=root
+              group=root
+              mode=0640
+
+  - name: Install Init mpstat
+    template: src=etc/init/mpstat.conf.j2
+              dest=/etc/init/mpstat.conf
+              owner=root
+              group=root
+              mode=0640
+
+  - name: Install Init start-gstat
+    template: src=etc/init/start-gstat.conf.j2
+              dest=/etc/init/start-gstat.conf
+              owner=root
+              group=root
+              mode=0640
+
+  - name: Install Init gstat
+    template: src=etc/init/gstat.conf.j2
+              dest=/etc/init/gstat.conf
+              owner=root
+              group=root
+              mode=0640
+
+  - name: Restart init
+    shell: /sbin/telinit q

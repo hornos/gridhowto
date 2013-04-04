@@ -1,0 +1,5 @@
+stop on runlevel [S016]
+
+respawn
+exec /usr/bin/top d {{delay}} s S c a -1 >$TTY <$TTY
+usage 'top-mem TTY=/dev/ttyX  - where X is console id'

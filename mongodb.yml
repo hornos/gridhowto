@@ -1,6 +1,9 @@
 ---
 - hosts: all
 
+  vars_files:
+    - mongodb_vars.yml
+
   tasks:
   - name: Install 10Gen Repo
     template: src=etc/yum.repos.d/10gen.repo.j2
@@ -20,3 +23,36 @@
   - name: Install mongo-10gen-server
     yum: name=mongo-10gen-server
          state=installed
+
+  - name: Uninstall pymongo
+    yum: name=pymongo
+         state=absent
+
+  - name: Install python-pip
+    yum: name=python-pip
+         state=installed
+
+  - name: Install gcc
+    yum: name=gcc
+         state=installed
+
+  - name: Install python-devel
+    yum: name=python-devel
+         state=installed
+
+  - name: PIP Install pymongo
+    pip: name=pymongo
+         use_mirrors=no
+         state=latest
+
+  - name: Create admin user
+    mongodb_user: database=admin
+                  name=${admin_user}
+                  password=${admin_user}
+                  state=present
+
+  - name: Create graylog user
+    mongodb_user: database=graylog2
+                  name=${graylog_user}
+                  password=${graylog_user}
+                  state=present

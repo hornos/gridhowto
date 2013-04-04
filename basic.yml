@@ -5,3 +5,6 @@
 - include: basic_selinux.yml
 - include: basic_root.yml
 - include: basic_repo.yml
+- include: modules.yml
+- include: misc.yml
+- include: inittab.yml
