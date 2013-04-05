@@ -1,0 +1,30 @@
+# Ganglia cluster monitor
+---
+- hosts: all
+
+  vars_files:
+    - ganglia_vars.yml
+    - networks.yml
+
+  tasks:
+  - name: Link mongodb.conf
+    file: src=${python_modules_dir}/mongodb/conf.d/mongodb.conf
+          dest=/etc/ganglia/conf.d/mongodb.conf
+          state=link
+    tags:
+      - mongodb
+
+  - name: Link mongodb.py
+    file: src=${python_modules_dir}/mongodb/python_modules/mongodb.py
+          dest=/usr/lib64/ganglia/python_modules/mongodb.py
+          state=link
+    tags:
+      - mongodb
+
+  - name: Restart gmond
+    service: name=gmond
+             state=restarted
+
+  - name: Restart gmetad
+    service: name=gmetad
+             state=restarted

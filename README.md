@@ -298,11 +298,19 @@ At this point you should restart the root servers.
 
 ## Monitoring
 ### Ganglia
-Ganglia is a scalable distributed monitoring system for high-performance computing systems such as clusters and Grids. It is based on a hierarchical design targeted at federations of clusters. You can think of it as a low-level cluster top. Ganglia is running with unicast addresses and root servers cross-monitor each other.
+Ganglia is a scalable distributed monitoring system for high-performance computing systems such as clusters and Grids. It is based on a hierarchical design targeted at federations of clusters. You can think of it as a low-level cluster top. Ganglia is running with unicast addresses and root servers cross-monitor each other. Ganglia is a best effort monitor and you should use it to monitor as many things as possible.
 
     bin/play @@root ganglia
 
 Ganglia's web intreface is at `http://root-01/ganglia`.
+
+The following monitors can be played:
+
+    ganglia_system   - detailed cpu and memory statistics
+    ganglia_httpd    - basic httpd monitor
+    ganglia_entropy  - randomness
+    ganglia_procstat - basic service monitor
+    ganglia_mysql    - detailed mysql statistics
 
 ### Graphite
 

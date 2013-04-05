@@ -21,8 +21,8 @@
       - packages
 
   - name: Download community python modules
-    git: repo=git://github.com/ganglia/gmond_python_modules.git
-         dest=/root/gmond_python_modules
+    git: repo=$python_modules_git
+         dest=$python_modules_dir
 
 # TODO: ipmi monitoring
 
@@ -69,7 +69,7 @@
 #  - name: Put HTTP in permissive mode
 #    command: /usr/sbin/semanage permissive -a httpd_t
 
-  - name: Allow networks
+  - name: Enable Ganglia web interface
     template: src=etc/httpd/conf.d/ganglia.conf.j2
               dest=/etc/httpd/conf.d/ganglia.conf
               owner=root

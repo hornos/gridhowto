@@ -1,0 +1,76 @@
+# Ganglia cluster monitor
+---
+- hosts: all
+
+  vars_files:
+    - ganglia_vars.yml
+    - networks.yml
+
+  tasks:
+  - name: Link cpu_stats.pyconf
+    file: src=${python_modules_dir}/system/cpu_stats/conf.d/cpu_stats.pyconf
+          dest=/etc/ganglia/conf.d/cpu_stats.pyconf
+          state=link
+    tags:
+      - cpu_stats
+
+  - name: Link cpu_stats.py
+    file: src=${python_modules_dir}/system/cpu_stats/python_modules/cpu_stats.py
+          dest=/usr/lib64/ganglia/python_modules/cpu_stats.py
+          state=link
+    tags:
+      - cpu_stats
+
+
+  - name: Link mem_stats.pyconf
+    file: src=${python_modules_dir}/system/mem_stats/conf.d/mem_stats.pyconf
+          dest=/etc/ganglia/conf.d/mem_stats.pyconf
+          state=link
+    tags:
+      - mem_stats
+
+  - name: Link mem_stats.py
+    file: src=${python_modules_dir}/system/mem_stats/python_modules/mem_stats.py
+          dest=/usr/lib64/ganglia/python_modules/mem_stats.py
+          state=link
+    tags:
+      - mem_stats
+
+
+#  - name: Link mem_fragmentation.pyconf
+#    file: src=${python_modules_dir}/system/mem_fragmentation/conf.d/mem_fragmentation.pyconf
+#          dest=/etc/ganglia/conf.d/mem_fragmentation.pyconf
+#          state=link
+#    tags:
+#      - mem_fragmentation
+#
+#  - name: Link mem_fragmentation.py
+#    file: src=${python_modules_dir}/system/mem_fragmentation/python_modules/mem_fragmentation.py
+#          dest=/usr/lib64/ganglia/python_modules/mem_fragmentation.py
+#          state=link
+#    tags:
+#      - mem_fragmentation
+
+
+  - name: Link vm_stats.pyconf
+    file: src=${python_modules_dir}/system/vm_stats/conf.d/vm_stats.pyconf
+          dest=/etc/ganglia/conf.d/vm_stats.pyconf
+          state=link
+    tags:
+      - vm_stats
+
+  - name: Link vm_stats.py
+    file: src=${python_modules_dir}/system/vm_stats/python_modules/vm_stats.py
+          dest=/usr/lib64/ganglia/python_modules/vm_stats.py
+          state=link
+    tags:
+      - vm_stats
+
+
+  - name: Restart gmond
+    service: name=gmond
+             state=restarted
+
+  - name: Restart gmetad
+    service: name=gmetad
+             state=restarted

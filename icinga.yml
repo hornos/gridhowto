@@ -1,0 +1,24 @@
+
+---
+- hosts: all
+
+  tasks:
+
+  - name: Install prerequisite packages
+    yum: name=$item
+         state=installed
+    with_items:
+      - icinga
+      - icinga-web
+      - nagios-plugins-all
+      - icinga-idoutils-libdbi-mysql
+      - icinga-gui
+      - icinga-api
+    tags:
+      - packages
+
+  - name: Start icinga
+    service: name=icinga
+             state=restarted
+             enabled=yes
+

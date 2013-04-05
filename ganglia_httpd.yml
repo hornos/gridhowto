@@ -1,0 +1,39 @@
+# Ganglia cluster monitor
+---
+- hosts: all
+
+  vars_files:
+    - ganglia_vars.yml
+    - networks.yml
+
+  tasks:
+
+  - name: Enable HTTP server status
+    template: src=etc/httpd/conf.d/status.conf.j2
+              dest=/etc/httpd/conf.d/status.conf
+              owner=root
+              group=root
+              mode=0644
+
+  - name: Link apache_workers_report.php
+    file: src=${python_modules_dir}/httpd/graph.d/apache_workers_report.php
+          dest=/usr/share/ganglia/graph.d/apache_workers_report.php
+          state=link
+
+  - name: Link httpd.pyconf
+    file: src=${python_modules_dir}/httpd/conf.d/httpd.pyconf
+          dest=/etc/ganglia/conf.d/httpd.pyconf
+          state=link
+
+  - name: Link httpd.py
+    file: src=${python_modules_dir}/httpd/python_modules/httpd.py
+          dest=/usr/lib64/ganglia/python_modules/httpd.py
+          state=link
+
+  - name: Restart gmond
+    service: name=gmond
+             state=restarted
+
+  - name: Restart gmetad
+    service: name=gmetad
+             state=restarted

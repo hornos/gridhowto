@@ -4,5 +4,6 @@
   hosts: all
 
 - include: epel.yml
+- include: rpmforge.yml
 - include: nodejs.yml
 - include: ruby.yml

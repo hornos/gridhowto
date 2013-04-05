@@ -1,0 +1,30 @@
+# Ganglia cluster monitor
+---
+- hosts: all
+
+  vars_files:
+    - ganglia_vars.yml
+    - networks.yml
+
+  tasks:
+  - name: Link memcached.conf
+    file: src=${python_modules_dir}/memcached/conf.d/memcached.conf
+          dest=/etc/ganglia/conf.d/memcached.conf
+          state=link
+    tags:
+      - memcached
+
+  - name: Link memcached.py
+    file: src=${python_modules_dir}/memcached/python_modules/memcached.py
+          dest=/usr/lib64/ganglia/python_modules/memcached.py
+          state=link
+    tags:
+      - memcached
+
+  - name: Restart gmond
+    service: name=gmond
+             state=restarted
+
+  - name: Restart gmetad
+    service: name=gmetad
+             state=restarted

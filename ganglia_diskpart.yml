@@ -1,0 +1,39 @@
+# Ganglia cluster monitor
+---
+- hosts: all
+
+  vars_files:
+    - ganglia_vars.yml
+    - networks.yml
+
+#  tasks:
+#  - name: Link diskpart.conf
+#    file: src=${python_modules_dir}/diskpart/conf.d/diskpart.conf
+#          dest=/etc/ganglia/conf.d/diskpart.conf
+#          state=link
+#    tags:
+#      - diskpart
+
+  - name: Setup diskpart.conf
+    template: src=etc/ganglia/conf.d/diskpart.conf.j2
+              dest=/etc/ganglia/conf.d/diskpart.conf
+              owner=root
+              group=root
+              mode=0644
+    tags:
+      - diskpart
+
+  - name: Link diskpart.py
+    file: src=${python_modules_dir}/diskpart/python_modules/diskpart.py
+          dest=/usr/lib64/ganglia/python_modules/diskpart.py
+          state=link
+    tags:
+      - diskpart
+
+  - name: Restart gmond
+    service: name=gmond
+             state=restarted
+
+  - name: Restart gmetad
+    service: name=gmetad
+             state=restarted

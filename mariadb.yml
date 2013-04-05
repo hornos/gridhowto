@@ -26,6 +26,7 @@
       - MariaDB-client
       - MariaDB-server
       - MariaDB-shared
+      - MariaDB-compat
       - galera
     tags:
       - packages

@@ -3,7 +3,8 @@
 # mcast_addr: 239.2.11.71
 # mcast_dev: eth0
 
-python_modules: git://github.com/ganglia/gmond_python_modules.git
+python_modules_git: git://github.com/ganglia/gmond_python_modules.git
+python_modules_dir: /opt/gmond_python_modules
 
 cluster_name: root
 allow_from: system

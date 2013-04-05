@@ -1,0 +1,42 @@
+# Ganglia cluster monitor
+---
+- hosts: all
+
+  vars_files:
+    - ganglia_vars.yml
+    - networks.yml
+
+  tasks:
+  - name: Link graphs
+    file: src=${python_modules_dir}/procstat/graph.d/$item
+          dest=/usr/share/ganglia/graph.d/$item
+          state=link
+    with_items:
+      - procstat_cpu_report.php
+      - procstat_mem_report.php
+    tags:
+      - procstat
+
+  - name: Link procstat.py
+    file: src=${python_modules_dir}/procstat/python_modules/procstat.py
+          dest=/usr/lib64/ganglia/python_modules/procstat.py
+          state=link
+    tags:
+      - procstat
+
+  - name: Setup procstat.pyconf
+    template: src=etc/ganglia/conf.d/procstat.pyconf.j2
+              dest=/etc/ganglia/conf.d/procstat.pyconf
+              owner=root
+              group=root
+              mode=0644
+    tags:
+      - procstat
+
+  - name: Restart gmond
+    service: name=gmond
+             state=restarted
+
+  - name: Restart gmetad
+    service: name=gmetad
+             state=restarted

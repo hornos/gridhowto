@@ -1,0 +1,18 @@
+---
+- hosts: all
+  vars_files:
+    - riak_vars.yml
+
+  tasks:
+
+  - name: Download riak
+    get_url: url=${url}/${rpm} dest=/root/${rpm}
+
+  - name: Install riak
+    command: yum -y localinstall /root/${rpm}
+
+  - name: Install riak
+    yum: name=riak
+         state=installed
+
+# TODO: http://docs.basho.com/riak/latest/cookbooks/Basic-Cluster-Setup/

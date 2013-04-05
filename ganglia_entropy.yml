@@ -1,0 +1,30 @@
+# Ganglia cluster monitor
+---
+- hosts: all
+
+  vars_files:
+    - ganglia_vars.yml
+    - networks.yml
+
+  tasks:
+  - name: Link entropy.pyconf
+    file: src=${python_modules_dir}/ssl/entropy/conf.d/entropy.pyconf
+          dest=/etc/ganglia/conf.d/entropy.pyconf
+          state=link
+    tags:
+      - entropy
+
+  - name: Link entropy.py
+    file: src=${python_modules_dir}/ssl/entropy/python_modules/entropy.py
+          dest=/usr/lib64/ganglia/python_modules/entropy.py
+          state=link
+    tags:
+      - entropy
+
+  - name: Restart gmond
+    service: name=gmond
+             state=restarted
+
+  - name: Restart gmetad
+    service: name=gmetad
+             state=restarted

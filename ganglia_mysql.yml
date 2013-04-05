@@ -1,0 +1,64 @@
+# Ganglia cluster monitor
+---
+- hosts: all
+
+  vars_files:
+    - ganglia_vars.yml
+    - networks.yml
+
+  tasks:
+
+  - name: Install MySQL-python
+    yum: name=MySQL-python
+         state=installed
+
+  - name: Link graphs
+    file: src=${python_modules_dir}/mysqld/graph.d/$item
+          dest=/usr/share/ganglia/graph.d/$item
+          state=link
+    with_items:
+      - mysql_connections_report.php
+      - mysql_qcache_hitrate_report.php
+      - mysql_query_report.php
+      - mysql_table_locks_report.php
+      - mysql_innodb_bp_activity_report.php
+      - mysql_qcache_mem_report.php
+      - mysql_select_types_report.php
+      - mysql_temporary_objects_report.php
+      - mysql_innodb_io_report.php
+      - mysql_qcache_report.php
+      - mysql_simple_query_report.php
+      - mysql_traffic_report.php
+    tags:
+      - mysql
+
+  - name: Link DBUtil.py
+    file: src=${python_modules_dir}/mysqld/python_modules/DBUtil.py
+          dest=/usr/lib64/ganglia/python_modules/DBUtil.py
+          state=link
+    tags:
+      - mysql
+
+  - name: Link mysql.py
+    file: src=${python_modules_dir}/mysqld/python_modules/mysql.py
+          dest=/usr/lib64/ganglia/python_modules/mysql.py
+          state=link
+    tags:
+      - mysql
+
+  - name: Setup mysql.pyconf
+    template: src=etc/ganglia/conf.d/mysql.pyconf.j2
+              dest=/etc/ganglia/conf.d/mysql.pyconf
+              owner=root
+              group=root
+              mode=0644
+    tags:
+      - mysql
+
+  - name: Restart gmond
+    service: name=gmond
+             state=restarted
+
+  - name: Restart gmetad
+    service: name=gmetad
+             state=restarted

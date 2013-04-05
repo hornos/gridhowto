@@ -1,0 +1,89 @@
+#
+
+modules {
+  module {
+    name = 'procstat'
+    language = 'python'
+
+    param audit {
+      value = '/var/run/audit.pid'
+    }
+
+    param exim {
+      value = '/var/run/exim.pid'
+    }
+
+    param sshd {
+      value = '/var/run/sshd.pid'
+    }
+
+    param syslog-ng {
+      value = '/var/run/syslog-ng.pid'
+    }
+
+    param ntpd {
+      value = '/var/run/ntpd.pid'
+    }
+
+    param supervisord {
+      value = '/var/run/supervisord.pid'
+    }
+
+    param cron {
+      value = '/var/run/cron.pid'
+    }
+
+    param dnsmasq {
+      value = '/var/run/dnsmasq.pid'
+    }
+
+    param glusterd {
+      value = '/var/run/glusterd.pid'
+    }
+
+    param rabbitmq {
+      value = '/var/run/rabbitmq/pid'
+    }
+
+    param httpd {
+      value = '/var/run/httpd/httpd.pid'
+    }
+
+    param mysqld {
+      value = '/var/run/mysqld/mysqld.pid'
+    }
+
+    param memcached {
+      value = '/var/run/memcached/memcached.pid'
+    }
+
+
+/*
+    param mysqld {
+      value = '/\/usr\/libexec\/mysqld/'
+    }
+
+    param splunk {
+      value = '/splunkd.*start/'
+    }
+
+    param splunk-web {
+      value = '/twistd.*SplunkWeb/'
+    }
+*/
+
+  }
+}
+
+collection_group {
+  collect_every = 30
+  time_threshold = 30
+
+  metric {
+    name_match = "procstat_(.+)_cpu"
+  }
+
+  metric {
+    name_match = "procstat_(.+)_mem"
+  }
+}

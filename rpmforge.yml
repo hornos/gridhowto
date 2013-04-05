@@ -1,0 +1,14 @@
+# Enable rpmforge repo
+---
+- hosts: all
+  vars_files:
+    - rpmforge_vars.yml
+
+  tasks:
+
+  - name: Download rpmforge repo
+    get_url: url=${url}/${rpm} dest=/root
+
+  - name: Install rpmforge repo
+    command: yum -y localinstall /root/${rpm}
+

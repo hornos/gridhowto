@@ -1,0 +1,30 @@
+# Ganglia cluster monitor
+---
+- hosts: all
+
+  vars_files:
+    - ganglia_vars.yml
+    - networks.yml
+
+  tasks:
+  - name: Link diskfree.pyconf
+    file: src=${python_modules_dir}/diskfree/conf.d/diskfree.pyconf
+          dest=/etc/ganglia/conf.d/diskfree.pyconf
+          state=link
+    tags:
+      - diskfree
+
+  - name: Link diskfree.py
+    file: src=${python_modules_dir}/diskfree/python_modules/diskfree.py
+          dest=/usr/lib64/ganglia/python_modules/diskfree.py
+          state=link
+    tags:
+      - diskfree
+
+  - name: Restart gmond
+    service: name=gmond
+             state=restarted
+
+  - name: Restart gmetad
+    service: name=gmetad
+             state=restarted
