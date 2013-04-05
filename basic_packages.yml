@@ -1,0 +1,26 @@
+---
+- hosts: all
+
+  tasks:
+
+  - name: Install prerequisite packages
+    yum: name=$item
+         state=installed
+    with_items:
+      - mc
+      - htop
+      - iptraf-ng
+      - sysstat
+      - nmap
+      - man
+      - git
+      - gcc
+      - gcc-c++
+      - python-pip
+      - python-devel
+      - python-crypto
+      - python-setuptools
+      - python-sqlite2
+      - pyOpenSSL
+    tags:
+      - packages

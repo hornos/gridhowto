@@ -1,5 +1,9 @@
+# Based on: http://edin.no-ip.com/blog/hswong3i/mariadb-galera-mastermaster-replication-ubuntu-12-04-howto
 ---
 - hosts: all
+
+  vars_files:
+    - mariadb_vars.yml
 
   tasks:
   - name: Install MariaDB Repo
@@ -12,15 +16,42 @@
   - name: Uninstall mysql-libs
     yum: name=mysql-libs
          state=absent
+    ignore_errors: yes
 
-  - name: Install MariaDB-Galera-server
-    yum: name=MariaDB-Galera-server
+  - name: Install prerequisite packages
+    yum: name=$item
          state=installed
+    with_items:
+      - MariaDB-Galera-server
+      - MariaDB-client
+      - MariaDB-server
+      - MariaDB-shared
+      - galera
+    tags:
+      - packages
 
-  - name: Install MariaDB-client
-    yum: name=MariaDB-client
-         state=installed
+  - name: Setup /etc/my.cnf
+    template: src=etc/my.cnf.j2
+              dest=/etc/my.cnf
+              owner=root
+              group=root
+              mode=0644
 
-  - name: Install galera
-    yum: name=galera
-         state=installed
+  - name: Setup /etc/my.cnf.d/server.cnf
+    template: src=etc/my.cnf.d/server.cnf.j2
+              dest=/etc/my.cnf.d/server.cnf
+              owner=root
+              group=root
+              mode=0644
+#  - name: fix
+#    file: path=/etc/my.cnf.j2
+#          state=absent
+
+  - name: Start mysqld
+    service: name=mysql
+             state=started
+             enabled=yes
+
+# mysql -e "SET wsrep_on = OFF; DELETE FROM mysql.user WHERE user = '';"
+# mysql -e "SET wsrep_on = OFF; GRANT ALL ON *.* TO 'root'@'%' IDENTIFIED BY 'password';"
+# mysql -e "SHOW STATUS LIKE 'wsrep_%';"

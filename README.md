@@ -282,14 +282,10 @@ The basic playbook contains az inittab change. TTYs are configured according to:
     tty7 - mingetty
     tty8 - mingetty (and X)
 
-## Ganglia
-Ganglia is a scalable distributed monitoring system for high-performance computing systems such as clusters and Grids. It is based on a hierarchical design targeted at federations of clusters. You can think of it as a low-level cluster top. Ganglia is running with unicast addresses and root servers cross-monitor each other.
+### Logging
 
-    bin/play @@root ganglia
-
-Ganglia's web intreface is at `http://root-01/ganglia`.
-
-### Firewall
+## Firewall
+### Shorewall
 Enable basic Shorewall firewall on the root servers:
 
     bin/play @@root shorewall
@@ -299,6 +295,21 @@ Note that emergency rules are defined in `etc/shorewall/rulestopped.j2`. Enable 
     bin/play @@root fail2ban
 
 At this point you should restart the root servers.
+
+## Monitoring
+### Ganglia
+Ganglia is a scalable distributed monitoring system for high-performance computing systems such as clusters and Grids. It is based on a hierarchical design targeted at federations of clusters. You can think of it as a low-level cluster top. Ganglia is running with unicast addresses and root servers cross-monitor each other.
+
+    bin/play @@root ganglia
+
+Ganglia's web intreface is at `http://root-01/ganglia`.
+
+### Graphite
+
+    bin/play @@root mariadb
+    bin/play @@root memcache
+    bin/play @@root rrdcache
+    bin/play @@root graphite
 
 ## Elasticsearch & MongoDB & Graylog2
 At first, you have to run with `format=yes` to create the mongodb partition under `/data/mongodb`.

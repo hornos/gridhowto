@@ -1,3 +1,4 @@
+# Basic Setup
 ---
 - name: Basic Setup
   hosts: all
@@ -5,7 +6,7 @@
 - include: basic_selinux.yml
 - include: basic_root.yml
 - include: basic_repo.yml
+- include: basic_packages.yml
 - include: modules.yml
-- include: misc.yml
 - include: inittab.yml
 - include: plymouth.yml

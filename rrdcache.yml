@@ -1,0 +1,18 @@
+
+---
+- hosts: all
+
+  tasks:
+  - name: Install prerequisite packages
+    yum: name=$item
+         state=installed
+    with_items:
+      - rrdtool
+      - collectd-rrdtool
+    tags:
+      - packages
+
+  - name: Start rrdcached
+    service: name=rrdcached
+             state=started
+             enabled=yes

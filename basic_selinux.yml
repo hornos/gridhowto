@@ -1,32 +1,24 @@
+# Switch to permissive mode
+# TODO: enforced
 ---
 - hosts: all
 
   tasks:
-  - name: Install libsemanage
-    yum: name=libsemanage
-         state=installed
+    - name: Install prerequisite packages
+      yum: name=$item
+           state=installed
+      with_items:
+        - libsemanage
+        - setools-libs-python
+        - policycoreutils-python
+        - libselinux-python
+        - policycoreutils-python
+      tags:
+        - packages
 
-  - name: Install setools-libs-python
-    yum: name=setools-libs-python
-         state=installed
-
-  - name: Install policycoreutils-python
-    yum: name=policycoreutils-python
-         state=installed
-
-  - name: Install libselinux-python
-    yum: name=libselinux-python
-         state=installed
-
-  - name: Install semanage
-    yum: name=policycoreutils-python
-         state=installed
-
-  - name: Permissive policy
+  - name: Set permissive policy
     lineinfile: dest=/etc/sysconfig/selinux
                 regexp='^SELINUX='
                 line='SELINUX=permissive'
-
-#  - name: Permissive policy
-#    selinux: policy=targeted
-#             state=permissive
+    tags:
+      - policy

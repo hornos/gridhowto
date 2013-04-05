@@ -1,12 +1,12 @@
 ACCEPT     ext           $FW       tcp        22
 ACCEPT     sys           $FW       tcp        22
-# rsyslog
-# ACCEPT sys:$ROOT   $FW                  tcp    514
+# syslog
 ACCEPT     sys           $FW       tcp       514
 # ganglia
 ACCEPT     sys           $FW       udp      8649
 ACCEPT     sys           $FW       tcp      8649
-ACCEPT     sys           $FW       tcp      80
+# http
+ACCEPT     sys           $FW       tcp        80
+ACCEPT     sys           $FW       tcp       443
 # allow root servers
-ACCEPT     sys:$ROOT         $FW       -        -
-
+ACCEPT     sys:$ROOT     $FW         -         -

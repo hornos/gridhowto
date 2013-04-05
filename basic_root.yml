@@ -1,3 +1,5 @@
+# Setup basic services
+# rsyslog is replaced by syslog-ng
 ---
 - name: Basic server install
   hosts: all

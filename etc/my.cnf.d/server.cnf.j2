@@ -1,0 +1,9 @@
+[mysqld]
+{% if inventory_hostname == master %}
+wsrep_cluster_address = 'gcomm://'
+{% else %}
+wsrep_cluster_address = 'gcomm://{{hostvars[master]['ansible_eth0']['ipv4']['address']}}'
+{% endif %}
+wsrep_provider = /usr/lib/galera/libgalera_smm.so
+wsrep_retry_autocommit = 0
+wsrep_sst_method = rsync

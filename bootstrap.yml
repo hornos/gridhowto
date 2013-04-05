@@ -1,11 +1,16 @@
-# This play bootstraps ansible
+# This is the main bootstrap file
+#
 # generate root administrator keys by:
-# mkdir keys
-# cd keys
-# ssh-keygen -b 2048 -C "Ansible Root Administrator" -f admin
+#
+#     mkdir keys
+#     cd keys
+#     ssh-keygen -b 2048 -C "Ansible Root Administrator" -f admin
+#
+# TODO: ansible ssh key install
 ---
 - hosts: all
 
+  # The default user is admin
   vars_files:
     - bootstrap_vars.yml
 
@@ -14,10 +19,11 @@
       raw: yum -y install python-simplejson
 
     - name: Install sudo
-      yum: name=sudo state=installed
+      yum: name=sudo
+           state=installed
 
     - name: Create Root Administrator
-      user: name=admin
+      user: name=$admin_user
             comment='Ansible Root Administrator'
             groups=wheel
             password=*

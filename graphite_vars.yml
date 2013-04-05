@@ -5,3 +5,5 @@ tgz_whisper: whisper-0.9.10.tar.gz
 pkg_whisper: whisper-0.9.10
 tgz_carbon: carbon-0.9.10.tar.gz
 pkg_carbon: carbon-0.9.10
+
+time_zone: Europe/Budapest

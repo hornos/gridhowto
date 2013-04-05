@@ -1,0 +1,17 @@
+
+---
+- hosts: all
+
+  tasks:
+  - name: Install prerequisite packages
+    yum: name=$item
+         state=installed
+    with_items:
+      - memcached
+    tags:
+      - packages
+
+  - name: Start memcached
+    service: name=memcached
+             state=started
+             enabled=yes

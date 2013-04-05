@@ -7,7 +7,6 @@
 
   vars_files:
     - mongodb_vars.yml
-    - graylog2_vars.yml
 
   tasks:
   - name: Install 10Gen Repo
@@ -21,29 +20,18 @@
 #    yum: name=mongodb
 #         state=absent
 
-  - name: Install mongo-10gen
-    yum: name=mongo-10gen
-         state=installed
-
-  - name: Install mongo-10gen-server
-    yum: name=mongo-10gen-server
-         state=installed
-
   - name: Uninstall pymongo
     yum: name=pymongo
          state=absent
 
-  - name: Install python-pip
-    yum: name=python-pip
+  - name: Install prerequisite packages
+    yum: name=$item
          state=installed
-
-  - name: Install gcc
-    yum: name=gcc
-         state=installed
-
-  - name: Install python-devel
-    yum: name=python-devel
-         state=installed
+    with_items:
+      - mongo-10gen
+      - mongo-10gen-server
+    tags:
+      - packages
 
   - name: PIP Install pymongo
     pip: name=pymongo
@@ -84,14 +72,3 @@
     service: name=mongod
              state=started
 
-  - name: Create admin user
-    mongodb_user: database=admin
-                  name=${admin_user}
-                  password=${admin_user}
-                  state=present
-
-  - name: Create graylog user
-    mongodb_user: database=graylog2
-                  name=${graylog_user}
-                  password=${graylog_user}
-                  state=present

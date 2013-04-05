@@ -1,4 +1,4 @@
-# This play enables the DVD install repo as well as the EPEL sources
+# Enable EPEL repo
 ---
 - hosts: all
   vars_files:

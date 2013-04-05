@@ -1,4 +1,4 @@
-# This play installs rng-tools
+# Pimp up random number generator
 ---
 - hosts: all
 

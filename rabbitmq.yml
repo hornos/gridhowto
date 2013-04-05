@@ -14,7 +14,14 @@
   tasks:
 
   - name: Download Erlang repo
-    get_url: url=${url}/${repo} dest=/etc/yum.repos.d/${repo}
+    get_url: url=${url}/${repo}
+             dest=/etc/yum.repos.d/${repo}
+
+  - name: Abort
+    file: path=/etc/yum.repos.d/${repo}
+          state=absent
+
+  - fail: msg=Repo Abort
 
   - name: Install Erlang
     yum: name=erlang

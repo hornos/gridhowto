@@ -1,4 +1,4 @@
-
+# Based on: https://gist.github.com/dillera/1634493
 ---
 - hosts: all
 
@@ -6,96 +6,87 @@
     - graphite_vars.yml
 
   tasks:
-  - name: Install python-setuptools
-    yum: name=python-setuptools
+  - name: Install prerequisite packages
+    yum: name=$item
          state=installed
+    with_items:
+      - pycairo
+      - mod_python
+      - Django
+      - python-ldap
+      - python-memcached
+      - bitmap
+      - bitmap-fonts
+      - python-zope-filesystem
+      - python-zope-interface
+      - zlib-static
+    tags:
+      - packages
 
-  - name: Install pycairo
-    yum: name=pycairo
-         state=installed
-
-  - name: Install mod_python
-    yum: name=mod_python
-         state=installed
-
-  - name: Install Django
-    yum: name=Django
-         state=installed
-
-  - name: Install python-ldap
-    yum: name=python-ldap
-         state=installed
-
-  - name: Install python-memcached
-    yum: name=python-memcached
-         state=installed
-
-  - name: Install python-sqlite2
-    yum: name=python-sqlite2
-         state=installed
-
-  - name: Install bitmap
-    yum: name=bitmap
-         state=installed
-
-  - name: Install bitmap-fonts
-    yum: name=bitmap-fonts
-         state=installed
-
-  - name: Install python-devel
-    yum: name=python-devel
-         state=installed
-
-  - name: Install python-crypto
-    yum: name=python-crypto
-         state=installed
-
-  - name: Install pyOpenSSL
-    yum: name=pyOpenSSL
-         state=installed
-
-  - name: Install gcc
-    yum: name=gcc
-         state=installed
-
-  - name: Install python-zope-filesystem
-    yum: name=python-zope-filesystem
-         state=installed
-
-  - name: Install python-zope-interface
-    yum: name=python-zope-interface
-         state=installed
-
-  - name: Install git
-    yum: name=git
-         state=installed
-
-  - name: Install gcc-c++
-    yum: name=gcc-c++
-         state=installed
-
-  - name: Install zlib-static
-    yum: name=zlib-static
-         state=installed
-
-  - name: Download ${tgz_whisper}
-    get_url: url=${url}/${tgz_whisper} dest=/root/${tgz_whisper}
-
-  - name: Uncompress ${tgz_whisper}
-    shell: /bin/tar -C /root -xzf /root/${tgz_whisper}
-
-#  - name: Install ${tgz_whisper}
-#    shell: 
+  - name: Install python pacakges
+    pip: name=$item
+         use_mirrors=no
+    with_items:
+      - django-tagging
+      - twisted
+      - txamqp
+    tags:
+      - packages
 
   - name: Download ${tgz_carbon}
     get_url: url=${url}/${tgz_carbon} dest=/root/${tgz_carbon}
+    tags:
+      - carbon
 
   - name: Uncompress ${tgz_carbon}
     shell: /bin/tar -C /root -xzf /root/${tgz_carbon}
+    tags:
+      - carbon
+
+  - name: Install ${pkg_carbon}
+    shell: cd /root/${pkg_carbon};python ./setup.py install
+    tags:
+      - carbon
+
+
+  - name: Download ${tgz_whisper}
+    get_url: url=${url}/${tgz_whisper} dest=/root/${tgz_whisper}
+    tags:
+      - whisper
+
+  - name: Uncompress ${tgz_whisper}
+    shell: /bin/tar -C /root -xzf /root/${tgz_whisper}
+    tags:
+      - whisper
+
+  - name: Install ${pkg_whisper}
+    shell: cd /root/${pkg_whisper};python ./setup.py install
+    tags:
+      - whisper
+
 
   - name: Download ${tgz_web}
     get_url: url=${url}/${tgz_web} dest=/root/${tgz_web}
+    tags:
+      - web
 
   - name: Uncompress ${tgz_web}
     shell: /bin/tar -C /root -xzf /root/${tgz_web}
+    tags:
+      - web
 
+  - name: Check dependencies
+    shell: cd /root/${pkg_web}; ./check-dependencies.py
+    tags:
+      - web
+
+  - name: Install ${pkg_web}
+    shell: cd /root/${pkg_web};python ./setup.py install
+    tags:
+      - web
+
+  - name: Set directory modes on storage
+    file: path=/opt/graphite/storage
+          group=apache
+          owner=apache
+          recurse=yes

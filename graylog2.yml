@@ -40,6 +40,18 @@
               group=root
               mode=0755
 
+  - name: Create admin user
+    mongodb_user: database=admin
+                  name=${admin_user}
+                  password=${admin_user}
+                  state=present
+
+  - name: Create graylog user
+    mongodb_user: database=graylog2
+                  name=${graylog_user}
+                  password=${graylog_user}
+                  state=present
+
   - name: Start graylog2-server
     service: name=graylog2-server
              state=stopped
