@@ -12,13 +12,17 @@
              owner=root
              group=root
 
-  - name: Install node.js
-    yum: name=nodejs
+  - name: Install prerequisite packages
+    yum: name=$item
          state=installed
-
-  - name: Install supervisor
-    yum: name=supervisor
-         state=installed
+    with_items:
+      - nodejs
+      - nodejs-devel
+      - v8
+      - v8-devel
+      - supervisor
+    tags:
+      - packages
 
   - name: Start supervisord
     service: name=supervisord

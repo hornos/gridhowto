@@ -1,14 +1,14 @@
 # Open UDP
-source loghost_src_tcp {
-  tcp( ip({{ ansible_eth0["ipv4"]["address"] }}) port(514));
+source loghost_src_udp {
+  udp( ip({{ ansible_eth0["ipv4"]["address"] }}) port(514));
 };
 
 # Destination log file
-destination loghost_dst_tcp {
+destination loghost_dst_udp {
   file("/var/log/loghost/$FULLHOST/$YEAR/$MONTH/$DAY/messages");
 };
 
 log {
-  source(loghost_src_tcp);
-  destination(loghost_dst_tcp);
+  source(loghost_src_udp);
+  destination(loghost_dst_udp);
 };

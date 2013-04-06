@@ -1,6 +1,6 @@
 destination loghost {
 {% for host in groups['root'] %}
-tcp("{{ hostvars[host]['ansible_eth0']['ipv4']['address'] }}" port(514));
+udp("{{ hostvars[host]['ansible_eth0']['ipv4']['address'] }}" port(514));
 {% endfor %}
 };
 
