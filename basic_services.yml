@@ -1,7 +1,5 @@
-# Setup basic services
-# rsyslog is replaced by syslog-ng
 ---
-- name: Basic server install
+- name: Setup basic services
   hosts: all
 
 - include: dnsmasq.yml

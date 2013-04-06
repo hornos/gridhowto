@@ -4,7 +4,7 @@
 - hosts: all
 
   tasks:
-    - name: Install prerequisite packages
+    - name: Install packages
       yum: name=$item
            state=installed
       with_items:

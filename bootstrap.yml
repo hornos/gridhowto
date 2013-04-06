@@ -1,16 +1,15 @@
-# This is the main bootstrap file
+# This is the main bootstrap file which you have to run at first.
 #
-# generate root administrator keys by:
+# Generate administrator keys before bootstrapping:
 #
 #     mkdir keys
 #     cd keys
-#     ssh-keygen -b 2048 -C "Ansible Root Administrator" -f admin
+#     ssh-keygen -b 2048 -C Administrator -f admin
 #
-# TODO: ansible ssh key install
+#
 ---
 - hosts: all
 
-  # The default user is admin
   vars_files:
     - bootstrap_vars.yml
 
@@ -22,9 +21,9 @@
       yum: name=sudo
            state=installed
 
-    - name: Create Root Administrator
+    - name: Create administrator user: $admin_user
       user: name=$admin_user
-            comment='Ansible Root Administrator'
+            comment='Administrator'
             groups=wheel
             password=*
 

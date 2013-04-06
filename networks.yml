@@ -1,4 +1,6 @@
 ---
+dhcp_interface: 'eth3'
+
 networks:
   bmc: 10.0.0.0
   system: 10.1.0.0

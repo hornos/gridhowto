@@ -1,3 +1,5 @@
 ---
+# Administrator user
 admin_user: admin
+# Administrator public key (local)
 admin_key: keys/admin

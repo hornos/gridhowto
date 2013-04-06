@@ -7,7 +7,7 @@
     - networks.yml
 
   tasks:
-    - name: Install prerequisite packages
+    - name: Install packages
       yum: name=$item
            state=installed
       with_items:
@@ -22,6 +22,8 @@
                   regexp='^conf-dir.*'
                   insertafter='^#conf-dir.*'
                   line='conf-dir=/etc/dnsmasq.d'
+      notify:
+        - restart dnsmasq
 
     - name: Create hosts.d directory
       file: path=/etc/hosts.d
@@ -34,34 +36,46 @@
                   regexp='^addn-hosts.*'
                   insertafter='^#addn-hosts.*'
                   line='addn-hosts=/etc/hosts.d'
+      notify:
+        - restart dnsmasq
 
-    - name: Hook self DNS in /etc/resolv.conf
-      lineinfile: dest=/etc/resolv.conf
-                  regexp='^nameserver 127.0.0.1'
-                  insertbefore='^nameserver.*'
-                  line='nameserver 127.0.0.1'
-
-    - name: Hook self DNS in DHCP (eth3)
-      template: src=etc/dhcp/dhclient-eth3.conf.j2
-                dest=/etc/dhcp/dhclient-eth3.conf
-                owner=root
-                group=root
-
-    - name: Root server hostnames
+    - name: Enable root server hostnames
       template: src=etc/hosts.d/root.j2
                 dest=/etc/hosts.d/root
                 owner=bin
                 group=wheel
                 mode=0644
+      notify:
+        - restart dnsmasq
 
-    - name: Add networks in /etc/networks
+
+    - name: Enable networks in /etc/networks
       template: src=etc/networks.j2
                 dest=/etc/networks
                 owner=bin
                 group=wheel
                 mode=0644
 
-    - name: Restart dnsmasq
+    - name: Localhost DNS in /etc/resolv.conf
+      lineinfile: dest=/etc/resolv.conf
+                  regexp='^nameserver 127.0.0.1'
+                  insertbefore='^nameserver.*'
+                  line='nameserver 127.0.0.1'
+
+    - name: Localhost DNS for DHCP (${dhcp_interface})
+      template: src=etc/dhcp/dhclient-${dhcp_interface}.conf.j2
+                dest=/etc/dhcp/dhclient-${dhcp_interface}.conf
+                owner=root
+                group=root
+      when_string: $dhcp_interface != ''
+
+
+    - name: Start dnsmasq
+      service: name=dnsmasq
+               state=started
+               enabled=yes
+
+  handlers:
+    - name: restart dnsmasq
       service: name=dnsmasq
                state=restarted
-               enabled=yes

@@ -44,9 +44,10 @@
               owner=root
               group=root
               mode=0644
-#  - name: fix
-#    file: path=/etc/my.cnf.j2
-#          state=absent
+
+# set root password
+# https://coderwall.com/p/yez9yw?i=1&p=2&q=sort%3Ascore+desc&t%5B%5D=ansible
+
 
   - name: Start mysqld
     service: name=mysql
