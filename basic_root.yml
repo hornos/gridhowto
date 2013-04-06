@@ -6,9 +6,5 @@
 
 - include: dnsmasq.yml
 - include: ntp_server.yml
-#- include: rsyslog.yml
-#- include: rsyslog_loghost.yml
-#- include: rsyslog_fromhost.yml
-#- include: rsyslog_client.yml
-- include: syslogng.yml
-- include: syslogng_loghost.yml
+- include: syslog-ng.yml
+- include: syslog-ng_loghost.yml

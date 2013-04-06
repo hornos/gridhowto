@@ -1,6 +1,9 @@
-
+# TODO: mariadb icinga vars and pass
 ---
 - hosts: all
+
+  vars:
+    is_master: "'$inventory_hostname' == 'root-01'"
 
   tasks:
 
@@ -16,6 +19,33 @@
       - icinga-api
     tags:
       - packages
+
+  - name: Setup localhost monitor
+    template: src=etc/icinga/objects/localhost.cfg.j2
+              dest=/etc/icinga/objects/localhost.cfg
+              owner=root
+              group=root
+              mode=0644
+
+  - name: Setup mysql db
+    mysql_db: db=icinga
+              login_user=root
+              login_password=''
+              login_unix_socket=/var/run/mysqld/mysqld.sock
+    only_if: '$is_master'
+
+  - name: Setup mysql user
+    mysql_user: name=icinga password=icinga priv=icinga.*:ALL
+                login_user=root
+                login_password=''
+                login_unix_socket=/var/run/mysqld/mysqld.sock
+    only_if: '$is_master'
+
+  - name: Setup mysql socket
+    lineinfile: dest=/etc/icinga/ido2db.cfg
+                regexp='^db_socket='
+                line="db_socket=/var/run/mysqld/mysqld.sock"
+                insertafter='^#db_socket'
 
   - name: Start icinga
     service: name=icinga

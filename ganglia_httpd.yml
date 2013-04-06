@@ -8,13 +8,6 @@
 
   tasks:
 
-  - name: Enable HTTP server status
-    template: src=etc/httpd/conf.d/status.conf.j2
-              dest=/etc/httpd/conf.d/status.conf
-              owner=root
-              group=root
-              mode=0644
-
   - name: Link apache_workers_report.php
     file: src=${python_modules_dir}/httpd/graph.d/apache_workers_report.php
           dest=/usr/share/ganglia/graph.d/apache_workers_report.php

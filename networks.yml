@@ -8,5 +8,8 @@ networks:
 masks:
   system: 255.255.0.0
 
+# TODO: ntp_server
 broadcasts:
   system: 10.1.255.255
+
+system_broadcast: 10.1.255.255

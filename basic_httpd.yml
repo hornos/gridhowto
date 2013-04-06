@@ -1,0 +1,26 @@
+
+---
+- hosts: all
+
+  vars_files:
+    - networks.yml
+
+  tasks:
+
+  - name: Enable HTTP server status
+    template: src=etc/httpd/conf.d/status.conf.j2
+              dest=/etc/httpd/conf.d/status.conf
+              owner=root
+              group=root
+              mode=0644
+
+  - name: Set HTTP server name
+    template: src=etc/httpd/conf.d/servername.conf.j2
+              dest=/etc/httpd/conf.d/servername.conf
+              owner=root
+              group=root
+              mode=0644
+
+  - name: Restart httpd
+    service: name=httpd
+             state=restarted
