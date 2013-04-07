@@ -2,14 +2,18 @@
 - hosts: all
 
   tasks:
-  - name: Install prerequisite packages
-    yum: name=$item
+  - name: Install syslog-ng packages
+#    yum: name=$item
+#         state=installed
+#    with_items:
+#      - syslog-ng
+#      - syslog-ng-libdbi
+#    tags:
+#      - packages
+    yum: name=syslog-ng
          state=installed
-    with_items:
-      - syslog-ng
-      - syslog-ng-libdbi
-    tags:
-      - packages
+    yum: name=syslog-ng-libdbi
+         state=installed
 
   - name: Uninstall rsyslog for sure
     yum: name=rsyslog

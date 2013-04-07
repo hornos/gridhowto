@@ -1,13 +1,23 @@
 # TODO: mariadb icinga vars and pass
+# http://www.6tech.org/2013/01/how-to-setup-icinga-1-8-4-centos-6-3/
+# http://wiki.nikoforge.org/Icinga_Setup_on_CentOS_6
+#
+# Import schemas:
+# --extra-vars "schema=yes"
+# TODO: icinga-web schema
 ---
 - hosts: all
 
+  vars_files:
+    - mariadb_vars.yml
+
   vars:
-    is_master: "'$inventory_hostname' == 'root-01'"
+    is_master: "'$inventory_hostname' == '$master'"
+    is_schema: "'$schema' == 'yes'"
 
   tasks:
 
-  - name: Install prerequisite packages
+  - name: Install icinga packages
     yum: name=$item
          state=installed
     with_items:
@@ -17,8 +27,52 @@
       - icinga-idoutils-libdbi-mysql
       - icinga-gui
       - icinga-api
+      - php-mysql
+      - MySQL-python
     tags:
       - packages
+
+  - name: Setup icinga mysql db
+    mysql_db: db=icinga
+              login_user=root
+              login_password=$password
+              login_unix_socket=$socket
+    only_if: '$is_master'
+
+  - name: Setup icinga mysql user
+    mysql_user: name=icinga password=icinga priv=icinga.*:ALL
+                login_user=root
+                login_password=$password
+                login_unix_socket=$socket
+    only_if: '$is_master'
+
+  - name: Setup icinga_web mysql db
+    mysql_db: db=icinga_web
+              login_user=root
+              login_password=$password
+              login_unix_socket=$socket
+    only_if: '$is_master'
+
+  - name: Setup icinga_web mysql user
+    mysql_user: name=icinga_web password=icinga_web priv=icinga_web.*:ALL
+                login_user=root
+                login_password=$password
+                login_unix_socket=$socket
+    only_if: '$is_master'
+
+  - name: Import icinga schema
+    shell: cat /usr/share/doc/icinga-idoutils-libdbi-mysql-*/db/mysql/mysql.sql | mysql -u icinga --password=icinga icinga
+    only_if: '$is_master and $is_schema'
+    notify:
+      - Restart ido2db
+      - Restart icinga
+
+  - name: Import icinga-web schema
+    shell: cat /usr/share/icinga-web/etc/schema/mysql.sql | mysql -u icinga_web --password=icinga_web icinga_web
+    only_if: '$is_master and $is_schema'
+    notify:
+      - Restart ido2db
+      - Restart icinga
 
   - name: Setup localhost monitor
     template: src=etc/icinga/objects/localhost.cfg.j2
@@ -26,29 +80,32 @@
               owner=root
               group=root
               mode=0644
-
-  - name: Setup mysql db
-    mysql_db: db=icinga
-              login_user=root
-              login_password=''
-              login_unix_socket=/var/run/mysqld/mysqld.sock
-    only_if: '$is_master'
-
-  - name: Setup mysql user
-    mysql_user: name=icinga password=icinga priv=icinga.*:ALL
-                login_user=root
-                login_password=''
-                login_unix_socket=/var/run/mysqld/mysqld.sock
-    only_if: '$is_master'
+    notify:
+      - Restart icinga
 
   - name: Setup mysql socket
     lineinfile: dest=/etc/icinga/ido2db.cfg
                 regexp='^db_socket='
-                line="db_socket=/var/run/mysqld/mysqld.sock"
+                line="db_socket=${socket}"
                 insertafter='^#db_socket'
+    notify:
+      - Restart ido2db
+
+  - name: Start ido2db
+    service: name=ido2db
+             state=started
+             enabled=yes
 
   - name: Start icinga
     service: name=icinga
-             state=restarted
+             state=started
              enabled=yes
 
+  handlers:
+    - name: Restart icinga
+      service: name=icinga
+               state=restarted
+
+    - name: Restart ido2db
+      service: name=ido2db
+               state=restarted

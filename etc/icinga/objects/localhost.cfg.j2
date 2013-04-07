@@ -1,5 +1,5 @@
 ###############################################################################
-# {{ansible_hostname}}.CFG - SAMPLE OBJECT CONFIG FILE FOR MONITORING THIS MACHINE
+# {{host}}.CFG - SAMPLE OBJECT CONFIG FILE FOR MONITORING THIS MACHINE
 #
 # NOTE: This config file is intended to serve as an *extremely* simple 
 #       example of how you can create configuration entries to monitor
@@ -20,15 +20,15 @@
 
 # Define a host for the local machine
 
-define host{
-        use                     linux-server            ; Name of host template to use
-							; This host definition will inherit all variables that are defined
-							; in (or inherited by) the linux-server host template definition.
-        host_name               {{ansible_hostname}}
-        alias                   {{ansible_hostname}}
-        address                 {{ansible_eth0["ipv4"]["address"]}}
-        }
 
+{% for host in groups['root'] %}
+define host{
+        use                     linux-server
+        host_name               {{host}}
+        alias                   {{host}}
+        address                 {{hostvars[host]['ansible_eth0']['ipv4']['address']}}
+        }
+{% endfor %}
 
 
 ###############################################################################
@@ -44,9 +44,17 @@ define host{
 define hostgroup{
         hostgroup_name  linux-servers ; The name of the hostgroup
         alias           Linux Servers ; Long name of the group
-        members         {{ansible_hostname}}     ; Comma separated list of hosts that belong to this group
-        }
-
+{% set first=1 %}
+members {% for host in groups['root'] %}
+{%- if not first %}
+,
+{%- endif %}
+{%- if first %}
+{%- set first=0 %}
+{%- endif %}
+{{- host }}
+{%- endfor %};
+}
 
 
 ###############################################################################
@@ -60,107 +68,117 @@ define hostgroup{
 
 # Define a service to "ping" the local machine
 
+{% for host in groups['root'] %}
 define service{
         use                             local-service         ; Name of service template to use
-        host_name                       {{ansible_hostname}}
+        host_name                       {{host}}
         service_description             PING
 	check_command			check_ping!100.0,20%!500.0,60%
         }
-
+{% endfor %}
 
 # Define a service to check the disk space of the root partition
 # on the local machine.  Warning if < 20% free, critical if
 # < 10% free space on partition.
 
+{% for host in groups['root'] %}
 define service{
         use                             local-service         ; Name of service template to use
-        host_name                       {{ansible_hostname}}
+        host_name                       {{host}}
         service_description             Root Partition
 	check_command			check_local_disk!20%!10%!/
         }
-
+{% endfor %}
 
 
 # Define a service to check the number of currently logged in
 # users on the local machine.  Warning if > 20 users, critical
 # if > 50 users.
 
+{% for host in groups['root'] %}
 define service{
         use                             local-service         ; Name of service template to use
-        host_name                       {{ansible_hostname}}
+        host_name                       {{host}}
         service_description             Current Users
 	check_command			check_local_users!20!50
         }
-
+{% endfor %}
 
 # Define a service to check the number of currently running procs
 # on the local machine.  Warning if > 250 processes, critical if
 # > 400 users.
 
+{% for host in groups['root'] %}
 define service{
         use                             local-service         ; Name of service template to use
-        host_name                       {{ansible_hostname}}
+        host_name                       {{host}}
         service_description             Total Processes
 	check_command			check_local_procs!250!400!RSZDT
         }
-
+{% endfor %}
 
 
 # Define a service to check the load on the local machine. 
 
+{% for host in groups['root'] %}
 define service{
         use                             local-service         ; Name of service template to use
-        host_name                       {{ansible_hostname}}
+        host_name                       {{host}}
         service_description             Current Load
 	check_command			check_local_load!5.0,4.0,3.0!10.0,6.0,4.0
         }
-
+{% endfor %}
 
 
 # Define a service to check the swap usage the local machine. 
 # Critical if less than 10% of swap is free, warning if less than 20% is free
 
+{% for host in groups['root'] %}
 define service{
         use                             local-service         ; Name of service template to use
-        host_name                       {{ansible_hostname}}
+        host_name                       {{host}}
         service_description             Swap Usage
 	check_command			check_local_swap!20!10
         }
-
+{% endfor %}
 
 
 # Define a service to check SSH on the local machine.
 # Disable notifications for this service by default, as not all users may have SSH enabled.
 
+{% for host in groups['root'] %}
 define service{
         use                             local-service         ; Name of service template to use
-        host_name                       {{ansible_hostname}}
+        host_name                       {{host}}
         service_description             SSH
 	check_command			check_ssh
 	notifications_enabled		0
         }
-
+{% endfor %}
 
 
 # Define a service to check HTTP on the local machine.
 # Disable notifications for this service by default, as not all users may have HTTP enabled.
 
+{% for host in groups['root'] %}
 define service{
         use                             local-service         ; Name of service template to use
-        host_name                       {{ansible_hostname}}
+        host_name                       {{host}}
         service_description             HTTP
 	check_command			check_http
 	notifications_enabled		0
         }
-
+{% endfor %}
 
 # Define a service to check current startup delay of the Icinga core daemon.
 # Disable notifications for this service by default, as no thresholds are defined.
 
+{% for host in groups['root'] %}
 define service{
         use                             local-service         ; Name of service template to use
-        host_name                       {{ansible_hostname}}
+        host_name                       {{host}}
         service_description             Icinga Startup Delay
         check_command                   check_icinga_startup_delay
         notifications_enabled           0
         }
+{% endfor %}

@@ -9,7 +9,7 @@
     - networks.yml
 
   tasks:
-  - name: Install prerequisite packages
+  - name: Install ganglia packages
     yum: name=$item
          state=installed
     with_items:

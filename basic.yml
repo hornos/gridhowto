@@ -1,14 +1,12 @@
 #
 # Basic configuration for root servers
 # 
----
-- name: Basic configuration
-  hosts: all
 
 - include: basic_selinux.yml
 - include: basic_services.yml
 - include: basic_repos.yml
 - include: basic_packages.yml
+- include: basic_tops.yml
 - include: basic_httpd.yml
 - include: modules.yml
 - include: inittab.yml

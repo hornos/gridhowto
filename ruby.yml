@@ -1,37 +1,14 @@
 ---
 - hosts: all
-
-# old
   tasks:
 
-  - name: Install make
+  - name: Install ruby packages
     yum: name=make
-         state=installed
-
-  - name: Install GCC
     yum: name=gcc
-         state=installed
-
-  - name: Install G++
     yum: name=gcc-c++
-         state=installed
-
-  - name: Install Zlib
     yum: name=zlib-devel
-         state=installed
-
-  - name: Install XML2
     yum: name=libxml2-devel
-         state=installed
-
-# TODO: with mariadb
-  - name: Install Mysql
-    yum: name=mysql-devel
-         state=installed
-
-  - name: Install XSLT
     yum: name=libxslt-devel
-         state=installed
 
   - name: Copy RVM Installer
     copy: src=root/install_rvm.sh
@@ -42,4 +19,3 @@
 
   - name: Install RVM
     shell: /root/install_rvm.sh
- 

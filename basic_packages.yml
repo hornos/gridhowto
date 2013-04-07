@@ -3,24 +3,60 @@
 
   tasks:
 
-  - name: Install prerequisite packages
-    yum: name=$item
+  - name: Install basic packages
+#    yum: name=$item
+#         state=installed
+#    with_items:
+#      - mc
+#      - htop
+#      - iptraf-ng
+#      - sysstat
+#      - nmap
+#      - mtr
+#      - man
+#      - git
+#      - gcc
+#      - gcc-c++
+#      - python-pip
+#      - python-devel
+#      - python-crypto
+#      - python-setuptools
+#      - python-sqlite2
+#      - pyOpenSSL
+#    tags:
+#      - packages
+
+    yum: name=mc
          state=installed
-    with_items:
-      - mc
-      - htop
-      - iptraf-ng
-      - sysstat
-      - nmap
-      - man
-      - git
-      - gcc
-      - gcc-c++
-      - python-pip
-      - python-devel
-      - python-crypto
-      - python-setuptools
-      - python-sqlite2
-      - pyOpenSSL
-    tags:
-      - packages
+    yum: name=htop
+         state=installed
+    yum: name=iptraf-ng
+         state=installed
+    yum: name=mtr
+         state=installed
+    yum: name=sysstat
+         state=installed
+    yum: name=nmap
+         state=installed
+    yum: name=man
+         state=installed
+    yum: name=git
+         state=installed
+    yum: name=gcc
+         state=installed
+    yum: name=gcc-c++
+         state=installed
+    yum: name=python-pip
+         state=installed
+    yum: name=python-devel
+         state=installed
+    yum: name=python-crypto
+         state=installed
+    yum: name=python-setuptools
+         state=installed
+    yum: name=python-sqlite2
+         state=installed
+    yum: name=pyOpenSSL
+         state=installed
+    yum: name=make
+         state=installed

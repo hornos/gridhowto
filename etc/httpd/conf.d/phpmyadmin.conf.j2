@@ -1,0 +1,14 @@
+#
+#  Web application to manage MySQL
+#
+
+<Directory "/usr/share/phpmyadmin">
+  Order Deny,Allow
+  Deny from all
+  Allow from {{ networks['system'] }}/{{ masks['system'] }}
+  Allow from 127.0.0.1
+</Directory>
+
+Alias /phpmyadmin /usr/share/phpmyadmin
+Alias /phpMyAdmin /usr/share/phpmyadmin
+Alias /mysqladmin /usr/share/phpmyadmin

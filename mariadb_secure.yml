@@ -1,0 +1,26 @@
+# Based on: http://edin.no-ip.com/blog/hswong3i/mariadb-galera-mastermaster-replication-ubuntu-12-04-howto
+---
+- hosts: all
+
+  vars_files:
+    - mariadb_vars.yml
+
+  tasks:
+# set root password
+# https://coderwall.com/p/yez9yw?i=1&p=2&q=sort%3Ascore+desc&t%5B%5D=ansible
+  - name: Install MySQL-python
+    yum: name=MySQL-python
+
+  - name: update mysql root password for all root accounts
+    mysql_user: name=root
+                password=$password
+                login_password=''
+                login_user=root
+                login_unix_socket=$socket
+
+  - name: remove the test database
+    mysql_db: name=test
+              state=absent
+              login_user=root
+              login_password=$password
+              login_unix_socket=$socket

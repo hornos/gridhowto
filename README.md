@@ -318,7 +318,7 @@ Ganglia is a scalable distributed monitoring system for high-performance computi
 
     bin/play @@root ganglia
 
-Ganglia's web intreface is at `http://root-01/ganglia`.
+Ganglia's web intreface is at `http://root-0?/ganglia`.
 
 The following monitors can be played:
 
@@ -332,12 +332,41 @@ The following monitors can be played:
     ganglia_procstat  - basic service monitor
     ganglia_system    - cpu and memory statistics
 
-### Icinga
+### Webmin
 
+    bin/play @@root webmin
+
+### MariaDB with Galera
+MariaDB with Galera is used for the cluster SQL service. The first root node (`root-01`) is the pseudo-master.
+
+    bin/play @@root mariadb
+
+Secure mysql on the first node:
+
+    bin/play @@root-01 mariadb_secure
+
+Install mysql tools:
+
+    bin/play @@root mariadb_tools
+
+The following tools are installed under `/root/bin`:
+
+    wsrep_status - Galera wsrep status page
+    mytop        - Mysql top (-p <PASSWORD>)
+    mtop         - Mysql thread list (-p <PASSWORD>)
+    innotop      - InnoDB statistics (-p <PASSWORD>)
+
+You can access phpmyadmin on `http://root-0?/phpmyadmin`.
+
+### Icinga
+Install and setup Icinga:
+
+    bin/play @@root icinga --extra-vars "schema=yes"
+
+you can access icinga on `http://root-0?/icinga`.
 
 ### Graphite
 
-    bin/play @@root mariadb
     bin/play @@root memcache
     bin/play @@root rrdcache
     bin/play @@root graphite

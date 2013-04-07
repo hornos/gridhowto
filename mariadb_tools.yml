@@ -1,0 +1,74 @@
+---
+- hosts: all
+
+  vars_files:
+    - networks.yml
+    - mariadb_vars.yml
+
+  tasks:
+    - name: Install packages
+      yum: name=$item
+           state=installed
+      with_items:
+        - mytop
+        - mtop
+        - innotop
+        - php-mcrypt
+        - phpmyadmin
+      tags:
+        - packages
+
+    - name: Enable phpmyadmin
+      template: src=etc/httpd/conf.d/phpmyadmin.conf.j2
+              dest=/etc/httpd/conf.d/phpmyadmin.conf
+              owner=root
+              group=root
+              mode=0644
+      notify:
+        - Restart httpd
+
+    - name: Install phpmyadmin config
+      template: src=usr/share/phpmyadmin/config.inc.php.j2
+              dest=/usr/share/phpmyadmin/config.inc.php
+              owner=root
+              group=root
+              mode=0644
+
+    - name: Create /root/bin directory
+      file: path=/root/bin
+            owner=root
+            group=root
+            state=directory
+
+    - name: Install wsrep_status
+      template: src=root/bin/wsrep_status.j2
+                dest=/root/bin/wsrep_status
+                owner=root
+                group=root
+                mode=0755
+
+    - name: Install mytop
+      template: src=root/bin/mytop.j2
+                dest=/root/bin/mytop
+                owner=root
+                group=root
+                mode=0755
+
+    - name: Install mtop
+      template: src=root/bin/mtop.j2
+                dest=/root/bin/mtop
+                owner=root
+                group=root
+                mode=0755
+
+    - name: Install innotop
+      template: src=root/bin/innotop.j2
+                dest=/root/bin/innotop
+                owner=root
+                group=root
+                mode=0755
+
+  handlers:
+    - name: Restart httpd
+      service: name=httpd
+               state=restarted

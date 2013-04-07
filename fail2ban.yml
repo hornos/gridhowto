@@ -11,23 +11,33 @@
                 regexp='^banaction'
                 line='banaction = shorewall'
                 insertafter='^\[DEFAULT\]'
+    notify:
+      - Restart fail2ban
 
   - name: Set loglevel
     lineinfile: dest=/etc/fail2ban/fail2ban.conf
                 regexp='^loglevel'
                 line='loglevel=2'
+    notify:
+      - Restart fail2ban
 
   - name: Enable fail2ban
     lineinfile: dest=/etc/shorewall/shorewall.conf
                 regexp='^BLACKLISTNEWONLY'
                 line='BLACKLISTNEWONLY=No'
+    notify:
+      - Restart shorewall
 
-  - name: Restart fail2ban
+  - name: Start fail2ban
     service: name=fail2ban
              state=restarted
              enabled=yes
-# TODO: notify
-  - name: Restart shorewall
-    service: name=shorewall
-             state=restarted
-             enabled=yes
+
+  handlers:
+    - name: Restart shorewall
+      service: name=shorewall
+               state=restarted
+
+    - name: Restart fail2ban
+      service: name=fail2ban
+               state=restarted

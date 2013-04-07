@@ -15,15 +15,21 @@
     - networks.yml
 
   tasks:
-    - name: Install packages
-      yum: name=$item
+    - name: Install dnsmasq packages
+#      yum: name=$item
+#           state=installed
+#      with_items:
+#        - dnsmasq
+#        - dnsmasq-utils
+#        - bind-utils
+#      tags:
+#        - packages
+      yum: name=dnsmasq
            state=installed
-      with_items:
-        - dnsmasq
-        - dnsmasq-utils
-        - bind-utils
-      tags:
-        - packages
+      yum: name=dnsmasq-utils
+           state=installed
+      yum: name=bind-utils
+           state=installed
 
     - name: Enable /etc/dnsmasq.d
       lineinfile: dest=/etc/dnsmasq.conf

@@ -13,12 +13,12 @@
               group=root
               mode=0644
 
-  - name: Uninstall mysql-libs
-    yum: name=mysql-libs
-         state=absent
-    ignore_errors: yes
+#  - name: Uninstall mysql-libs
+#    yum: name=mysql-libs
+#         state=absent
+#    ignore_errors: yes
 
-  - name: Install prerequisite packages
+  - name: Install MariaDB packages
     yum: name=$item
          state=installed
     with_items:
@@ -37,6 +37,8 @@
               owner=root
               group=root
               mode=0644
+    notify:
+      - Restart mysqld
 
   - name: Setup /etc/my.cnf.d/server.cnf
     template: src=etc/my.cnf.d/server.cnf.j2
@@ -44,15 +46,37 @@
               owner=root
               group=root
               mode=0644
+    notify:
+      - Restart mysqld
 
-# set root password
-# https://coderwall.com/p/yez9yw?i=1&p=2&q=sort%3Ascore+desc&t%5B%5D=ansible
+  - name: Setup PHP mysql socket
+    lineinfile: dest=/etc/php.ini
+                regexp="^mysql.default_socket"
+                line="mysql.default_socket = ${socket}"
+    notify:
+      - Restart httpd
 
+  - name: Setup PHP mysqli socket
+    lineinfile: dest=/etc/php.ini
+                regexp="^mysqli.default_socket"
+                line="mysqli.default_socket = ${socket}"
+    notify:
+      - Restart httpd
 
   - name: Start mysqld
     service: name=mysql
              state=started
              enabled=yes
+
+  handlers:
+    - name: Restart mysqld
+      service: name=mysql
+               state=restarted
+
+    - name: Restart httpd
+      service: name=httpd
+               state=restarted
+
 
 # mysql -e "SET wsrep_on = OFF; DELETE FROM mysql.user WHERE user = '';"
 # mysql -e "SET wsrep_on = OFF; GRANT ALL ON *.* TO 'root'@'%' IDENTIFIED BY 'password';"

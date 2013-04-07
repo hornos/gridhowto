@@ -9,6 +9,10 @@
 
   tasks:
 
+  - name: Install apachetop
+    yum: name=apachetop
+         state=installed
+
   - name: Enable HTTP server status
     template: src=etc/httpd/conf.d/status.conf.j2
               dest=/etc/httpd/conf.d/status.conf

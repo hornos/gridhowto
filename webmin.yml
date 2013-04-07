@@ -22,13 +22,15 @@
               owner=root
               group=root
               mode=0640
+    notify:
+      - Restart shorewall
 
-#  - name: Enable webmin in /etc/shorewall/rules
-#    lineinfile: dest=/etc/shorewall/rules
-#                regexp='^INCLUDE /etc/shorewall/rules.d/webmin'
-#                insertbefore='^#LAST'
-#                line='INCLUDE /etc/shorewall/rules.d/webmin'
+  - name: Start webmin
+    service: name=webmin
+             state=started
+             enabled=yes
 
-  - name: restart shorewall
-    service: name=shorewall
-             state=restarted
+  handlers:
+    - name: Restart shorewall
+      service: name=shorewall
+               state=restarted

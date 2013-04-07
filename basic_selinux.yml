@@ -4,19 +4,24 @@
 - hosts: all
 
   tasks:
-    - name: Install packages
-      yum: name=$item
-           state=installed
-      with_items:
-        - libsemanage
-        - setools-libs-python
-        - policycoreutils-python
-        - libselinux-python
-        - policycoreutils-python
-      tags:
-        - packages
+    - name: Install selinux packages
+#      yum: name=$item state=installed
+#      with_items:
+#        - libsemanage
+#        - setools-libs-python
+#        - policycoreutils-python
+#        - libselinux-python
 
-    - name: Set permissive policy
+      yum: name=libsemanage
+           state=installed
+      yum: name=setools-libs-python
+           state=installed
+      yum: name=policycoreutils-python
+           state=installed
+      yum: name=libselinux-python
+           state=installed
+
+    - name: Set selinux permissive policy
       lineinfile: dest=/etc/sysconfig/selinux
                 regexp='^SELINUX='
                 line='SELINUX=permissive'

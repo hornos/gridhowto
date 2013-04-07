@@ -8,5 +8,5 @@
 - include: epel.yml
 - include: rpmforge.yml
 # TODO
-- include: nodejs.yml
-- include: ruby.yml
+# - include: nodejs.yml
+# - include: ruby.yml
