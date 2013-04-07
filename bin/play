@@ -71,6 +71,9 @@ case $gbn in
   run)
     cmd="ansible ${hosts} -m command -a \"${module}\""
     ;;
+  restart)
+    cmd="ansible ${hosts} -m command -a \"service ${module} restart\""
+    ;;
   shell)
     echo "${module}" > ${tmp}
     chmod a+x ${tmp}
