@@ -1,7 +1,15 @@
 # This play enables dnsmasq DNS cache. Put /etc/hosts 
 # entries into /etc/dnsmasq.d/
+#
+# Not detect root servers:
+#
+#     --extra-vars "nodetect=yes"
+#
 ---
 - hosts: all
+
+  vars:
+    nodetect: "no"
 
   vars_files:
     - networks.yml
@@ -23,7 +31,7 @@
                   insertafter='^#conf-dir.*'
                   line='conf-dir=/etc/dnsmasq.d'
       notify:
-        - restart dnsmasq
+        - Restart dnsmasq
 
     - name: Create hosts.d directory
       file: path=/etc/hosts.d
@@ -37,7 +45,7 @@
                   insertafter='^#addn-hosts.*'
                   line='addn-hosts=/etc/hosts.d'
       notify:
-        - restart dnsmasq
+        - Restart dnsmasq
 
     - name: Enable root server hostnames
       template: src=etc/hosts.d/root.j2
@@ -45,8 +53,9 @@
                 owner=bin
                 group=wheel
                 mode=0644
+      when_string: "'$nodetect' != 'yes'"
       notify:
-        - restart dnsmasq
+        - Restart dnsmasq
 
 
     - name: Enable networks in /etc/networks
@@ -62,12 +71,12 @@
                   insertbefore='^nameserver.*'
                   line='nameserver 127.0.0.1'
 
-    - name: Localhost DNS for DHCP (${dhcp_interface})
-      template: src=etc/dhcp/dhclient-${dhcp_interface}.conf.j2
-                dest=/etc/dhcp/dhclient-${dhcp_interface}.conf
+    - name: Localhost DNS for DHCP (${interfaces.dhcp})
+      template: src=etc/dhcp/dhclient-${interfaces.dhcp}.conf.j2
+                dest=/etc/dhcp/dhclient-${interfaces.dhcp}.conf
                 owner=root
                 group=root
-      when_string: $dhcp_interface != ''
+      when_string: "'${interfaces.dhcp}' != ''"
 
 
     - name: Start dnsmasq
@@ -76,6 +85,6 @@
                enabled=yes
 
   handlers:
-    - name: restart dnsmasq
+    - name: Restart dnsmasq
       service: name=dnsmasq
                state=restarted

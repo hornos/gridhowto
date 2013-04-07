@@ -1,6 +1,6 @@
 #ZONE      INTERFACE     BROADCAST     OPTIONS
-sys        eth0          detect
-sto        eth1          detect
-mpi        eth2          detect
-ext        eth3          detect        dhcp,routefilter
+sys        {{interfaces['system']}}          detect
+sto        {{interfaces['storage']}}          detect
+mpi        {{interfaces['mpi']}}          detect
+ext        {{interfaces['external']}}          detect        dhcp,routefilter
 #LAST LINE -- ADD YOUR ENTRIES BEFORE THIS ONE -- DO NOT REMOVE

@@ -1,4 +1,6 @@
-
+#
+# Basic httpd settings
+#
 ---
 - hosts: all
 
@@ -13,6 +15,8 @@
               owner=root
               group=root
               mode=0644
+    notify:
+      - Restart httpd
 
   - name: Set HTTP server name
     template: src=etc/httpd/conf.d/servername.conf.j2
@@ -20,7 +24,24 @@
               owner=root
               group=root
               mode=0644
+    notify:
+      - Restart httpd
 
-  - name: Restart httpd
+  - name: Allow HTTP connect
+    seboolean: name=httpd_can_network_connect
+               state=true
+               persistent=yes
+    notify:
+      - Restart httpd
+
+#  - name: Put HTTP in permissive mode
+#    command: /usr/sbin/semanage permissive -a httpd_t
+
+  - name: Start httpd
     service: name=httpd
-             state=restarted
+             state=started
+
+  handlers:
+    - name: Restart httpd
+      service: name=httpd
+               state=restarted

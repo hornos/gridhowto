@@ -1,10 +1,19 @@
+#
+# Shorewall firewall
+#
+# TODO: dhcp from networks.yml
 ---
 - hosts: all
+
+  vars_files:
+    - networks.yml
 
   tasks:
   - name: Install shorewall
     yum: name=shorewall
          state=installed
+    tags:
+      - packages
 
 ### PARAMETERS
   - name: Create /etc/shorewall/params.d
@@ -12,6 +21,8 @@
           owner=root
           group=root
           state=directory
+    tags:
+      - parameters
 
   - name: Install /etc/shorewall/params.d/root
     template: src=etc/shorewall/params.d/root.j2
@@ -19,6 +30,10 @@
               owner=root
               group=root
               mode=0640
+    tags:
+      - parameters
+    notify:
+      - Restart shorewall
 
   - name: Install params
     template: src=etc/shorewall/params.j2
@@ -26,7 +41,10 @@
               owner=root
               group=root
               mode=0640
-
+    tags:
+      - parameters
+    notify:
+      - Restart shorewall
 
 ### ZONES
   - name: Create /etc/shorewall/zones.d
@@ -34,6 +52,8 @@
           owner=root
           group=root
           state=directory
+    tags:
+      - zones
 
   - name: Install /etc/shorewall/zones.d/root
     template: src=etc/shorewall/zones.d/root.j2
@@ -41,6 +61,10 @@
               owner=root
               group=root
               mode=0640
+    tags:
+      - zones
+    notify:
+      - Restart shorewall
 
   - name: Install zones
     template: src=etc/shorewall/zones.j2
@@ -48,6 +72,10 @@
               owner=root
               group=root
               mode=0640
+    tags:
+      - zones
+    notify:
+      - Restart shorewall
 
 
 ### HOSTS
@@ -56,6 +84,8 @@
           owner=root
           group=root
           state=directory
+    tags:
+      - hosts
 
   - name: Install /etc/shorewall/hosts.d/root
     template: src=etc/shorewall/hosts.d/root.j2
@@ -63,6 +93,10 @@
               owner=root
               group=root
               mode=0640
+    tags:
+      - hosts
+    notify:
+      - Restart shorewall
 
   # Edit multicast interface here
   - name: Install hosts
@@ -71,6 +105,10 @@
               owner=root
               group=root
               mode=0640
+    tags:
+      - hosts
+    notify:
+      - Restart shorewall
 
 
 ### POLICY
@@ -79,6 +117,8 @@
           owner=root
           group=root
           state=directory
+    tags:
+      - policy
 
   - name: Install /etc/shorewall/policy.d/root
     template: src=etc/shorewall/policy.d/root.j2
@@ -86,6 +126,10 @@
               owner=root
               group=root
               mode=0640
+    tags:
+      - policy
+    notify:
+      - Restart shorewall
 
   - name: Install policy
     template: src=etc/shorewall/policy.j2
@@ -93,14 +137,20 @@
               owner=root
               group=root
               mode=0640
+    tags:
+      - policy
+    notify:
+      - Restart shorewall
+
 
 ### RULES
-
   - name: Create /etc/shorewall/rules.d
     file: path=/etc/shorewall/rules.d
           owner=root
           group=root
           state=directory
+    tags:
+      - rules
 
   - name: Install /etc/shorewall/rules.d/root
     template: src=etc/shorewall/rules.d/root.j2
@@ -108,6 +158,10 @@
               owner=root
               group=root
               mode=0640
+    tags:
+      - rules
+    notify:
+      - Restart shorewall
 
   - name: Install /etc/shorewall/rules
     template: src=etc/shorewall/rules.j2
@@ -115,6 +169,10 @@
               owner=root
               group=root
               mode=0640
+    tags:
+      - rules
+    notify:
+      - Restart shorewall
 
 #  - name: Enable root in /etc/shorewall/rules
 #    lineinfile: dest=/etc/shorewall/rules
@@ -130,6 +188,10 @@
               owner=root
               group=root
               mode=0640
+    tags:
+      - misc
+    notify:
+      - Restart shorewall
 
   - name: Install routestopped
     template: src=etc/shorewall/routestopped.j2
@@ -137,6 +199,10 @@
               owner=root
               group=root
               mode=0640
+    tags:
+      - misc
+    notify:
+      - Restart shorewall
 
   - name: Enable shorewall
     template: src=etc/shorewall/shorewall.conf.j2
@@ -144,6 +210,10 @@
               owner=root
               group=root
               mode=0640
+    tags:
+      - misc
+    notify:
+      - Restart shorewall
 
 #  - name: Enable multicast
 #    lineinfile: dest=/etc/shorewall/shorewall.conf
@@ -156,7 +226,12 @@
              state=stopped
              enabled=no
 
-  - name: Restart shorewall
+  - name: Start shorewall
     service: name=shorewall
-             state=restarted
+             state=started
              enabled=yes
+
+  handlers:
+    - name: Restart shorewall
+      service: name=shorewall
+               state=restarted

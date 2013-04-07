@@ -1,21 +1,28 @@
+#
+# syslog-ng based log server
+#
 ---
 - hosts: all
 
   tasks:
 
-  - name: Enable loghost
+  - name: Enable syslog-ng loghost
     template: src=etc/syslog-ng/conf.d/loghost
               dest=/etc/syslog-ng/conf.d/10-loghost
               owner=root
               group=root
               mode=0644
+    notify:
+      - Restart syslog-ng
 
   - name: Enable directory creation
     lineinfile: dest=/etc/syslog-ng/syslog-ng.conf
                 regexp='create_dirs \('
                 line='create_dirs (yes);'
+    notify:
+      - Restart syslog-ng
 
-  - name: Restart syslog-ng
-    service: name=syslog-ng
-             state=restarted
-             enabled=yes
+  handlers:
+    - name: Restart syslog-ng
+      service: name=syslog-ng
+               state=restarted

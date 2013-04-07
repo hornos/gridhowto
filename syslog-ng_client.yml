@@ -1,3 +1,6 @@
+#
+# syslog-ng remote log client
+#
 ---
 - hosts: all
 
@@ -9,8 +12,10 @@
               owner=root
               group=root
               mode=0644
+    notify:
+      - Restart syslog-ng
 
-  - name: Restart syslog-ng
-    service: name=syslog-ng
-             state=restarted
-             enabled=yes
+  handlers:
+    - name: Restart syslog-ng
+      service: name=syslog-ng
+               state=restarted

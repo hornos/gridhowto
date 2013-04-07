@@ -1,4 +1,6 @@
+#
 # Ganglia cluster monitor
+#
 ---
 - hosts: all
 
@@ -23,6 +25,8 @@
   - name: Download community python modules
     git: repo=$python_modules_git
          dest=$python_modules_dir
+    tags:
+      - modules
 
 # TODO: ipmi monitoring
 
@@ -36,6 +40,8 @@
               owner=root
               group=root
               mode=0644
+    notify:
+      - Restart gmond
 
   - name: Ganglia meta-data
     template: src=etc/ganglia/gmetad.conf.j2
@@ -43,6 +49,8 @@
               owner=root
               group=root
               mode=0644
+    notify:
+      - Restart gmetad
 
   - name: Disable tcpconn.pyconf
     template: src=etc/ganglia/conf.d/tcpconn.pyconf.j2
@@ -50,24 +58,8 @@
               owner=root
               group=root
               mode=0644
-
-  - name: Restart gmond
-    service: name=gmond
-             state=restarted
-             enabled=yes
-
-  - name: Restart gmetad
-    service: name=gmetad
-             state=restarted
-             enabled=yes
-
-  - name: Allow HTTP connect
-    seboolean: name=httpd_can_network_connect
-               state=true
-               persistent=yes
-
-#  - name: Put HTTP in permissive mode
-#    command: /usr/sbin/semanage permissive -a httpd_t
+    notify:
+      - Restart gmond
 
   - name: Enable Ganglia web interface
     template: src=etc/httpd/conf.d/ganglia.conf.j2
@@ -75,8 +67,35 @@
               owner=root
               group=root
               mode=0644
+    notify:
+      - Restart httpd
 
-  - name: Restart HTTP
-    service: name=httpd
-             state=restarted
+
+  - name: Start gmond
+    service: name=gmond
+             state=started
              enabled=yes
+
+  - name: Start gmetad
+    service: name=gmetad
+             state=started
+             enabled=yes
+
+  - name: Start HTTP
+    service: name=httpd
+             state=started
+             enabled=yes
+
+
+  handlers:
+    - name: Restart gmond
+      service: name=gmond
+               state=restarted
+
+    - name: Restart gmetad
+      service: name=gmetad
+               state=restarted
+
+    - name: Restart httpd
+      service: name=httpd
+               state=restarted

@@ -6,3 +6,4 @@
 - include: ntp_server.yml
 - include: syslog-ng.yml
 - include: syslog-ng_loghost.yml
+- include: syslog-ng_client.yml

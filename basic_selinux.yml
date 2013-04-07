@@ -16,9 +16,9 @@
       tags:
         - packages
 
-  - name: Set permissive policy
-    lineinfile: dest=/etc/sysconfig/selinux
+    - name: Set permissive policy
+      lineinfile: dest=/etc/sysconfig/selinux
                 regexp='^SELINUX='
                 line='SELINUX=permissive'
-    tags:
-      - policy
+      tags:
+        - policy

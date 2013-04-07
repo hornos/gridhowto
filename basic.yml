@@ -7,7 +7,7 @@
 
 - include: basic_selinux.yml
 - include: basic_services.yml
-- include: basic_repo.yml
+- include: basic_repos.yml
 - include: basic_packages.yml
 - include: basic_httpd.yml
 - include: modules.yml

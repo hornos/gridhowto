@@ -11,7 +11,7 @@
     tags:
       - packages
 
-  - name: Uninstall rsyslog
+  - name: Uninstall rsyslog for sure
     yum: name=rsyslog
          state=absent
 
@@ -20,6 +20,8 @@
                 regexp='ts_format\(iso\);'
                 insertafter='^options {'
                 line='ts_format(iso);'
+    notify:
+      - Restart syslog-ng
 
   - name: Create /etc/syslog-ng/conf.d
     file: path=/etc/syslog-ng/conf.d
@@ -32,8 +34,15 @@
                 regexp='include "conf.d";'
                 insertafter='^filter f_cron'
                 line='include "conf.d";'
+    notify:
+      - Restart syslog-ng
 
-  - name: Restart syslog-ng
+  - name: Start syslog-ng
     service: name=syslog-ng
-             state=restarted
+             state=started
              enabled=yes
+
+  handlers:
+    - name: Restart syslog-ng
+      service: name=syslog-ng
+               state=restarted

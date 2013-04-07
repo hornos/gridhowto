@@ -19,7 +19,25 @@ The following network topology is recommended. The BMC network can be on the sam
     eth2 mpi      10.3.0.0/16
     ethX external ?
 
-The network configuration is found in `network.yml`. Each network interface can be a bond. On high-performance systems storage and mpi is InfiniBand or other high-speed network. If you have less than 4 interfaces use alias networks. Separate external network form the others.
+The network configuration is found in `networks.yml`. Each network interface can be a bond. On high-performance systems storage and mpi is InfiniBand or other high-speed network. If you have less than 4 interfaces use alias networks. Separate external network form the others. An Example network topology (`networks.yml`) is:
+
+    ---
+    interfaces:
+      bmc: 'eth0'
+      system: 'eth0'
+      storage: 'eth1'
+      mpi: 'eth2'
+      external: 'eth3'
+      dhcp: 'eth3'
+    networks:
+      bmc: 10.0.0.0
+      system: 10.1.0.0
+      storage: 10.2.0.0
+      mpi: 10.3.0.0
+    masks:
+      system: 255.255.0.0
+    broadcasts:
+      system: 10.1.255.255
 
 ### Root Servers in VirtualBox 
 You can make a virtual infrastructure in VirtualBox. Create the following virtual networks:
@@ -265,13 +283,13 @@ Create a new LVM partition:
 ## Basic Services
 Root servers provide NTP for the cluster. If you have a very large cluster root servers talk only to satellite servers aka rack leaders. Root servers are stratum 2 time servers. Each root server broadcasts time to the system network with crypto enabled.
 
-Basic services contain NTP, Syslog-ng and DNSmasq hosts cache:
+Install and setup basic services:
 
     bin/play @@root basic
 
-Root server names are cached in `/etc/hosts.d/root`. Put DNS cache files (hosts) in `/etc/hosts.d` and notify dnsmasq to reload. DHCP client overwrites `resolv.conf` so you have to set an interface specific conf in `etc/dhcp` if you use DHCP. Rsyslog does cross-logging between root servers. If you use DHCP on the external network reboot the machines after the basic playbook to activate the local DNSmasq.
+Root server names are cached in `/etc/hosts.d/root`. Put DNS cache files (`/etc/hosts` like files) in `/etc/hosts.d/` and notify DNSmasq to restart. DHCP client overwrites `resolv.conf` so you have to set an interface specific conf in `etc/dhcp/` if you use DHCP (see above `networks.yml` how to specif the interface fo DHCP) Syslog-ng does cross-logging between root servers. If you use DHCP reboot the machines after the basic playbook to activate the local DNSmasq cache. Logging is done by syslog-ng on the system network.
 
-The basic playbook contains az inittab change. TTYs are configured according to:
+The basic playbook contains the following inittab changes:
 
     tty1 - /var/log/messages
     tty2 - top by CPU
@@ -282,15 +300,13 @@ The basic playbook contains az inittab change. TTYs are configured according to:
     tty7 - mingetty
     tty8 - mingetty (and X)
 
-### Logging
-
 ## Firewall
 ### Shorewall
 Enable basic Shorewall firewall on the root servers:
 
     bin/play @@root shorewall
 
-Note that emergency rules are defined in `etc/shorewall/rulestopped.j2`. Enable SSH on the provision interfaces. On external services you can enable fail2ban:
+Note that emergency rules are defined in `etc/shorewall/rulestopped.j2`. Please check the `shorewall/interfaces.j2` template fiel aswell. On external services you can enable fail2ban:
 
     bin/play @@root fail2ban
 
@@ -306,11 +322,18 @@ Ganglia's web intreface is at `http://root-01/ganglia`.
 
 The following monitors can be played:
 
-    ganglia_system   - detailed cpu and memory statistics
-    ganglia_httpd    - basic httpd monitor
-    ganglia_entropy  - randomness
-    ganglia_procstat - basic service monitor
-    ganglia_mysql    - detailed mysql statistics
+    ganglia_diskfree
+    ganglia_diskpart
+    ganglia_entropy   - randomness
+    ganglia_httpd     - apache
+    ganglia_memcached - memcache
+    ganglia_mongodb   - mongodb
+    ganglia_mysql     - mysql
+    ganglia_procstat  - basic service monitor
+    ganglia_system    - cpu and memory statistics
+
+### Icinga
+
 
 ### Graphite
 
