@@ -1,0 +1,2 @@
+slurm_master: 'root-01'
+slurm_backup: 'root-02'

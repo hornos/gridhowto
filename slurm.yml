@@ -1,0 +1,119 @@
+#
+# Slurm Scheduler
+#
+# TODO: slurm repo
+---
+- hosts: all
+  vars_files:
+    - slurm_vars.yml
+    - mariadb_vars.yml
+
+  vars:
+    is_master: "'$inventory_hostname' == '$master'"
+    is_slurm_master: "'$inventory_hostname' == '$slurm_master'"
+    is_slurm_backup: "'$inventory_hostname' == '$slurm_backup'"
+
+  tasks:
+  - name: Install Stanford CS Repo
+    template: src=etc/yum.repos.d/stanford.repo.j2
+              dest=/etc/yum.repos.d/stanford.repo
+              owner=root
+              group=root
+              mode=0644
+
+  - name: Install slurm packages
+    yum: name=$item
+         state=installed
+         enablerepo=stanford
+    with_items:
+      - munge
+      - slurm
+      - slurm-munge
+      - slurm-pam_slurm
+      - slurm-perlapi
+      - slurm-plugins
+      - slurm-sjobexit
+      - slurm-sjstat
+      - slurm-slurmdbd
+      - slurm-sql
+      - slurm-torque
+    tags:
+      - packages
+
+  # https://code.google.com/p/munge/wiki/InstallationGuide
+  - name: Setup munge key
+    copy: src=etc/munge/munge.key
+          dest=/etc/munge/munge.key
+          owner=munge
+          group=munge
+          mode=0600
+
+    notify:
+      - Restart munge
+
+  - name: Start munge
+    service: name=munge
+             state=started
+             enabled=yes
+
+  - name: Setup slurmdbd mysql db
+    mysql_db: db=slurm_acct_db
+              login_user=root
+              login_password=$password
+              login_unix_socket=$socket
+    only_if: '$is_master'
+
+  - name: Setup slurmdbd mysql user
+    mysql_user: name=slurm password=slurm priv=slurm_acct_db.*:ALL
+                login_user=root
+                login_password=$password
+                login_unix_socket=$socket
+    only_if: '$is_master'
+
+  - name: Create slurm group
+    group: name=slurm
+           state=present
+  - name: Create slurm user
+    user: name=slurm
+          comment="Slurm Scheduler"
+          state=present
+          password=*
+          group=slurm
+
+  - name: Create slurm directories
+    file: path=/var/$item/slurm
+          owner=slurm
+          group=slurm
+          state=directory
+    with_items:
+      - log
+      - run
+      - lib
+    tags:
+      - directories
+
+  - name: Install /etc/slurm/slurmdbd.conf
+    template: src=etc/slurm/slurmdbd.conf.j2
+              dest=/etc/slurm/slurmdbd.conf
+              owner=slurm
+              group=slurm
+              mode=0600
+    notify:
+      - Restart slurmdbd
+    only_if: '$is_slurm_master or $is_slurm_backup'
+
+  - name: Start slurmdbd
+    service: name=slurmdbd
+             state=started
+             enabled=yes
+    only_if: '$is_slurm_master or $is_slurm_backup'
+
+
+  handlers:
+    - name: Restart munge
+      service: name=munge
+               state=restarted
+
+    - name: Restart slurmdbd
+      service: name=slurmdbd
+               state=restarted

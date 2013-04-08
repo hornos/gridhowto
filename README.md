@@ -379,6 +379,15 @@ Locally mount the common partion on all root servers:
 
     bin/play @@root glusterfs
 
+## Slurm
+Create a munge key for the cluster:
+
+    dd if=/dev/random bs=1 count=1024 > etc/munge/munge.key
+
+Install and setup Slurm:
+
+    bin/play @@root slurm
+
 ### Graphite
 
     bin/play @@root memcache
@@ -396,11 +405,7 @@ At first, you have to run with `format=yes` to create the mongodb partition unde
 
 ## Ceph
 
-## MariaDB with Galera
-
 ## Postgres XC
-
-## HA Slurm
 
 ## HA XCat
 
