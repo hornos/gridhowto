@@ -1,0 +1,9 @@
+Alias /racktables /usr/share/RackTables/wwwroot
+
+<Location /racktables>
+  Order deny,allow
+  Deny from all
+  Allow from {{ networks['system'] }}/{{ masks['system'] }}
+  Allow from 127.0.0.1
+  Allow from ::1
+</Location>

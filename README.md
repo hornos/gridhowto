@@ -243,6 +243,7 @@ Edit `hosts` file:
     [root]
     root-01 ansible_ssh_host=10.1.1.1
     root-02 ansible_ssh_host=10.1.1.2
+    root-03 ansible_ssh_host=10.1.1.3
 
 Check the connection:
 
@@ -254,7 +255,7 @@ The bootstrap playbook creates the admin wheel user. You have to bootstrap each 
     pushd keys; ln -s admin root; popd
     bin/play root@root-01 bootstrap
     bin/play root@root-02 bootstrap
-    ...
+    bin/play root@root-03 bootstrap
 
 The following operator shortcuts are used: `@` is `-k` and `@@` is `-k --sudo`.
 
@@ -363,7 +364,20 @@ Install and setup Icinga:
 
     bin/play @@root icinga --extra-vars "schema=yes"
 
-you can access icinga on `http://root-0?/icinga`.
+You can access icinga on `http://root-0?/icinga` with `icingaadmin/icingaadmin`. The new interface is on `http://root-0?/icinga-web` with `root/password`.
+
+## Glusterfs
+Glusterfs playbook creates a common directory (`/common`) on the root servers:
+
+    bin/play @@root gluster --extra-vars "format=yes"
+
+Login to the first server (`root-01`) and run:
+
+    /root/gluster_bootstrap
+
+Locally mount the common partion on all root servers:
+
+    bin/play @@root glusterfs
 
 ### Graphite
 
@@ -379,15 +393,6 @@ At first, you have to run with `format=yes` to create the mongodb partition unde
     bin/play @@root mongodb --extra-vars "format=yes"
     bin/play @@root graylog2
 
-
-## Glusterfs
-Glusterfs playbook creates a common directory (`/common`) on the root servers:
-
-    bin/play @@root gluster
-
-You have to run `/root/gluster_bootstrap` on the first root node to initialize the common directory. Finally, mount:
-
-    bin/play @@root glusterfs --extra-vars "format=yes"
 
 ## Ceph
 

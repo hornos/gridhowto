@@ -66,6 +66,8 @@
     notify:
       - Restart ido2db
       - Restart icinga
+    tags:
+      - schema
 
   - name: Import icinga-web schema
     shell: cat /usr/share/icinga-web/etc/schema/mysql.sql | mysql -u icinga_web --password=icinga_web icinga_web
@@ -73,6 +75,8 @@
     notify:
       - Restart ido2db
       - Restart icinga
+    tags:
+      - schema
 
   - name: Setup localhost monitor
     template: src=etc/icinga/objects/localhost.cfg.j2
@@ -90,6 +94,15 @@
                 insertafter='^#db_socket'
     notify:
       - Restart ido2db
+
+  - name: Setup icinga-web
+    template: src=usr/share/icinga-web/app/config/databases.xml.j2
+              dest=/usr/share/icinga-web/app/config/databases.xml
+              owner=root
+              group=root
+              mode=0644
+    tags:
+      - icinga-web
 
   - name: Start ido2db
     service: name=ido2db

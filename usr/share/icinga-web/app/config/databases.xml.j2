@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ae:configurations xmlns:ae="http://agavi.org/agavi/config/global/envelope/1.0" xmlns="http://agavi.org/agavi/config/parts/databases/1.0">
+    <!-- Some resources for:
+        http://docs.icinga.org/latest/de/icinga-web-config.html#configweb-databases
+        https://wiki.icinga.org/display/howtos/databases.xml -->
+    
+    <ae:configuration>
+        <databases default="icinga_web">
+            <database name="icinga_web" class="AppKitDoctrineDatabase">
+                <ae:parameter name="dsn">mysql://icinga_web:icinga_web@127.0.0.1:3306/icinga_web</ae:parameter>
+                
+                <!-- Generic credentials  -->
+                <!-- <ae:parameter name="username">icinga_web</ae:parameter> -->
+                <!-- <ae:parameter name="password">icinga_web</ae:parameter> -->
+                
+                <!-- DB encoding type -->
+                <ae:parameter name="charset">utf8</ae:parameter>
+                
+                <!--
+                    Doctrine_Manager configuration
+                -->
+                <ae:parameter name="manager_attributes">
+                    <!-- This allows lazy loading of the models -->
+                    <ae:parameter name="Doctrine_Core::ATTR_MODEL_LOADING">CONSERVATIVE</ae:parameter>
+                </ae:parameter>
+                
+                <!-- The path to our models -->
+                <ae:parameter name="load_models">%core.module_dir%/AppKit/lib/database/models/generated</ae:parameter>
+                <ae:parameter name="models_directory">%core.module_dir%/AppKit/lib/database/models</ae:parameter>               
+                <!-- Oracle specific -->
+                <ae:parameter name="date_format"><![CDATA[YYYY-MM-DD HH24:MI:SS]]></ae:parameter>
+            
+                <!-- Define caching rules for this connection -->
+                <ae:parameter name="caching">
+                    <!-- enable caching -->
+                    <ae:parameter name="enabled">false</ae:parameter>
+                    <!-- curerntly supported: memcache and APC -->
+                    <ae:parameter name="driver">apc</ae:parameter>
+                    <!--
+                        Memcache specific
+                    <ae:parameter name="memcache_server">localhost</ae:parameter>
+                    <ae:parameter name="memcache_port">11211</ae:parameter>
+                    -->
+                
+                    <!-- there aren't many reasons for not using query-caches -->
+                    <ae:parameter name="use_query_cache">true</ae:parameter>
+                    <!-- result cache: If in doubt, let it out! This caches results from the database -->
+                    <ae:parameter name="use_result_cache">true</ae:parameter>
+                    <ae:parameter name="result_cache_lifespan">60</ae:parameter>
+                </ae:parameter>     
+            </database>
+
+            <!-- 
+                This part configures the icinga database (destination to ido2db)
+                
+                If you're using oracle in this case the driver 'icingaOracle' is needed.
+                
+                - oracle: icingaOracle://icinga:icinga@localhost/iweb
+            -->
+            <database xmlns="http://agavi.org/agavi/config/parts/databases/1.0" name="icinga" class="IcingaDoctrineDatabase">
+                <ae:parameter name="dsn">mysql://icinga:icinga@127.0.0.1:3306/icinga</ae:parameter>
+                <!-- Must be removed for oracle databases -->
+                <ae:parameter name="prefix">icinga_</ae:parameter>
+                <ae:parameter name="charset">utf8</ae:parameter>
+                <ae:parameter name="date_format"><![CDATA[YYYY-MM-DD HH24:MI:SS]]></ae:parameter>
+                <ae:parameter name="manager_attributes">
+                    <ae:parameter name="Doctrine_Core::ATTR_MODEL_LOADING">CONSERVATIVE</ae:parameter>
+                </ae:parameter>
+                <ae:parameter name="use_retained">true</ae:parameter>
+
+                <ae:parameter name="load_models">%core.module_dir%/Api/lib/database/models/generated</ae:parameter>
+                <ae:parameter name="models_directory">%core.module_dir%/Api/lib/database/models</ae:parameter>              
+                <ae:parameter name="caching">
+                    <!-- enable caching -->
+                    <ae:parameter name="enabled">false</ae:parameter>
+                    <!-- curerntly supported: memcache and APC -->
+                    <ae:parameter name="driver">apc</ae:parameter>
+                    <ae:parameter name="use_query_cache">true</ae:parameter>
+                </ae:parameter>
+
+            </database>
+            <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="/etc/icinga-web/conf.d/databases.xml#xpointer(databases/node())">
+                <xi:fallback></xi:fallback>
+            </xi:include>
+        </databases>
+    </ae:configuration>
+</ae:configurations>

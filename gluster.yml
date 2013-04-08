@@ -18,10 +18,14 @@
 
   - name: Download Glusterfs repo
     get_url: url=${url}/${repo} dest=/etc/yum.repos.d/${repo}
+    tags:
+      - packages
 
   - name: Install Gluster server
     yum: name=glusterfs-server
          state=latest
+    tags:
+      - packages
 
   - name: Create Gluster partition
     lvol: vg=$vg_root
@@ -59,3 +63,11 @@
               owner=root
               group=root
               mode=0700
+    ignore_errors: yes
+
+# root-01> gluster peer probe root-03
+# root-01> gluster volume add-brick common 10.1.1.3:/data/glusterfs/common/brick1
+# root-01> gluster volume stop common
+# root-01> gluster volume delete common
+
+# lvremove /dev/vg_root/glusterfs_common_brick1

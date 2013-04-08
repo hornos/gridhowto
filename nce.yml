@@ -1,0 +1,24 @@
+#
+# NIIF common environment
+#
+---
+- hosts: all
+
+  vars_files:
+    - gluster_vars.yml
+
+  vars:
+    is_master: "'$inventory_hostname' == '$master'"
+
+  tasks:
+    - name: Install NIIF Common Environment
+      git: repo=git://github.com/NIIF/nce.git
+           dest=${common}/nce
+      only_if: '$is_master'
+
+    - name: Link /opt/nce
+      file: src=${common}/nce
+            dest=/opt/nce
+            state=link
+
+# module use /opt/nce/modulefiles/

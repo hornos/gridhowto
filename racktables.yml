@@ -1,0 +1,52 @@
+---
+- hosts: all
+
+  vars_files:
+    - networks.yml
+    - mariadb_vars.yml
+
+  vars:
+    is_master: "'$inventory_hostname' == '$master'"
+
+  tasks:
+
+  - name: Install racktables packages
+    yum: name=RackTables state=installed
+    yum: name=php-cli state=installed
+
+  - name: Enable RackTables
+    template: src=etc/httpd/conf.d/racktables.conf.j2
+              dest=/etc/httpd/conf.d/racktables.conf
+              owner=root
+              group=root
+              mode=0644
+    notify:
+      - Restart httpd
+
+  - name: Create secret.php
+    template: src=etc/RackTables/secret.php.j2
+              dest=/etc/RackTables/secret.php
+              owner=root
+              group=apache
+              mode=0660
+
+  - name: Setup racktables mysql db
+    mysql_db: db=racktables
+              login_user=root
+              login_password=$password
+              login_unix_socket=$socket
+    only_if: '$is_master'
+
+  - name: Setup racktables mysql user
+    mysql_user: name=racktables password=racktables priv=racktables.*:ALL
+                login_user=root
+                login_password=$password
+                login_unix_socket=$socket
+    only_if: '$is_master'
+
+  handlers:
+    - name: Restart httpd
+      service: name=httpd
+               state=restarted
+
+# run installer on root-01 with an empty setup than copy the rest
