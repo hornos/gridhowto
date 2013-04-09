@@ -15,8 +15,11 @@ SlurmdPort=6818
 AuthType=auth/munge
 #JobCredentialPrivateKey=
 #JobCredentialPublicCertificate=
+
 StateSaveLocation=${slurm_state}
-SlurmdSpoolDir=${slurm_state}/slurmd
+SlurmdSpoolDir=/var/spool/slurmd
+JobCheckpointDir=${slurm_checkpoint}
+
 SwitchType=switch/none
 MpiDefault=none
 SlurmctldPidFile=/var/run/slurmctld.pid
@@ -25,7 +28,7 @@ ProctrackType=proctrack/pgid
 #PluginDir=
 CacheGroups=0
 #FirstJobId=
-ReturnToService=1
+ReturnToService=2
 #MaxJobCount=
 #PlugStackConfig=
 #PropagatePrioProcess=
@@ -58,24 +61,39 @@ SchedulerType=sched/backfill
 #SchedulerRootFilter=
 SelectType=select/cons_res
 SelectTypeParameters=CR_Core_Memory
+SchedulerParameters=defer
 FastSchedule=1
 PriorityType=priority/multifactor
-PriorityDecayHalfLife=7-0
-#PriorityUsageResetPeriod=14-0
+
+# PriorityDecayHalfLife=7-0
+# sbank
+PriorityUsageResetPeriod=YEARLY
 PriorityWeightFairshare=100000
 PriorityWeightAge=1000
 PriorityWeightPartition=10000
 PriorityWeightJobSize=1000
 PriorityMaxAge=1-0
+
+PreemptType=preempt/qos
+PreemptMode=REQUEUE
+
+# CheckpointType=checkpoint/blcr
+
+EnforcePartLimits=YES
+GroupUpdateForce=1
+
+# TODO HealthCheckProgram warewulf
+
 #
 # LOGGING
-SlurmctldDebug=2
-#SlurmctldLogFile=
-SlurmdDebug=2
-#SlurmdLogFile=
+SlurmctldDebug=3
+SlurmctldLogFile=/var/log/slurm/slurmctld.log
+SlurmdDebug=3
+SlurmdLogFile=/var/log/slurm/slurmd.log
 JobCompType=jobcomp/none
 #JobCompLoc=
-#
+DefaultStorageType=slurmdbd
+
 # ACCOUNTING
 #JobAcctGatherType=jobacct_gather/linux
 #JobAcctGatherFrequency=30
@@ -89,5 +107,6 @@ AccountingStorageBackupHost={{hostvars[slurm_backup]['ansible_eth0']['ipv4']['ad
 #AccountingStorageUser=
 #
 # COMPUTE NODES
-NodeName=$slurm_compute Procs=$slurm_procs State=UNKNOWN
-PartitionName=batch Nodes=$slurm_compute Default=YES MaxTime=INFINITE State=UP
+NodeName=$slurm_compute State=UNKNOWN
+PartitionName=DEFAULT Nodes=$slurm_compute Default=YES MaxTime=INFINITE State=UP
+PartitionName=batch

@@ -143,7 +143,21 @@
       - slurm
 
   - name: Create cluster
-    shell: /usr/bin/sacctmgr create cluster name=$slurm_cluster
+    shell: /usr/bin/sacctmgr -i create cluster name=$slurm_cluster
+    only_if: '$is_slurm_master'
+    ignore_errors: yes
+    tags:
+      - slurm
+
+  - name: Create test account
+    shell: /usr/bin/sacctmgr -i add account test
+    only_if: '$is_slurm_master'
+    ignore_errors: yes
+    tags:
+      - slurm
+
+  - name: Enable test account
+    shell: /usr/bin/sacctmgr -i add user admin defaultaccount=test
     only_if: '$is_slurm_master'
     ignore_errors: yes
     tags:
@@ -160,8 +174,8 @@
     tags:
       - slurm
 
-  - name: Create spool directory
-    file: path=${slurm_state}/slurmd
+  - name: Create checkpoint directory
+    file: path=$slurm_checkpoint
           owner=slurm
           group=slurm
           state=directory
@@ -171,14 +185,42 @@
     tags:
       - slurm
 
+  - name: Create spool directory
+    file: path=/var/spool/slurmd
+          owner=slurm
+          group=slurm
+          state=directory
+    tags:
+      - slurm
+
   - name: Install /etc/slurm/slurm.conf
     template: src=etc/slurm/slurm.conf.j2
               dest=/etc/slurm/slurm.conf
               owner=slurm
               group=slurm
-              mode=0600
+              mode=0644
     notify:
       - Restart slurm
+    tags:
+      - slurm
+
+  - name: Install /etc/sysconfig/slurm
+    template: src=etc/sysconfig/slurm.j2
+              dest=/etc/sysconfig/slurm
+              owner=slurm
+              group=slurm
+              mode=0644
+    notify:
+      - Restart slurm
+    tags:
+      - slurm
+
+  - name: Install logrotate
+    template: src=etc/logrotate.d/slurm.j2
+              dest=/etc/logrotate.d/slurm
+              owner=slurm
+              group=slurm
+              mode=0644
     tags:
       - slurm
 
