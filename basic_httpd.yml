@@ -9,9 +9,17 @@
 
   tasks:
 
+  - name: Install apache
+    yum: name=httpd
+         state=installed
+    tags:
+      - packages
+
   - name: Install apachetop
     yum: name=apachetop
          state=installed
+    tags:
+      - packages
 
   - name: Enable HTTP server status
     template: src=etc/httpd/conf.d/status.conf.j2
@@ -21,6 +29,8 @@
               mode=0644
     notify:
       - Restart httpd
+    tags:
+      - config
 
   - name: Set HTTP server name
     template: src=etc/httpd/conf.d/servername.conf.j2
@@ -30,6 +40,8 @@
               mode=0644
     notify:
       - Restart httpd
+    tags:
+      - config
 
   - name: Allow HTTP connect
     seboolean: name=httpd_can_network_connect
@@ -37,6 +49,8 @@
                persistent=yes
     notify:
       - Restart httpd
+    tags:
+      - selinux
 
 #  - name: Put HTTP in permissive mode
 #    command: /usr/sbin/semanage permissive -a httpd_t

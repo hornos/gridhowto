@@ -5,21 +5,14 @@
 
   tasks:
     - name: Install selinux packages
-#      yum: name=$item state=installed
-#      with_items:
-#        - libsemanage
-#        - setools-libs-python
-#        - policycoreutils-python
-#        - libselinux-python
-
-      yum: name=libsemanage
-           state=installed
-      yum: name=setools-libs-python
-           state=installed
-      yum: name=policycoreutils-python
-           state=installed
-      yum: name=libselinux-python
-           state=installed
+      yum: name=$item state=installed
+      with_items:
+        - libsemanage
+        - setools-libs-python
+        - policycoreutils-python
+        - libselinux-python
+      tags:
+        - packages
 
     - name: Set selinux permissive policy
       lineinfile: dest=/etc/sysconfig/selinux

@@ -4,29 +4,22 @@
   tasks:
 
   - name: Install top packages
-    yum: name=htop
+    yum: name=$item
          state=installed
-    yum: name=tcptrack
-         state=installed
-    yum: name=powertop
-         state=installed
-    yum: name=nethogs
-         state=installed
-    # yum: name=pbstop
-    yum: name=jnettop
-         state=installed
-    yum: name=iptstate
-         state=installed
-    yum: name=iftop
-         state=installed
-    yum: name=ftop
-         state=installed
-    yum: name=dnstop
-         state=installed
-    yum: name=atop
-         state=installed
-    yum: name=ntop
-         state=installed
-    # yum: name=nettop
-    yum: name=iotop
-         state=installed
+    with_items:
+      - htop
+      - tcptrack
+      - powertop
+      - nethogs
+      - jnettop
+      - iptstate
+      - iftop
+      - ftop
+      - dnstop
+      - atop
+      - ntop
+      - iotop
+      - sysstat
+    tags:
+      - packages
+

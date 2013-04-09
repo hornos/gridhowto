@@ -2,12 +2,12 @@
 # Basic configuration for root servers
 # 
 
+# yum install item bug?
+
 - include: basic_selinux.yml
 - include: basic_services.yml
 - include: basic_repos.yml
 - include: basic_packages.yml
 - include: basic_tops.yml
 - include: basic_httpd.yml
-- include: modules.yml
-- include: inittab.yml
-- include: plymouth.yml
+- include: basic_config.yml

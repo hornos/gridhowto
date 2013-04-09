@@ -7,9 +7,13 @@
 
   - name: Download modules
     get_url: url=${url}/${rpm} dest=/root
+    tags:
+      - packages
 
   - name: Install modules
     command: yum -y localinstall /root/${rpm}
+    tags:
+      - packages
 
   - name: Install modulespath
     template: src=usr/share/Modules/init/modulespath.j2
@@ -17,7 +21,11 @@
               owner=root
               group=root
               mode=0644
+    tags:
+      - config
 
   - name: Create modulefiles
     file: path=/etc/modulefiles
           state=directory
+    tags:
+      - config

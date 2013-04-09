@@ -1,7 +1,6 @@
 #
 # Slurm Scheduler
 #
-# TODO: slurm repo
 ---
 - hosts: all
   vars_files:
@@ -14,17 +13,10 @@
     is_slurm_backup: "'$inventory_hostname' == '$slurm_backup'"
 
   tasks:
-  - name: Install Stanford CS Repo
-    template: src=etc/yum.repos.d/stanford.repo.j2
-              dest=/etc/yum.repos.d/stanford.repo
-              owner=root
-              group=root
-              mode=0644
-
   - name: Install slurm packages
     yum: name=$item
          state=installed
-         enablerepo=stanford
+         enablerepo=$slurm_repo
     with_items:
       - munge
       - slurm
@@ -41,6 +33,17 @@
       - packages
 
   # https://code.google.com/p/munge/wiki/InstallationGuide
+  - name: Set munge user
+    lineinfile: dest=/etc/sysconfig/munge
+                regexp='^USER'
+                line='USER="munge"'
+
+  - name: Fix /var/log/munge/munged.log
+    file: path=/var/log/munge/munged.log
+          owner=munge
+          group=munge
+    ignore_errors: yes
+
   - name: Setup munge key
     copy: src=etc/munge/munge.key
           dest=/etc/munge/munge.key
@@ -57,14 +60,14 @@
              enabled=yes
 
   - name: Setup slurmdbd mysql db
-    mysql_db: db=slurm_acct_db
+    mysql_db: db=$slurm_db
               login_user=root
               login_password=$password
               login_unix_socket=$socket
     only_if: '$is_master'
 
   - name: Setup slurmdbd mysql user
-    mysql_user: name=slurm password=slurm priv=slurm_acct_db.*:ALL
+    mysql_user: name=$slurm_user password=$slurm_password priv=${slurm_db}.*:ALL
                 login_user=root
                 login_password=$password
                 login_unix_socket=$socket
@@ -108,6 +111,37 @@
              enabled=yes
     only_if: '$is_slurm_master or $is_slurm_backup'
 
+  - name: Create state directory
+    file: path=$slurm_state
+          owner=slurm
+          group=slurm
+          state=directory
+    tags:
+      - state
+    only_if: '$is_slurm_master'
+
+  - name: Create spool directory
+    file: path=${slurm_state}/slurmd
+          owner=slurm
+          group=slurm
+          state=directory
+    tags:
+      - state
+    only_if: '$is_slurm_master'
+
+  - name: Install /etc/slurm/slurm.conf
+    template: src=etc/slurm/slurm.conf.j2
+              dest=/etc/slurm/slurm.conf
+              owner=slurm
+              group=slurm
+              mode=0600
+    notify:
+      - Restart slurm
+
+  - name: Start slurm
+    service: name=slurm
+             state=started
+             enabled=yes
 
   handlers:
     - name: Restart munge
@@ -116,4 +150,8 @@
 
     - name: Restart slurmdbd
       service: name=slurmdbd
+               state=restarted
+
+    - name: Restart slurm
+      service: name=slurm
                state=restarted

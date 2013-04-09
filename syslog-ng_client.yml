@@ -5,7 +5,6 @@
 - hosts: all
 
   tasks:
-
   - name: Enable loghost client
     template: src=etc/syslog-ng/conf.d/client
               dest=/etc/syslog-ng/conf.d/20-client
@@ -14,6 +13,8 @@
               mode=0644
     notify:
       - Restart syslog-ng
+    tags:
+      - config
 
   handlers:
     - name: Restart syslog-ng

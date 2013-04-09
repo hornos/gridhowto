@@ -12,11 +12,8 @@
               owner=root
               group=root
               mode=0644
-
-#  - name: Uninstall mysql-libs
-#    yum: name=mysql-libs
-#         state=absent
-#    ignore_errors: yes
+    tags:
+      - repo
 
   - name: Install MariaDB packages
     yum: name=$item
@@ -35,6 +32,8 @@
     lineinfile: dest=/etc/init.d/mysql
                 regexp="^service_startup_timeout"
                 line="service_startup_timeout=${timeout}"
+    tags:
+      - config
 
   - name: Setup /etc/my.cnf
     template: src=etc/my.cnf.j2
@@ -44,6 +43,8 @@
               mode=0644
     notify:
       - Restart mysqld
+    tags:
+      - config
 
   - name: Setup /etc/my.cnf.d/server.cnf
     template: src=etc/my.cnf.d/server.cnf.j2
@@ -53,6 +54,8 @@
               mode=0644
     notify:
       - Restart mysqld
+    tags:
+      - config
 
   - name: Setup PHP mysql socket
     lineinfile: dest=/etc/php.ini
@@ -60,6 +63,8 @@
                 line="mysql.default_socket = ${socket}"
     notify:
       - Restart httpd
+    tags:
+      - config
 
   - name: Setup PHP mysqli socket
     lineinfile: dest=/etc/php.ini
@@ -67,6 +72,8 @@
                 line="mysqli.default_socket = ${socket}"
     notify:
       - Restart httpd
+    tags:
+      - config
 
   - name: Start mysqld
     service: name=mysql

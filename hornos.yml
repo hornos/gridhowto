@@ -1,0 +1,12 @@
+
+---
+- hosts: all
+  vars_files:
+    - hornos_vars.yml
+
+  tasks:
+
+  - name: Download hornos repo
+    get_url: url=${url}/${repo} dest=/etc/yum.repos.d/${repo}
+    tags:
+      - packages

@@ -10,6 +10,9 @@
 # https://coderwall.com/p/yez9yw?i=1&p=2&q=sort%3Ascore+desc&t%5B%5D=ansible
   - name: Install MySQL-python
     yum: name=MySQL-python
+         state=installed
+    tags:
+      - packages
 
   - name: update mysql root password for all root accounts
     mysql_user: name=root

@@ -7,7 +7,7 @@
     <ae:configuration>
         <databases default="icinga_web">
             <database name="icinga_web" class="AppKitDoctrineDatabase">
-                <ae:parameter name="dsn">mysql://icinga_web:icinga_web@127.0.0.1:3306/icinga_web</ae:parameter>
+                <ae:parameter name="dsn">mysql://{{icinga_web_user}}:{{icinga_web_password}}@127.0.0.1:3306/{{icinga_web_db}}</ae:parameter>
                 
                 <!-- Generic credentials  -->
                 <!-- <ae:parameter name="username">icinga_web</ae:parameter> -->
@@ -58,7 +58,7 @@
                 - oracle: icingaOracle://icinga:icinga@localhost/iweb
             -->
             <database xmlns="http://agavi.org/agavi/config/parts/databases/1.0" name="icinga" class="IcingaDoctrineDatabase">
-                <ae:parameter name="dsn">mysql://icinga:icinga@127.0.0.1:3306/icinga</ae:parameter>
+                <ae:parameter name="dsn">mysql://{{icinga_user}}:{{icinga_password}}@127.0.0.1:3306/{{icinga_db}}</ae:parameter>
                 <!-- Must be removed for oracle databases -->
                 <ae:parameter name="prefix">icinga_</ae:parameter>
                 <ae:parameter name="charset">utf8</ae:parameter>

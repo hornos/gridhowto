@@ -15,21 +15,32 @@
     - networks.yml
 
   tasks:
-    - name: Install dnsmasq packages
-#      yum: name=$item
-#           state=installed
+#    - name: Install dnsmasq packages
+#      yum: name=$item state=installed
 #      with_items:
 #        - dnsmasq
 #        - dnsmasq-utils
 #        - bind-utils
 #      tags:
 #        - packages
+
+    - name: Install dnsmasq
       yum: name=dnsmasq
            state=installed
+      tags:
+        - packages
+
+    - name: Install dnsmasq-utils
       yum: name=dnsmasq-utils
            state=installed
+      tags:
+        - packages
+
+    - name: Install bind-utils
       yum: name=bind-utils
            state=installed
+      tags:
+        - packages
 
     - name: Enable /etc/dnsmasq.d
       lineinfile: dest=/etc/dnsmasq.conf
@@ -38,12 +49,16 @@
                   line='conf-dir=/etc/dnsmasq.d'
       notify:
         - Restart dnsmasq
+      tags:
+        - configs
 
     - name: Create hosts.d directory
       file: path=/etc/hosts.d
             owner=root
             group=root
             state=directory
+      tags:
+        - hosts
 
     - name: Enable /etc/hosts.d
       lineinfile: dest=/etc/dnsmasq.conf
@@ -52,6 +67,8 @@
                   line='addn-hosts=/etc/hosts.d'
       notify:
         - Restart dnsmasq
+      tags:
+        - hosts
 
     - name: Enable root server hostnames
       template: src=etc/hosts.d/root.j2
@@ -62,7 +79,8 @@
       when_string: "'$nodetect' != 'yes'"
       notify:
         - Restart dnsmasq
-
+      tags:
+        - hosts
 
     - name: Enable networks in /etc/networks
       template: src=etc/networks.j2
@@ -70,12 +88,16 @@
                 owner=bin
                 group=wheel
                 mode=0644
+      tags:
+        - networks
 
     - name: Localhost DNS in /etc/resolv.conf
       lineinfile: dest=/etc/resolv.conf
                   regexp='^nameserver 127.0.0.1'
                   insertbefore='^nameserver.*'
                   line='nameserver 127.0.0.1'
+      tags:
+        - resolv
 
     - name: Localhost DNS for DHCP (${interfaces.dhcp})
       template: src=etc/dhcp/dhclient-${interfaces.dhcp}.conf.j2
@@ -83,7 +105,8 @@
                 owner=root
                 group=root
       when_string: "'${interfaces.dhcp}' != ''"
-
+      tags:
+        - dhcp
 
     - name: Start dnsmasq
       service: name=dnsmasq

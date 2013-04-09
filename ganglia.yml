@@ -42,6 +42,8 @@
               mode=0644
     notify:
       - Restart gmond
+    tags:
+      - config
 
   - name: Ganglia meta-data
     template: src=etc/ganglia/gmetad.conf.j2
@@ -51,6 +53,8 @@
               mode=0644
     notify:
       - Restart gmetad
+    tags:
+      - config
 
   - name: Disable tcpconn.pyconf
     template: src=etc/ganglia/conf.d/tcpconn.pyconf.j2
@@ -60,6 +64,8 @@
               mode=0644
     notify:
       - Restart gmond
+    tags:
+      - config
 
   - name: Enable Ganglia web interface
     template: src=etc/httpd/conf.d/ganglia.conf.j2
@@ -69,7 +75,8 @@
               mode=0644
     notify:
       - Restart httpd
-
+    tags:
+      - config
 
   - name: Start gmond
     service: name=gmond

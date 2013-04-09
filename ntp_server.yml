@@ -10,6 +10,8 @@
     - name: Install NTP Server
       yum: name=ntp
            state=installed
+      tags:
+        - packages
 
     - name: Setup NTP Server
       lineinfile: dest=/etc/ntp.conf
@@ -19,6 +21,8 @@
                   line="broadcast ${broadcasts.system} autokey version 4"
       notify:
         - Restart ntpd
+      tags:
+        - configs
 
     - name: Start ntpd
       service: name=ntpd

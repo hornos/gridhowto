@@ -6,6 +6,8 @@
     - name: Install rng-tools
       yum: name=rng-tools
            state=installed
+      tags:
+        - packages
 
     - name: Configure rng-tools
       lineinfile: dest=/etc/sysconfig/rngd
@@ -14,6 +16,8 @@
                   line='EXTRAOPTIONS="-r /dev/urandom"'
       notify:
         - restart rngd
+      tags:
+        - config
 
     - name: start rngd
       service: name=rngd

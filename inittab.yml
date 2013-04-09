@@ -9,20 +9,28 @@
   - name: Install htop
     yum: name=htop
          state=installed
+    tags:
+      - packages
 
   - name: Install sysstat
     yum: name=sysstat
          state=installed
+    tags:
+      - packages
 
   - name: Set ttys
     lineinfile: dest=/etc/sysconfig/init
                 regexp='^ACTIVE_CONSOLES'
                 line='ACTIVE_CONSOLES=/dev/tty[7-8]'
+    tags:
+      - tty
 
   - name: Set X tty
     lineinfile: dest=/etc/init/start-ttys.conf
                 regexp='^env X_TTY'
                 line='env X_TTY=/dev/tty8'
+    tags:
+      - tty
 
   - name: Install Init start-messages
     template: src=etc/init/start-messages.conf.j2
@@ -30,6 +38,8 @@
               owner=root
               group=root
               mode=0640
+    tags:
+      - messages
 
   - name: Install Init messages
     template: src=etc/init/messages.conf.j2
@@ -37,6 +47,8 @@
               owner=root
               group=root
               mode=0640
+    tags:
+      - messages
 
   - name: Install Init start-top
     template: src=etc/init/start-top.conf.j2
@@ -44,6 +56,8 @@
               owner=root
               group=root
               mode=0640
+    tags:
+      - top
 
   - name: Install Init top
     template: src=etc/init/top.conf.j2
@@ -51,6 +65,8 @@
               owner=root
               group=root
               mode=0640
+    tags:
+      - top
 
   - name: Install Init start-top-mem
     template: src=etc/init/start-top-mem.conf.j2
@@ -58,6 +74,8 @@
               owner=root
               group=root
               mode=0640
+    tags:
+      - top
 
   - name: Install Init top-mem
     template: src=etc/init/top-mem.conf.j2
@@ -65,6 +83,8 @@
               owner=root
               group=root
               mode=0640
+    tags:
+      - top
 
   - name: Install Init start-iostat
     template: src=etc/init/start-iostat.conf.j2
@@ -72,6 +92,8 @@
               owner=root
               group=root
               mode=0640
+    tags:
+      - iostat
 
   - name: Install Init iostat
     template: src=etc/init/iostat.conf.j2
@@ -79,6 +101,8 @@
               owner=root
               group=root
               mode=0640
+    tags:
+      - iostat
 
   - name: Install Init start-mpstat
     template: src=etc/init/start-mpstat.conf.j2
@@ -86,6 +110,8 @@
               owner=root
               group=root
               mode=0640
+    tags:
+      - mpstat
 
   - name: Install Init mpstat
     template: src=etc/init/mpstat.conf.j2
@@ -93,6 +119,8 @@
               owner=root
               group=root
               mode=0640
+    tags:
+      - mpstat
 
   - name: Install Init start-gstat
     template: src=etc/init/start-gstat.conf.j2
@@ -100,6 +128,8 @@
               owner=root
               group=root
               mode=0640
+    tags:
+      - gstat
 
   - name: Install Init gstat
     template: src=etc/init/gstat.conf.j2
@@ -107,6 +137,8 @@
               owner=root
               group=root
               mode=0640
+    tags:
+      - gstat
 
 # TODO: tcptrack external
 

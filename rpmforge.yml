@@ -8,7 +8,10 @@
 
   - name: Download rpmforge repo
     get_url: url=${url}/${rpm} dest=/root
+    tags:
+      - packages
 
   - name: Install rpmforge repo
     command: yum -y localinstall /root/${rpm}
-
+    tags:
+      - packages

@@ -1,0 +1,7 @@
+---
+- name: Basic configuration
+  hosts: all
+
+- include: modules.yml
+- include: inittab.yml
+- include: plymouth.yml

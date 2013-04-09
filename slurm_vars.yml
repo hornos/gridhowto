@@ -1,2 +1,9 @@
 slurm_master: 'root-01'
 slurm_backup: 'root-02'
+slurm_user: 'slurm'
+slurm_password: 'slurm'
+slurm_db: 'slurm_acct_db'
+slurm_repo: 'home_hornos_centos'
+slurm_state: '/common/slurm'
+slurm_procs: 1
+slurm_compute: 'root-[01-3]'

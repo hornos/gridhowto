@@ -5,6 +5,8 @@
   - name: Install fail2ban
     yum: name=fail2ban
          state=installed
+    tags:
+      - packages
 
   - name: Enable shorewall
     lineinfile: dest=/etc/fail2ban/jail.conf
@@ -13,6 +15,8 @@
                 insertafter='^\[DEFAULT\]'
     notify:
       - Restart fail2ban
+    tags:
+      - config
 
   - name: Set loglevel
     lineinfile: dest=/etc/fail2ban/fail2ban.conf
@@ -20,6 +24,8 @@
                 line='loglevel=2'
     notify:
       - Restart fail2ban
+    tags:
+      - config
 
   - name: Enable fail2ban
     lineinfile: dest=/etc/shorewall/shorewall.conf
@@ -27,6 +33,8 @@
                 line='BLACKLISTNEWONLY=No'
     notify:
       - Restart shorewall
+    tags:
+      - config
 
   - name: Start fail2ban
     service: name=fail2ban

@@ -8,4 +8,5 @@
                   state=present
                   regexp="^UMASK"
                   line="UMASK 007"
-
+      tags:
+        - config

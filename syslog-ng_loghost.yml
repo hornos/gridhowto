@@ -14,6 +14,8 @@
               mode=0644
     notify:
       - Restart syslog-ng
+    tags:
+      - config
 
   - name: Enable directory creation
     lineinfile: dest=/etc/syslog-ng/syslog-ng.conf
@@ -21,6 +23,8 @@
                 line='create_dirs (yes);'
     notify:
       - Restart syslog-ng
+    tags:
+      - config
 
   handlers:
     - name: Restart syslog-ng

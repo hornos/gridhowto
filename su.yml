@@ -9,4 +9,5 @@
                   regexp="^auth.*required.*pam_wheel.so.*use_uid"
                   insertbefore="^auth.*include"
                   line="auth required pam_wheel.so use_uid"
-
+      tags:
+        - config

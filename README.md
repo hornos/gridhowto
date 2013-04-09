@@ -284,9 +284,39 @@ Create a new LVM partition:
 ## Basic Services
 Root servers provide NTP for the cluster. If you have a very large cluster root servers talk only to satellite servers aka rack leaders. Root servers are stratum 2 time servers. Each root server broadcasts time to the system network with crypto enabled.
 
-Install and setup basic services:
+Set SELinux premissive mode:
 
-    bin/play @@root basic
+    bin/play @@root basic_selinux
+
+Setup EPEL and rpmforge repositories:
+
+    bin/play @@root basic_repos
+
+Setup basic services: DNSmasq, NTP, Syslog-ng:
+
+    bin/play @@root basic_services
+
+If you use DHCP, reboot the machine(s) here by `bin/reboot @root`.
+
+Install some packages:
+
+    bin/play @@root basic_packages
+
+Install top-like apps:
+
+    bin/play @@root basic_tops
+
+Install apache and setup status page:
+
+    bin/play @@root basic_httpd
+
+Finally, the basic configuration:
+
+    bin/play @@root basic_config
+
+and reboot:
+
+    bin/reboot @@root
 
 Root server names are cached in `/etc/hosts.d/root`. Put DNS cache files (`/etc/hosts` like files) in `/etc/hosts.d/` and notify DNSmasq to restart. DHCP client overwrites `resolv.conf` so you have to set an interface specific conf in `etc/dhcp/` if you use DHCP (see above `networks.yml` how to specif the interface fo DHCP) Syslog-ng does cross-logging between root servers. If you use DHCP reboot the machines after the basic playbook to activate the local DNSmasq cache. Logging is done by syslog-ng on the system network.
 
@@ -303,15 +333,13 @@ The basic playbook contains the following inittab changes:
 
 ## Firewall
 ### Shorewall
-Enable basic Shorewall firewall on the root servers:
+Enable Shorewall firewall:
 
     bin/play @@root shorewall
 
 Note that emergency rules are defined in `etc/shorewall/rulestopped.j2`. Please check the `shorewall/interfaces.j2` template fiel aswell. On external services you can enable fail2ban:
 
     bin/play @@root fail2ban
-
-At this point you should restart the root servers.
 
 ## Monitoring
 ### Ganglia
@@ -364,7 +392,7 @@ Install and setup Icinga:
 
     bin/play @@root icinga --extra-vars "schema=yes"
 
-You can access icinga on `http://root-0?/icinga` with `icingaadmin/icingaadmin`. The new interface is on `http://root-0?/icinga-web` with `root/password`.
+You can access icinga on `http://root-0?/icinga` with `icingaadmin/icingaadmin`. The new interface is on `http://root-0?/icinga-web` with `root/password`. Parameters are in `icinga_vars.yml`.
 
 ## Glusterfs
 Glusterfs playbook creates a common directory (`/common`) on the root servers:
@@ -379,6 +407,21 @@ Locally mount the common partion on all root servers:
 
     bin/play @@root glusterfs
 
+If you have to replace a failed node eg. root-03 (10.1.1.3) check the peer uuid:
+
+    grep 10.1.1.3 /var/lib/glusterd/peers/* | sed s/:.*// | sed s/.*\\///
+
+Play the gluster_replace playbook with the uuid you get from the previous command:
+
+    bin/play @@root-03 gluster_replace --extra-vars "uuid=<UUID>"
+
+and mount
+
+    bin/play @@root-03 glusterfs
+
+## LDAP
+
+
 ## Slurm
 Create a munge key for the cluster:
 
@@ -387,6 +430,7 @@ Create a munge key for the cluster:
 Install and setup Slurm:
 
     bin/play @@root slurm
+
 
 ### Graphite
 

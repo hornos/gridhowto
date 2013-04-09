@@ -8,7 +8,10 @@
 
   - name: Download EPEL repo
     get_url: url=${url}/${rpm} dest=/root
+    tags:
+      - packages
 
   - name: Install EPEL repo
     command: yum -y localinstall /root/${rpm}
-
+    tags:
+      - packages

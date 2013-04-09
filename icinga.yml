@@ -10,6 +10,7 @@
 
   vars_files:
     - mariadb_vars.yml
+    - icinga_vars.yml
 
   vars:
     is_master: "'$inventory_hostname' == '$master'"
@@ -33,35 +34,35 @@
       - packages
 
   - name: Setup icinga mysql db
-    mysql_db: db=icinga
+    mysql_db: db=$icinga_db
               login_user=root
               login_password=$password
               login_unix_socket=$socket
     only_if: '$is_master'
 
   - name: Setup icinga mysql user
-    mysql_user: name=icinga password=icinga priv=icinga.*:ALL
+    mysql_user: name=$icinga_user password=$icinga_password priv=${icinga_db}.*:ALL
                 login_user=root
                 login_password=$password
                 login_unix_socket=$socket
     only_if: '$is_master'
 
   - name: Setup icinga_web mysql db
-    mysql_db: db=icinga_web
+    mysql_db: db=${icinga_web_db}
               login_user=root
               login_password=$password
               login_unix_socket=$socket
     only_if: '$is_master'
 
   - name: Setup icinga_web mysql user
-    mysql_user: name=icinga_web password=icinga_web priv=icinga_web.*:ALL
+    mysql_user: name=$icinga_web_user password=$icinga_web_password priv=${icinga_web_db}.*:ALL
                 login_user=root
                 login_password=$password
                 login_unix_socket=$socket
     only_if: '$is_master'
 
   - name: Import icinga schema
-    shell: cat /usr/share/doc/icinga-idoutils-libdbi-mysql-*/db/mysql/mysql.sql | mysql -u icinga --password=icinga icinga
+    shell: cat /usr/share/doc/icinga-idoutils-libdbi-mysql-*/db/mysql/mysql.sql | mysql -u $icinga_user --password=$icinga_password $icinga_db
     only_if: '$is_master and $is_schema'
     notify:
       - Restart ido2db
@@ -70,7 +71,7 @@
       - schema
 
   - name: Import icinga-web schema
-    shell: cat /usr/share/icinga-web/etc/schema/mysql.sql | mysql -u icinga_web --password=icinga_web icinga_web
+    shell: cat /usr/share/icinga-web/etc/schema/mysql.sql | mysql -u $icinga_web_user --password=$icinga_web_password $icinga_web_db
     only_if: '$is_master and $is_schema'
     notify:
       - Restart ido2db
@@ -86,6 +87,7 @@
               mode=0644
     notify:
       - Restart icinga
+      - Restart httpd
 
   - name: Setup mysql socket
     lineinfile: dest=/etc/icinga/ido2db.cfg
@@ -103,6 +105,7 @@
               mode=0644
     tags:
       - icinga-web
+      - Restart httpd
 
   - name: Start ido2db
     service: name=ido2db
@@ -114,6 +117,11 @@
              state=started
              enabled=yes
 
+  - name: Start httpd
+    service: name=httpd
+             state=started
+             enabled=yes
+
   handlers:
     - name: Restart icinga
       service: name=icinga
@@ -122,3 +130,8 @@
     - name: Restart ido2db
       service: name=ido2db
                state=restarted
+
+    - name: Restart httpd
+      service: name=httpd
+               state=restarted
+

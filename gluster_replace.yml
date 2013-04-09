@@ -1,0 +1,23 @@
+# http://gluster.org/community/documentation//index.php/Gluster_3.2:_Brick_Restoration_-_Replace_Crashed_Server
+# Set the old uuid
+# --extra-vars "uuid=<UUID>"
+#
+---
+- hosts: all
+  vars_files:
+    - gluster_vars.yml
+
+  tasks:
+
+  - name: Stop glusterd
+    service: name=glusterd
+             state=stopped
+
+  - name: Change UUID
+    lineinfile: dest=/var/lib/glusterd/glusterd.info
+                regexp='^UUID'
+                line="UUID=${uuid}"
+
+  - name: Start glusterd
+    service: name=glusterd
+             state=started

@@ -13,6 +13,8 @@
                 backup=yes
       notify:
         - reload sshd
+      tags:
+        - config
 
   handlers:
     - name: reload sshd

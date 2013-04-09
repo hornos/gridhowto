@@ -16,16 +16,22 @@
   tasks:
     - name: Install python-simplejson
       raw: yum -y install python-simplejson
+      tags:
+        - packages
 
     - name: Install sudo
       yum: name=sudo
            state=installed
+      tags:
+        - packages
 
-    - name: Create administrator user: $admin_user
+    - name: Create administrator user $admin_user
       user: name=$admin_user
             comment='Administrator'
             groups=wheel
             password=*
+      tags:
+        - wheel
 
     - name: Sudoers for wheel
       lineinfile: dest=/etc/sudoers.d/wheel
@@ -33,12 +39,16 @@
                   state=present
                   regexp='^%wheel'
                   line="%wheel ALL=(ALL) NOPASSWD:ALL"
+      tags:
+        - sudoers
 
     - name: Sudoers file mode
       file: path=/etc/sudoers.d/wheel
             owner=root
             group=root
             mode=0440
+      tags:
+        - sudoers
 
     - name: Create Root Administrator SSH Directory
       file: path=/home/${admin_user}/.ssh
@@ -46,6 +56,8 @@
             owner=$admin_user
             group=$admin_user
             mode=0700
+      tags:
+        - ssh
 
     - name: Copy Root Administrator SSH keys
       copy: src=${admin_key}.pub
@@ -53,3 +65,5 @@
             owner=$admin_user
             group=$admin_user
             mode=0600
+      tags:
+        - ssh

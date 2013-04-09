@@ -1,0 +1,90 @@
+
+ClusterName=grid
+ControlMachine={{slurm_master}}.
+# ControlAddr=
+BackupController={{slurm_backup}}.
+# BackupAddr=
+#
+SlurmUser=slurm
+#SlurmdUser=root
+SlurmctldPort=6817
+SlurmdPort=6818
+AuthType=auth/munge
+#JobCredentialPrivateKey=
+#JobCredentialPublicCertificate=
+StateSaveLocation=${slurm_state}
+SlurmdSpoolDir=${slurm_state}/slurmd
+SwitchType=switch/none
+MpiDefault=none
+SlurmctldPidFile=/var/run/slurmctld.pid
+SlurmdPidFile=/var/run/slurmd.pid
+ProctrackType=proctrack/pgid
+#PluginDir=
+CacheGroups=0
+#FirstJobId=
+ReturnToService=1
+#MaxJobCount=
+#PlugStackConfig=
+#PropagatePrioProcess=
+#PropagateResourceLimits=
+#PropagateResourceLimitsExcept=
+#Prolog=
+#Epilog=
+#SrunProlog=
+#SrunEpilog=
+#TaskProlog=
+#TaskEpilog=
+#TaskPlugin=
+#TrackWCKey=no
+#TreeWidth=50
+#TmpFs=
+#UsePAM=
+#
+# TIMERS
+SlurmctldTimeout=300
+SlurmdTimeout=300
+InactiveLimit=0
+MinJobAge=300
+KillWait=30
+Waittime=0
+#
+# SCHEDULING
+SchedulerType=sched/backfill
+#SchedulerAuth=
+#SchedulerPort=
+#SchedulerRootFilter=
+SelectType=select/cons_res
+SelectTypeParameters=CR_Core_Memory
+FastSchedule=1
+PriorityType=priority/multifactor
+PriorityDecayHalfLife=7-0
+#PriorityUsageResetPeriod=14-0
+PriorityWeightFairshare=100000
+PriorityWeightAge=1000
+PriorityWeightPartition=10000
+PriorityWeightJobSize=1000
+PriorityMaxAge=1-0
+#
+# LOGGING
+SlurmctldDebug=3
+#SlurmctldLogFile=
+SlurmdDebug=3
+#SlurmdLogFile=
+JobCompType=jobcomp/none
+#JobCompLoc=
+#
+# ACCOUNTING
+#JobAcctGatherType=jobacct_gather/linux
+#JobAcctGatherFrequency=30
+
+AccountingStorageEnforce=associations,limits,qos
+AccountingStorageType=accounting_storage/slurmdbd
+AccountingStorageHost={{slurm_master}}
+AccountingStorageBackupHost={{slurm_backup}}
+#AccountingStorageLoc=
+#AccountingStoragePass=
+#AccountingStorageUser=
+#
+# COMPUTE NODES
+NodeName=$slurm_compute Procs=$slurm_procs State=UNKNOWN
+PartitionName=batch Nodes=$slurm_compute Default=YES MaxTime=INFINITE State=UP

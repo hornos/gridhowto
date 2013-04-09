@@ -1,0 +1,37 @@
+# 
+---
+- hosts: all
+
+  vars_files:
+    - mariadb_vars.yml
+
+  vars:
+    is_master: "'$inventory_hostname' == '$master'"
+    is_schema: "'$schema' == 'yes'"
+
+  tasks:
+  - name: Install bind packages
+    yum: name=$item
+         state=installed
+    with_items:
+      - bind
+      - bind-chroot
+      - bind-dyndb-ldap
+      - bind-sdb
+      - bind-utils
+    tags:
+      - packages
+
+  - name: Setup bind mysql db
+    mysql_db: db=bind
+              login_user=root
+              login_password=$password
+              login_unix_socket=$socket
+    only_if: '$is_master'
+
+  - name: Setup bind mysql user
+    mysql_user: name=bind password=bind priv=bind.*:ALL
+                login_user=root
+                login_password=$password
+                login_unix_socket=$socket
+    only_if: '$is_master'
