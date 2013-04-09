@@ -48,6 +48,7 @@ args="-u ${user} --private-key=${key} -i ${inventory} ${opts}"
 cmd=""
 
 ### modules
+__module=$module
 if [ -r "${module}.yml" ] ; then
   module="${module}.yml"
 fi
@@ -72,7 +73,7 @@ case $gbn in
     cmd="ansible ${hosts} -m command -a \"${module}\""
     ;;
   restart)
-    cmd="ansible ${hosts} -m command -a \"service ${module} restart\""
+    cmd="ansible ${hosts} -m command -a \"service ${__module} restart\""
     ;;
   shell)
     echo "${module}" > ${tmp}

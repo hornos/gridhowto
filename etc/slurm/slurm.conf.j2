@@ -1,9 +1,12 @@
 
-ClusterName=grid
-ControlMachine={{slurm_master}}.
-# ControlAddr=
-BackupController={{slurm_backup}}.
-# BackupAddr=
+ClusterName={{slurm_cluster}}
+
+ControlMachine={{slurm_master}}
+ControlAddr={{hostvars[slurm_master]['ansible_eth0']['ipv4']['address']}}
+
+BackupController={{slurm_backup}}
+BackupAddr={{hostvars[slurm_backup]['ansible_eth0']['ipv4']['address']}}
+
 #
 SlurmUser=slurm
 #SlurmdUser=root
@@ -66,9 +69,9 @@ PriorityWeightJobSize=1000
 PriorityMaxAge=1-0
 #
 # LOGGING
-SlurmctldDebug=3
+SlurmctldDebug=2
 #SlurmctldLogFile=
-SlurmdDebug=3
+SlurmdDebug=2
 #SlurmdLogFile=
 JobCompType=jobcomp/none
 #JobCompLoc=
@@ -79,8 +82,8 @@ JobCompType=jobcomp/none
 
 AccountingStorageEnforce=associations,limits,qos
 AccountingStorageType=accounting_storage/slurmdbd
-AccountingStorageHost={{slurm_master}}
-AccountingStorageBackupHost={{slurm_backup}}
+AccountingStorageHost={{hostvars[slurm_master]['ansible_eth0']['ipv4']['address']}}
+AccountingStorageBackupHost={{hostvars[slurm_backup]['ansible_eth0']['ipv4']['address']}}
 #AccountingStorageLoc=
 #AccountingStoragePass=
 #AccountingStorageUser=

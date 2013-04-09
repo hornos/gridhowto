@@ -1,3 +1,4 @@
+slurm_cluster: 'grid'
 slurm_master: 'root-01'
 slurm_backup: 'root-02'
 slurm_user: 'slurm'

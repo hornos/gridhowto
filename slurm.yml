@@ -29,6 +29,7 @@
       - slurm-slurmdbd
       - slurm-sql
       - slurm-torque
+      - mailx
     tags:
       - packages
 
@@ -37,12 +38,28 @@
     lineinfile: dest=/etc/sysconfig/munge
                 regexp='^USER'
                 line='USER="munge"'
+    tags:
+      - munge
 
-  - name: Fix /var/log/munge/munged.log
-    file: path=/var/log/munge/munged.log
+  - name: Set munge permissions
+    file: path=/var/${item}/munge
           owner=munge
           group=munge
-    ignore_errors: yes
+          state=directory
+    with_items:
+      - run
+      - lib
+      - log
+    tags:
+      - munge
+
+  - name: Set munge permissions /etc/munge
+    file: path=/etc/munge
+          owner=munge
+          group=munge
+          state=directory
+    tags:
+      - munge
 
   - name: Setup munge key
     copy: src=etc/munge/munge.key
@@ -50,7 +67,8 @@
           owner=munge
           group=munge
           mode=0600
-
+    tags:
+      - munge
     notify:
       - Restart munge
 
@@ -65,6 +83,8 @@
               login_password=$password
               login_unix_socket=$socket
     only_if: '$is_master'
+    tags:
+      - slurm
 
   - name: Setup slurmdbd mysql user
     mysql_user: name=$slurm_user password=$slurm_password priv=${slurm_db}.*:ALL
@@ -72,16 +92,23 @@
                 login_password=$password
                 login_unix_socket=$socket
     only_if: '$is_master'
+    tags:
+      - slurm
 
   - name: Create slurm group
     group: name=slurm
            state=present
+    tags:
+      - slurm
+
   - name: Create slurm user
     user: name=slurm
           comment="Slurm Scheduler"
           state=present
           password=*
           group=slurm
+    tags:
+      - slurm
 
   - name: Create slurm directories
     file: path=/var/$item/slurm
@@ -93,7 +120,7 @@
       - run
       - lib
     tags:
-      - directories
+      - slurm
 
   - name: Install /etc/slurm/slurmdbd.conf
     template: src=etc/slurm/slurmdbd.conf.j2
@@ -104,12 +131,23 @@
     notify:
       - Restart slurmdbd
     only_if: '$is_slurm_master or $is_slurm_backup'
+    tags:
+      - slurm
 
   - name: Start slurmdbd
     service: name=slurmdbd
              state=started
              enabled=yes
     only_if: '$is_slurm_master or $is_slurm_backup'
+    tags:
+      - slurm
+
+  - name: Create cluster
+    shell: /usr/bin/sacctmgr create cluster name=$slurm_cluster
+    only_if: '$is_slurm_master'
+    ignore_errors: yes
+    tags:
+      - slurm
 
   - name: Create state directory
     file: path=$slurm_state
@@ -119,6 +157,8 @@
     tags:
       - state
     only_if: '$is_slurm_master'
+    tags:
+      - slurm
 
   - name: Create spool directory
     file: path=${slurm_state}/slurmd
@@ -128,6 +168,8 @@
     tags:
       - state
     only_if: '$is_slurm_master'
+    tags:
+      - slurm
 
   - name: Install /etc/slurm/slurm.conf
     template: src=etc/slurm/slurm.conf.j2
@@ -137,6 +179,8 @@
               mode=0600
     notify:
       - Restart slurm
+    tags:
+      - slurm
 
   - name: Start slurm
     service: name=slurm
