@@ -78,6 +78,39 @@
     tags:
       - config
 
+  - name: Enable motd service
+    lineinfile: dest=/etc/services
+                regexp="^gmond 8649/$item"
+                line="gmond 8649/$item"
+    with_items:
+     - tcp
+     - udp
+    tags:
+      - config
+      - services
+
+  - name: Enable gmetad-xml service
+    lineinfile: dest=/etc/services
+                regexp="^gmetad-xml 8651/$item"
+                line="gmetad-xml 8651/$item"
+    with_items:
+     - tcp
+     - udp
+    tags:
+      - config
+      - services
+
+  - name: Enable gmetad-int service
+    lineinfile: dest=/etc/services
+                regexp="^gmetad-int 8652/$item"
+                line="gmetad-int 8652/$item"
+    with_items:
+     - tcp
+     - udp
+    tags:
+      - config
+      - services
+
   - name: Start gmond
     service: name=gmond
              state=started

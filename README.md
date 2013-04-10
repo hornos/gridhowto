@@ -391,6 +391,8 @@ Galera state can be reset by:
 
     bin/play @@root-03 mariadb_reset
 
+
+
 ### Icinga
 Install and setup Icinga:
 

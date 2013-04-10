@@ -224,6 +224,39 @@
     tags:
       - slurm
 
+  - name: Enable slurmctld service
+    lineinfile: dest=/etc/services
+                regexp="^slurmctld 6817/$item"
+                line="slurmctld 6817/$item"
+    with_items:
+     - tcp
+     - udp
+    tags:
+      - config
+      - services
+
+  - name: Enable slurmd service
+    lineinfile: dest=/etc/services
+                regexp="^slurmd 6818/$item"
+                line="slurmd 6818/$item"
+    with_items:
+     - tcp
+     - udp
+    tags:
+      - config
+      - services
+
+  - name: Enable slurmdbd service
+    lineinfile: dest=/etc/services
+                regexp="^slurmdbd 6819/$item"
+                line="slurmdbd 6819/$item"
+    with_items:
+     - tcp
+     - udp
+    tags:
+      - config
+      - services
+
   - name: Start slurm
     service: name=slurm
              state=started
