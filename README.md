@@ -387,6 +387,10 @@ The following tools are installed under `/root/bin`:
 
 You can access phpmyadmin on `http://root-0?/phpmyadmin`.
 
+Galera state can be reset by:
+
+    bin/play @@root-03 mariadb_reset
+
 ### Icinga
 Install and setup Icinga:
 
@@ -423,7 +427,7 @@ and mount
 
 
 ## Slurm
-Create a munge key for the cluster:
+Slurm is a batch scheduler for the cluster with `low` `normal` and `high` queues. First you have to create a munge key to protect authentication:
 
     dd if=/dev/random bs=1 count=1024 > etc/munge/munge.key
 
@@ -431,6 +435,7 @@ Install and setup Slurm:
 
     bin/play @@root slurm
 
+The first root node is the master and the 2nd is the backup controller for `slurmctld` and `slurmdbd`. The common state directory is `/common/slurm`. Failover timeout is 60 s.
 
 ### Graphite
 

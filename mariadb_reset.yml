@@ -1,0 +1,26 @@
+# Based on: http://edin.no-ip.com/blog/hswong3i/mariadb-galera-mastermaster-replication-ubuntu-12-04-howto
+---
+- hosts: all
+
+  vars_files:
+    - mariadb_vars.yml
+
+  tasks:
+
+    - name: Remove Galera State
+      file: path=$state
+            state=absent
+      notify:
+        - Restart mysqld
+      tags:
+        - reset
+
+  handlers:
+    - name: Restart mysqld
+      service: name=mysql
+               state=restarted
+
+
+# mysql -e "SET wsrep_on = OFF; DELETE FROM mysql.user WHERE user = '';"
+# mysql -e "SET wsrep_on = OFF; GRANT ALL ON *.* TO 'root'@'%' IDENTIFIED BY 'password';"
+# mysql -e "SHOW STATUS LIKE 'wsrep_%';"

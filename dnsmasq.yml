@@ -5,11 +5,15 @@
 #
 #     --extra-vars "nodetect=yes"
 #
+# Use dnsmasq for /etc/hosts
+#     --extra-vars "usehosts=no"
+#
 ---
 - hosts: all
 
   vars:
     nodetect: "no"
+    usehosts: "yes"
 
   vars_files:
     - networks.yml
@@ -76,7 +80,28 @@
                 owner=bin
                 group=wheel
                 mode=0644
-      when_string: "'$nodetect' != 'yes'"
+      when_string: "'$usehosts' == 'no'"
+      notify:
+        - Restart dnsmasq
+      tags:
+        - hosts
+
+    - name: Disable root server hostnames
+      file: path=/etc/hosts.d/root
+            state=absent
+      when_string: "'$usehosts' == 'yes'"
+      notify:
+        - Restart dnsmasq
+      tags:
+        - hosts
+
+    - name: Install /etc/hosts
+      template: src=etc/hosts.j2
+                dest=/etc/hosts
+                owner=bin
+                group=wheel
+                mode=0644
+      when_string: "'$usehosts' == 'yes'"
       notify:
         - Restart dnsmasq
       tags:

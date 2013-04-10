@@ -1,5 +1,6 @@
 master: 'root-01'
 password: 'root'
 socket: '/var/run/mysqld/mysqld.sock'
+state: '/var/lib/mysql/grastate.dat'
 secret: 'PSb2eN9hYDkd'
 timeout: 1800

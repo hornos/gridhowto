@@ -22,8 +22,8 @@ JobCheckpointDir=${slurm_checkpoint}
 
 SwitchType=switch/none
 MpiDefault=none
-SlurmctldPidFile=/var/run/slurmctld.pid
-SlurmdPidFile=/var/run/slurmd.pid
+SlurmctldPidFile=/var/run/slurm/slurmctld.pid
+SlurmdPidFile=/var/run/slurm/slurmd.pid
 ProctrackType=proctrack/pgid
 #PluginDir=
 CacheGroups=0
@@ -47,8 +47,8 @@ ReturnToService=2
 #UsePAM=
 #
 # TIMERS
-SlurmctldTimeout=300
-SlurmdTimeout=300
+SlurmctldTimeout={{slurm_timeout}}
+SlurmdTimeout={{slurm_timeout}}
 InactiveLimit=0
 MinJobAge=300
 KillWait=30
@@ -74,8 +74,9 @@ PriorityWeightPartition=10000
 PriorityWeightJobSize=1000
 PriorityMaxAge=1-0
 
-PreemptType=preempt/qos
-PreemptMode=REQUEUE
+# http://www.schedmd.com/slurmdocs/preempt.html
+PreemptType=preempt/partition_prio
+PreemptMode=SUSPEND,GANG
 
 # CheckpointType=checkpoint/blcr
 
@@ -108,5 +109,7 @@ AccountingStorageBackupHost={{hostvars[slurm_backup]['ansible_eth0']['ipv4']['ad
 #
 # COMPUTE NODES
 NodeName=$slurm_compute State=UNKNOWN
-PartitionName=DEFAULT Nodes=$slurm_compute Default=YES MaxTime=INFINITE State=UP
-PartitionName=batch
+PartitionName=DEFAULT Nodes=$slurm_compute MaxTime=INFINITE State=UP
+PartitionName=low    Default=NO  Priority=10 PreemptMode=requeue
+PartitionName=normal Default=YES Priority=20 PreemptMode=suspend
+PartitionName=high   Default=NO  Priority=30 PreemptMode=off

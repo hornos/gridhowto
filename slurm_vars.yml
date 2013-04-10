@@ -8,3 +8,4 @@ slurm_repo: 'home_hornos_centos'
 slurm_state: '/common/slurm/state'
 slurm_checkpoint: '/common/slurm/checkpoint'
 slurm_compute: 'root-[01-3]'
+slurm_timeout: 60
