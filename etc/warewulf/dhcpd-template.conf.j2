@@ -1,0 +1,13 @@
+allow booting;
+allow bootp;
+ddns-update-style interim;
+option routers default_router;
+filename "/warewulf/gpxelinux.0";
+not authoritative;
+
+subnet {{networks.system}} netmask {{masks.system}} {
+   not authoritative;
+   option subnet-mask {{masks.system}};
+}
+
+# Node entries will follow below

@@ -1,4 +1,6 @@
 # Based on: http://edin.no-ip.com/blog/hswong3i/mariadb-galera-mastermaster-replication-ubuntu-12-04-howto
+# http://samlambert.com/posts/galera-load-balancer-rpms/
+# http://www.fromdual.com/mysql-and-galera-load-balancer
 ---
 - hosts: all
 
@@ -7,20 +9,51 @@
 
   tasks:
 
-    - name: Remove Galera State
-      file: path=$state
-            state=absent
-      notify:
-        - Restart mysqld
-      tags:
-        - reset
+  - name: Download GLB
+    get_url: url=${mariadb_glb_url}/${mariadb_glb_rpm} dest=/root
+    tags:
+      - packages
+
+  - name: Install GLB
+    command: yum -y localinstall /root/${mariadb_glb_rpm}
+    tags:
+      - packages
+
+  - name: Install nc
+    yum: name=nc
+         state=installed
+    tags:
+      - packages
+
+  - name: Install /etc/sysconfig/glbd
+    template: src=etc/sysconfig/glbd.j2
+              dest=/etc/sysconfig/glbd
+              owner=root
+              group=root
+              mode=0644
+    notify:
+      - Restart glbd
+    tags:
+      - config
+
+# TODO: pid detection and status
+  - name: Install /etc/init.d/glbd
+    template: src=etc/init.d/glbd.j2
+              dest=/etc/init.d/glbd
+              owner=root
+              group=root
+              mode=0755
+    notify:
+      - Restart glbd
+    tags:
+      - config
+
+  - name: Start glbd
+    service: name=glbd
+             state=started
+             enabled=yes
 
   handlers:
-    - name: Restart mysqld
-      service: name=mysql
+    - name: Restart glbd
+      service: name=glbd
                state=restarted
-
-
-# mysql -e "SET wsrep_on = OFF; DELETE FROM mysql.user WHERE user = '';"
-# mysql -e "SET wsrep_on = OFF; GRANT ALL ON *.* TO 'root'@'%' IDENTIFIED BY 'password';"
-# mysql -e "SHOW STATUS LIKE 'wsrep_%';"

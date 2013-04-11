@@ -1,0 +1,8 @@
+url: http://warewulf.lbl.gov/downloads/repo
+repo: warewulf-rhel6.repo
+
+warewulf_db: 'warewulf'
+warewulf_user: 'warewulf'
+warewulf_password: 'warewulf'
+warewulf_common: '/common/warewulf'
+warewulf_interface: eth0

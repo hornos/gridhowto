@@ -1,0 +1,149 @@
+# Warewulf Cluster
+---
+- hosts: all
+  vars_files:
+    - networks.yml
+    - mariadb_vars.yml
+    - warewulf_vars.yml
+
+  vars:
+    is_master: "'$inventory_hostname' == '$master'"
+
+  tasks:
+
+  - name: Download Warewulf repo
+    get_url: url=${url}/${repo} dest=/etc/yum.repos.d/${repo}
+    tags:
+      - packages
+
+  - name: Install packages
+    yum: name=$item
+         state=installed
+    with_items:
+      - httpd
+      - dhcp
+      - tcpdump
+      - tftp-server
+      - mod_perl
+      - warewulf-common
+      - warewulf-provision
+      - warewulf-vnfs
+      - warewulf-nhc
+      - warewulf-provision-server
+    tags:
+      - packages
+
+  - name: Setup warewulf mysql db
+    mysql_db: db=$warewulf_db
+              login_user=root
+              login_password=$password
+              login_unix_socket=$socket
+    only_if: '$is_master'
+    tags:
+      - database
+
+  - name: Setup warewulf mysql user
+    mysql_user: name=$warewulf_user password=$warewulf_password priv=${warewulf_db}.*:ALL
+                login_user=root
+                login_password=$password
+                login_unix_socket=$socket
+    only_if: '$is_master'
+    tags:
+      - database
+
+  - name: Install /etc/warewulf/database.conf
+    template: src=etc/warewulf/database.conf.j2
+              dest=/etc/warewulf/database.conf
+              owner=root
+              group=root
+              mode=0644
+    tags:
+      - config
+
+  - name: Create common directory
+    file: path=$warewulf_common
+          owner=root
+          group=root
+          state=directory
+    tags:
+      - directories
+    only_if: '$is_master'
+
+  - name: Create common tftpboot directory
+    file: path=${warewulf_common}/tftpboot
+          owner=root
+          group=root
+          state=directory
+    tags:
+      - directories
+      - ftp
+    only_if: '$is_master'
+
+  - name: Create common tftpboot/warewulf directory
+    file: path=${warewulf_common}/tftpboot/warewulf
+          owner=root
+          group=root
+          state=directory
+    tags:
+      - directories
+      - ftp
+    only_if: '$is_master'
+
+  - name: Copy tfptboot files
+    shell: /bin/cp /var/lib/tftpboot/warewulf/* ${warewulf_common}/tftpboot/warewulf
+    tags:
+      - config
+      - ftp
+    only_if: '$is_master'
+
+  - name: Install /etc/xinetd.d/tftp
+    template: src=etc/xinetd.d/tftp.j2
+              dest=/etc/xinetd.d/tftp
+              owner=root
+              group=root
+              mode=0644
+    tags:
+      - config
+      - ftp
+    notify:
+      - Restart xinetd
+
+  - name: Install /etc/warewulf/provision.conf
+    template: src=etc/warewulf/provision.conf.j2
+              dest=/etc/warewulf/provision.conf
+              owner=root
+              group=root
+              mode=0644
+    tags:
+      - config
+      - provision
+
+  - name: Install /etc/warewulf/dhcpd-template.conf
+    template: src=etc/warewulf/dhcpd-template.conf.j2
+              dest=/etc/warewulf/dhcpd-template.conf
+              owner=root
+              group=root
+              mode=0644
+    tags:
+      - config
+      - dhcp
+    notify:
+      - Update dhcp
+
+  ### SERVICES
+  - name: Start xinetd
+    service: name=xinetd
+             state=started
+
+#  - name: Start dhcpd
+#    service: name=dhcpd
+#             state=started
+
+  handlers:
+    - name: Restart xinetd
+      service: name=xinetd
+               state=restarted
+
+    - name: Update dhcp
+      shell: /usr/bin/wwsh dhcp update
+

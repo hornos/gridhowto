@@ -122,6 +122,8 @@
     tags:
       - slurm
 
+
+### DATABASE
   - name: Install /etc/slurm/slurmdbd.conf
     template: src=etc/slurm/slurmdbd.conf.j2
               dest=/etc/slurm/slurmdbd.conf
@@ -133,6 +135,7 @@
     only_if: '$is_slurm_master or $is_slurm_backup'
     tags:
       - slurm
+      - database
 
   - name: Start slurmdbd
     service: name=slurmdbd
@@ -141,6 +144,8 @@
     only_if: '$is_slurm_master or $is_slurm_backup'
     tags:
       - slurm
+      - database
+
 
   - name: Create cluster
     shell: /usr/bin/sacctmgr -i create cluster name=$slurm_cluster
@@ -162,6 +167,7 @@
     ignore_errors: yes
     tags:
       - slurm
+
 
   - name: Create state directory
     file: path=$slurm_state
@@ -214,6 +220,18 @@
       - Restart slurm
     tags:
       - slurm
+
+# TODO:
+#  - name: Enable GLB
+#    template: src=etc/sysconfig/slurm.glb.j2
+#              dest=/etc/sysconfig/slurm.glb
+#              owner=slurm
+#              group=slurm
+#              mode=0644
+#    notify:
+#      - Restart slurmdbd
+#    tags:
+#      - slurm
 
   - name: Install logrotate
     template: src=etc/logrotate.d/slurm.j2

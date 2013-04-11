@@ -1,1 +1,6 @@
 SLURMD_OPTIONS="-M"
+if [ -f /etc/sysconfig/slurm.glb ] ; then
+    . /etc/sysconfig/slurm.glb
+else
+    SLURMDBD_OPTIONS=""
+fi

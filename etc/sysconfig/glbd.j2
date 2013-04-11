@@ -1,0 +1,21 @@
+exec=/usr/local/sbin/glbd
+
+LISTEN_PORT="{{mariadb_glb_port}}"
+CONTROL_PORT="{{mariadb_glb_cntl}}"
+THREADS="{{mariadb_glb_threads}}"
+FIFO="{{mariadb_glb_socket}}"
+
+LOCAL_TARGET="127.0.0.1:3306:1"
+
+{% set first=1 %}
+PEER_TARGET="{%- for host in groups['root'] %}
+{%- if not first %}
+{{- ' ' }}
+{%- endif %}
+{%- if first %}
+{%- set first=0 %}
+{%- endif %}
+{{- hostvars[host]['ansible_eth0']['ipv4']['address'] }}:3306:0.5
+{%- endfor %}"
+
+DEFAULT_TARGETS="$LOCAL_TARGET $PEER_TARGET"

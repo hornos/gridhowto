@@ -1,0 +1,153 @@
+#!/bin/sh
+#
+# glbd          Start/Stop the Galera Load Balancer daemon.
+#
+# processname: glbd
+# chkconfig: 2345 90 60
+# description: GLB is a TCP load balancer similar to Pen. \
+#              It lacks most of advanced Pen features, as \
+#              the aim was to make a user-space TCP proxy which is \
+#              as fast as possible. It can utilize multiple CPU cores. \
+#              A list of destinations can be configured at runtime. \
+#              Destination "draining" is supported. It features \
+#              weight-based connection balancing (which becomes \
+#              round-robin if weights are equal).
+
+### BEGIN INIT INFO
+# Provides: glbd
+# Required-Start: $local_fs
+# Required-Stop: $local_fs
+# Default-Start:  2345
+# Default-Stop: 90
+# Short-Description: run glbd daemon
+# Description: GLB is a TCP load balancer similar to Pen.
+### END INIT INFO
+
+prog="glbd"
+proc=glbd
+exec=/usr/sbin/glbd
+
+LISTEN_PORT="8010"
+CONTROL_PORT="8011"
+THREADS="2"
+DEFAULT_TARGETS="djdb2:8000:0.75 djdb3:8000:0.75 divjobs3:8000:0.75 divjobs4:8000:1"
+FIFO=/tmp/glbd.fifo
+
+if [ -f /etc/sysconfig/glbd ] ; then
+    . /etc/sysconfig/glbd
+fi
+
+stop() {
+  echo -n "[`date`] $prog: stopping... "
+  killall $exec &> /dev/null
+  if [ $? -ne 0 ]; then
+    echo "failed."
+    rm -fv $FIFO
+    return
+  fi
+  rm -fv $FIFO
+  echo "done."
+}
+
+start() {
+  if pidof $prog &> /dev/null ; then
+    echo "[`date`] $prog: already running...";
+    exit -1
+  fi
+  echo "[`date`] $prog: starting..."
+  wait_for_connections_to_drop
+  $exec --daemon \
+        --fifo $FIFO \
+        --control 127.0.0.1:$CONTROL_PORT \
+        --threads $THREADS $LISTEN_PORT $DEFAULT_TARGETS
+  PID=$!
+  if [ $? -ne 0 ]; then
+    echo "[`date`] $prog: failed to start."
+    exit -1
+  fi
+  echo "[`date`] $prog: started, pid=$PID"
+  exit 0
+}
+
+restart() {
+  echo "[`date`] $prog: restarting..."
+  stop
+  start
+}
+
+wait_for_connections_to_drop() {
+  while (netstat -na | grep -m 1 ":$LISTEN_PORT" &> /dev/null); do
+    echo "[`date`] $prog: waiting for lingering sockets to clear up..."
+    sleep 1s
+  done;
+}
+
+getinfo() {
+  echo getinfo | nc 127.0.0.1 $CONTROL_PORT && exit 0
+  echo "[`date`] $prog: failed to query 'getinfo' from 127.0.0.1:$CONTROL_PORT"
+  exit -1
+}
+
+getstats() {
+  echo getstats | nc 127.0.0.1 $CONTROL_PORT && exit 0
+  echo "[`date`] $prog: failed to query 'getstats' from 127.0.0.1:$CONTROL_PORT"
+  exit -1
+}
+
+add() {
+  if [ "$1" == "" ]; then
+    echo $"Usage: $0 add :[:]"
+    exit -1
+  fi
+  if [ "`echo "$1" | nc 127.0.0.1 $CONTROL_PORT`" == "Ok" ]; then
+    echo "[`date`] $prog: added '$1' successfully"
+    #getinfo
+    exit 0
+  fi
+  echo "[`date`] $prog: failed to add target '$1'."
+  exit -1
+}
+
+remove() {
+  if [ "$1" == "" ]; then
+    echo $"Usage: $0 remove :"
+    exit -1
+  fi
+  if [ "`echo "$1:-1" | nc 127.0.0.1 $CONTROL_PORT`" == "Ok" ]; then
+    echo "[`date`] $prog: removed '$1' successfully"
+    #getinfo
+    exit 0
+  fi
+  echo "[`date`] $prog: failed to remove target '$1'."
+  exit -1
+}
+
+case $1 in
+  start)
+    start
+  ;;
+  stop)
+    stop
+  ;;
+  restart)
+    restart
+  ;;
+  getinfo)
+    getinfo
+  ;;
+  getstats)
+    getstats
+  ;;
+  status)
+    getinfo
+  ;;
+  add)
+    add $2
+  ;;
+  remove)
+    remove $2
+  ;;
+  *)
+    echo $"Usage: $0 {start|stop|restart|status|getstats|getinfo|add|remove}"
+  exit 2
+esac
