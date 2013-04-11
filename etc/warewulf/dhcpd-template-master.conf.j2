@@ -1,13 +1,14 @@
+# http://consultancy.edvoncken.net/index.php/HOWTO_Configure_DHCP_failover
 
 ##########################
 # DHCP Failover, Primary #
 ##########################
  
 failover peer "warewulf" {             # Failover configuration
-  primary;                             # I am the primary
+  primary;                            # I am the secondary
   address {{hostvars[warewulf_master]['ansible_eth0']['ipv4']['address']}};        # My IP address
   port 647;
-  peer address {{hostvars[warewulf_master]['ansible_eth0']['ipv4']['address']}};   # Peer's IP address
+  peer address {{hostvars[warewulf_backup]['ansible_eth0']['ipv4']['address']}};   # Peer's IP address
   peer port 647;
   max-response-delay 60;
   max-unacked-updates 10;
@@ -17,6 +18,9 @@ failover peer "warewulf" {             # Failover configuration
 }
 
 subnet {{networks.system}} netmask {{masks.system}} {
+  pool {
+    failover peer "warewulf";
+  }
   not authoritative;
   option subnet-mask {{masks.system}};
   allow booting;

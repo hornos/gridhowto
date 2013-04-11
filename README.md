@@ -437,6 +437,16 @@ Install and setup Slurm:
 
 The first root node is the master and the 2nd is the backup controller for `slurmctld` and `slurmdbd`. The common state directory is `/common/slurm`. Failover timeout is 60 s.
 
+## Warewulf Cluster
+Warewulf cluster manager is a simple yet powerful cluster provision toolkit. It support stateless installation of compute nodes. Install and setup Warewulf:
+
+    bin/play @@root warewulf
+
+Create provision directory on one of the root servers:
+
+    wwmkchroot centos-6 /common/warewulf/chroots/centos-6
+
+
 ### Graphite
 
     bin/play @@root memcache

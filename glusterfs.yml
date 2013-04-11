@@ -19,3 +19,20 @@
            fstype=glusterfs
            opts=acl,defaults,log-level=WARNING,log-file=/var/log/gluster.log
            state=mounted
+    tags:
+      - mount
+
+  - name: Set deadline I/O scheduler
+    shell: /bin/echo "deadline" > /sys/block/${gluster_disk}/queue/scheduler
+    tags:
+      - tune
+
+  - name: Set I/O request size
+    shell: /bin/echo "256" > /sys/block/${gluster_disk}/queue/nr_requests
+    tags:
+      - tune
+
+  - name: Set read-ahead size
+    shell: /sbin/blockdev --setra 4096 /dev/${gluster_disk}
+    tags:
+      - tune

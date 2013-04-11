@@ -10,3 +10,5 @@ replica: 3
 common: '/common'
 fio_size: '100M'
 master: 'root-01'
+
+gluster_disk: 'sda'

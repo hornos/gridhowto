@@ -1,4 +1,7 @@
 # Warewulf Cluster
+# http://www.admin-magazine.com/HPC/Articles/Warewulf-Cluster-Manager-Master-and-Compute-Nodes
+# http://www.admin-magazine.com/HPC/Articles/Warewulf-Cluster-Manager-Completing-the-Environment
+#
 ---
 - hosts: all
   vars_files:
@@ -8,6 +11,8 @@
 
   vars:
     is_master: "'$inventory_hostname' == '$master'"
+    is_warewulf_master: "'$inventory_hostname' == '$warewulf_master'"
+    is_warewulf_backup: "'$inventory_hostname' == '$warewulf_backup'"
 
   tasks:
 
@@ -79,6 +84,16 @@
       - ftp
     only_if: '$is_master'
 
+  - name: Create common chroots directory
+    file: path=${warewulf_common}/chroots
+          owner=root
+          group=root
+          state=directory
+    tags:
+      - directories
+      - ftp
+    only_if: '$is_master'
+
   - name: Create common tftpboot/warewulf directory
     file: path=${warewulf_common}/tftpboot/warewulf
           owner=root
@@ -119,7 +134,7 @@
       - provision
 
   - name: Install /etc/warewulf/dhcpd-template.conf
-    template: src=etc/warewulf/dhcpd-template.conf.j2
+    template: src=etc/warewulf/dhcpd-template-master.conf.j2
               dest=/etc/warewulf/dhcpd-template.conf
               owner=root
               group=root
@@ -129,6 +144,20 @@
       - dhcp
     notify:
       - Update dhcp
+    only_if: '$is_warewulf_master'
+
+  - name: Install /etc/warewulf/dhcpd-template.conf
+    template: src=etc/warewulf/dhcpd-template-backup.conf.j2
+              dest=/etc/warewulf/dhcpd-template.conf
+              owner=root
+              group=root
+              mode=0644
+    tags:
+      - config
+      - dhcp
+    notify:
+      - Update dhcp
+    only_if: '$is_warewulf_backup'
 
   ### SERVICES
   - name: Start xinetd
