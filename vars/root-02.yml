@@ -1,3 +1,15 @@
+#
+# Generate uuid by: uuidgen | tr [A-Z] [a-z]
+#
+xtreem_dir_uuid: '8dd8260f-a5de-46a1-abe3-b115d9fa0015'
+xtreem_mrc_uuid: 'b7b334b0-43d1-4e1c-93f4-ef97ebb5cbb4'
+xtreem_osd_uuid: '5a9d0712-a32e-4fca-b0a5-bef5df15d5b1'
+
+# replica cross-table
+xtreem_dir_replica_1: 'root-01'
+xtreem_dir_replica_2: 'root-02'
+
+### OBSOLETE
 rsyslog_fromhost:
   - "10.1."
 rsyslog_sendto:

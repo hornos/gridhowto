@@ -1,0 +1,190 @@
+# Format disk:
+# --extra-vars "format=yes"
+---
+- hosts: all
+  vars_files:
+    - xtreem_vars.yml
+    - vars/${inventory_hostname}.yml
+
+  vars:
+    is_master: "'$inventory_hostname' == '$master'"
+    is_format: "'$format' == 'yes'"
+    is_mount: "'$mount' == 'yes'"
+
+  tasks:
+
+  - name: Download XtreemFS repo
+    get_url: url=${url}/${repo} dest=/etc/yum.repos.d/${repo}
+    tags:
+      - packages
+
+  - name: Install XtreemFS
+    yum: name=$item
+         state=installed
+    with_items:
+      - xtreemfs-client
+      - xtreemfs-server
+      - xtreemfs-tools
+      - xtreemfs-backend
+    tags:
+      - packages
+
+
+  - name: Create partition
+    lvol: vg=$vg_root
+          lv=$lv_data
+          size=$lv_size
+    tags:
+      - partition
+
+  - name: Create filesystem
+    command: $fscreate /dev/${vg_root}/${lv_data}
+    only_if: '$is_format'
+    tags:
+      - partition
+
+  - name: Creat mount dir
+    file: path=$lv_mnt
+          owner=root
+          group=xtreemfs
+          mode=0770
+          state=directory
+    tags:
+      - partition
+
+  - name: Create common dir
+    file: path=$common
+          state=directory
+    tags:
+      - partition
+      - common
+
+  - name: Mount partition
+    mount: name=$lv_mnt
+           src=/dev/${vg_root}/${lv_data}
+           fstype=${fstype}
+           state=mounted
+    tags:
+      - partition
+
+  - name: Creat OSD dir
+    file: path=${lv_mnt}/objs
+          owner=root
+          group=xtreemfs
+          mode=0770
+          state=directory
+    tags:
+      - osd
+      - partition
+
+
+  ### DIRECTORY
+  - name: Install directory config
+    template: src=etc/xos/xtreemfs/dirconfig.properties.j2
+              dest=/etc/xos/xtreemfs/dirconfig.properties
+              owner=root
+              group=xtreemfs
+              mode=0640
+    tags:
+      - config
+      - dir
+    notify:
+      - Restart xtreemfs-dir
+
+  - name: Install directory replica config
+    template: src=etc/xos/xtreemfs/server-repl-plugin/dir.properties.j2
+              dest=/etc/xos/xtreemfs/server-repl-plugin/dir.properties
+              owner=root
+              group=xtreemfs
+              mode=0640
+    tags:
+      - config
+      - replica
+      - dir
+    notify:
+      - Restart xtreemfs-dir
+
+
+  ### METADATA
+  - name: Install metadata config
+    template: src=etc/xos/xtreemfs/mrcconfig.properties.j2
+              dest=/etc/xos/xtreemfs/mrcconfig.properties
+              owner=root
+              group=xtreemfs
+              mode=0640
+    tags:
+      - config
+      - mrc
+    notify:
+      - Restart xtreemfs-mrc
+
+  - name: Install metadata replica config
+    template: src=etc/xos/xtreemfs/server-repl-plugin/mrc.properties.j2
+              dest=/etc/xos/xtreemfs/server-repl-plugin/mrc.properties
+              owner=root
+              group=xtreemfs
+              mode=0640
+    tags:
+      - config
+      - replica
+      - mrc
+    notify:
+      - Restart xtreemfs-mrc
+
+
+  ### DATA
+  - name: Install data config
+    template: src=etc/xos/xtreemfs/osdconfig.properties.j2
+              dest=/etc/xos/xtreemfs/osdconfig.properties
+              owner=root
+              group=xtreemfs
+              mode=0640
+    tags:
+      - config
+      - osd
+    notify:
+      - Restart xtreemfs-osd
+
+
+  ### SERVICES
+  - name: Start xtreemfs-dir
+    service: name=xtreemfs-dir
+             state=started
+             enabled=yes
+
+  - name: Start xtreemfs-mrc
+    service: name=xtreemfs-mrc
+             state=started
+             enabled=yes
+
+  - name: Start xtreemfs-osd
+    service: name=xtreemfs-osd
+             state=started
+             enabled=yes
+
+  - name: Install /etc/shorewall/rules.d/xtreemfs
+    template: src=etc/shorewall/rules.d/xtreemfs.j2
+              dest=/etc/shorewall/rules.d/xtreemfs
+              owner=root
+              group=root
+              mode=0640
+    notify:
+      - Restart shorewall
+
+  ### HANDLERS
+  handlers:
+    - name: Restart xtreemfs-dir
+      service: name=xtreemfs-dir
+               state=restarted
+
+    - name: Restart xtreemfs-mrc
+      service: name=xtreemfs-mrc
+               state=restarted
+
+    - name: Restart xtreemfs-osd
+      service: name=xtreemfs-osd
+               state=restarted
+
+    - name: Restart shorewall
+      service: name=shorewall
+               state=restarted

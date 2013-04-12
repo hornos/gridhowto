@@ -219,7 +219,7 @@ InfiniBand is a switched fabric communications link used in high-performance com
 
 
 ## Ansible Bootstrap
-Install ansible on the host. Ansible should be installed into `$HOME/ansible`:
+This is a blueprint of a HA grid engine cluster. It enables you rapid infrastructure prototyping. First, install Ansible on your host machine (VirtualBox host). Ansible should be installed in `$HOME/ansible`:
 
     cd $HOME
     git clone git://github.com/ansible/ansible.git
@@ -398,7 +398,11 @@ Install and setup Icinga:
 
 You can access icinga on `http://root-0?/icinga` with `icingaadmin/icingaadmin`. The new interface is on `http://root-0?/icinga-web` with `root/password`. Parameters are in `icinga_vars.yml`.
 
-## Glusterfs
+## Cluster Filesystems
+
+### Gluster
+Warning Gluster hangs yum chroot install. You might consider ditching in favour of Ceph or XtreemFS.
+
 Glusterfs playbook creates a common directory (`/common`) on the root servers:
 
     bin/play @@root gluster --extra-vars "format=yes"
@@ -422,6 +426,10 @@ Play the gluster_replace playbook with the uuid you get from the previous comman
 and mount
 
     bin/play @@root-03 glusterfs
+
+### XtreemFS
+
+### Ceph
 
 ## LDAP
 

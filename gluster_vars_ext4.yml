@@ -1,17 +1,17 @@
 url: http://download.gluster.org/pub/gluster/glusterfs/LATEST/EPEL.repo
 repo: glusterfs-epel.repo
 vg_root: 'vg_root'
-lv_data: 'glusterfs_common_brick1'
+lv_data: 'glusterfs_common_brick2'
 lv_size: 8192
-lv_mnt: '/data/glusterfs/common/brick1'
+lv_mnt: '/data/glusterfs/common/brick2'
 transport: 'tcp,rdma'
-volume: 'common'
+volume: 'common2'
 replica: 3
-common: '/common'
+common: '/common2'
 fio_size: '100M'
 master: 'root-01'
-fstype: 'xfs'
-fscreate: '/sbin/mkfs.xfs -i size=512'
-fsopts: 'user_xattr,noatime,nodiratime'
+fstype: 'ext4'
+fscreate: '/sbin/mkfs.ext4'
+fsopts: 'noatime,nodiratime'
 
 gluster_disk: 'sda'
