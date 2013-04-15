@@ -17,7 +17,7 @@ networks:
   mpi: 10.3.0.0
 
 masks:
-  system: 255.255.0.0
+  system: 16
 
 broadcasts:
   system: 10.1.255.255

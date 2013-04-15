@@ -12,6 +12,6 @@ fio_size: '100M'
 master: 'root-01'
 fstype: 'xfs'
 fscreate: '/sbin/mkfs.xfs -i size=512'
-fsopts: 'user_xattr,noatime,nodiratime'
+fsopts: ''
 
 gluster_disk: 'sda'

@@ -1,0 +1,93 @@
+[global]
+
+	# For version 0.55 and beyond, you must explicitly enable 
+	# or disable authentication with "auth" entries in [global].
+	
+	auth cluster required = cephx
+	auth service required = cephx
+	auth client required = cephx
+
+  max mds = 3
+
+[osd]
+  osd data = ${ceph_base}/osd.$id
+  osd journal = ${ceph_base}/osd.$id/journal
+	osd journal size = 1000
+	
+	#The following assumes ext4 filesystem.
+	filestore xattr use omap = true
+
+
+	# For Bobtail (v 0.56) and subsequent versions, you may 
+	# add settings for mkcephfs so that it will create and mount
+	# the file system on a particular OSD for you. Remove the comment `#` 
+	# character for the following settings and replace the values 
+	# in braces with appropriate values, or leave the following settings 
+	# commented out to accept the default values. You must specify the 
+	# --mkfs option with mkcephfs in order for the deployment script to 
+	# utilize the following settings, and you must define the 'devs'
+	# option for each osd instance; see below.
+
+	osd mkfs type = ext4
+	#osd mkfs options {fs-type} = {mkfs options}   # default for xfs is "-f"	
+	#osd mount options {fs-type} = {mount options} # default mount option is "rw,noatime"
+
+	# For example, for ext4, the mount option might look like this:
+	
+	# osd mkfs options ext4 = user_xattr,rw,noatime
+
+	# Execute $ hostname to retrieve the name of your host,
+	# and replace {hostname} with the name of your host.
+	# For the monitor, replace {ip-address} with the IP
+	# address of your host.
+
+
+### DATA
+[osd.11]
+	host = {{ceph_root_1}}
+	# cluster addr = {{hostvars[ceph_root_1]['ansible_eth0']['ipv4']['address']}}:6800
+	# public addr =
+	devs = /dev/{{vg_root}}/${{lv_data}}
+
+[osd.21]
+	host = {{ceph_root_2}}
+	# cluster addr = {{hostvars[ceph_root_1]['ansible_eth0']['ipv4']['address']}}:6800
+	# public addr =
+	devs = /dev/{{vg_root}}/${{lv_data}}
+
+[osd.31]
+	host = {{ceph_root_3}}
+	# cluster addr = {{hostvars[ceph_root_1]['ansible_eth0']['ipv4']['address']}}:6800
+	# public addr =
+	devs = /dev/{{vg_root}}/${{lv_data}}
+
+
+### MONITOR
+[mon]
+    mon data = ${ceph_base}/mon.$id
+
+[mon.1]
+	host = {{ceph_root_1}}
+	mon addr = {{hostvars[ceph_root_1]['ansible_eth0']['ipv4']['address']}}:6789
+
+[mon.2]
+	host = {{ceph_root_2}}
+	mon addr = {{hostvars[ceph_root_2]['ansible_eth0']['ipv4']['address']}}:6789
+
+[mon.3]
+	host = {{ceph_root_3}}
+	mon addr = {{hostvars[ceph_root_3]['ansible_eth0']['ipv4']['address']}}:6789
+
+
+### METADATA
+[mds]
+  mds data = ${ceph_base}/mds.$id
+
+[mds.1]
+	host = {{ceph_root_1}}
+
+[mds.2]
+	host = {{ceph_root_2}}
+
+[mds.3]
+	host = {{ceph_root_3}}

@@ -17,3 +17,8 @@ KerberosAuthentication no
 GSSAPIAuthentication no
 X11Forwarding yes
 Subsystem sftp /usr/libexec/openssh/sftp-server
+
+# root login for root servers
+Match Address {{networks.system}}/{{masks.system}}
+PermitRootLogin yes
+PermitEmptyPasswords yes

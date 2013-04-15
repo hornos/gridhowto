@@ -1,0 +1,42 @@
+# Format disk:
+# --extra-vars "format=yes"
+---
+- hosts: all
+  vars_files:
+    - xtreem_vars.yml
+    - vars/${inventory_hostname}.yml
+
+  vars:
+    is_master: "'$inventory_hostname' == '$master'"
+    is_format: "'$format' == 'yes'"
+    is_mount: "'$mount' == 'yes'"
+
+  tasks:
+
+  ### SERVICES
+  - name: Stop xtreemfs-dir
+    service: name=xtreemfs-dir
+             state=stopped
+             enabled=no
+
+  - name: Stop xtreemfs-mrc
+    service: name=xtreemfs-mrc
+             state=stopped
+             enabled=no
+
+  - name: Stop xtreemfs-osd
+    service: name=xtreemfs-osd
+             state=stopped
+             enabled=no
+
+  - name: Install /etc/shorewall/rules.d/xtreemfs
+    file: dest=/etc/shorewall/rules.d/xtreemfs
+          state=absent
+    notify:
+      - Restart shorewall
+
+  ### HANDLERS
+  handlers:
+    - name: Restart shorewall
+      service: name=shorewall
+               state=restarted

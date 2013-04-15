@@ -1,0 +1,22 @@
+url: http://ceph.com/rpm-bobtail/el6/x86_64
+rpm: ceph-release-1-0.el6.noarch.rpm
+key: 'https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/release.asc'
+
+vg_root: 'vg_root'
+lv_data: 'cephfs_common_brick1'
+lv_size: 128000
+lv_mnt: '/data/cephfs/common/brick1'
+volume: 'common4'
+replica: 3
+common: '/common4'
+master: 'root-01'
+fstype: 'ext4'
+fscreate: '/sbin/mkfs.ext4'
+fsopts: 'user_xattr,rw,noatime,nodiratime'
+
+ceph_base: /var/lib/ceph
+
+# simple clustering
+ceph_root_1: 'root-01'
+ceph_root_2: 'root-02'
+ceph_root_3: 'root-03'

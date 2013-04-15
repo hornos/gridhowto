@@ -34,7 +34,7 @@ http_port = 30636
 listen.address = {{ansible_eth0.ipv4.address}}
 
 # optinal host name that is used to register the service at the DIR
-# hostname = foo.bar.com
+hostname = {{inventory_hostname}}
 
 # interval for querying the Directory Service for new OSDs (in s)
 osd_check_interval = 10

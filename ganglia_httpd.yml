@@ -12,21 +12,38 @@
     file: src=${python_modules_dir}/httpd/graph.d/apache_workers_report.php
           dest=/usr/share/ganglia/graph.d/apache_workers_report.php
           state=link
+    notify:
+      - Restart gmetad
+    tags:
+      - config
+      - httpd
 
   - name: Link httpd.pyconf
     file: src=${python_modules_dir}/httpd/conf.d/httpd.pyconf
           dest=/etc/ganglia/conf.d/httpd.pyconf
           state=link
+    notify:
+      - Restart gmond
+    tags:
+      - config
+      - httpd
 
   - name: Link httpd.py
     file: src=${python_modules_dir}/httpd/python_modules/httpd.py
           dest=/usr/lib64/ganglia/python_modules/httpd.py
           state=link
+    notify:
+      - Restart gmond
+    tags:
+      - config
+      - httpd
 
-  - name: Restart gmond
-    service: name=gmond
-             state=restarted
+  ### HANDLERS
+  handlers:
+    - name: Restart gmond
+      service: name=gmond
+               state=restarted
 
-  - name: Restart gmetad
-    service: name=gmetad
-             state=restarted
+    - name: Restart gmetad
+      service: name=gmetad
+               state=restarted

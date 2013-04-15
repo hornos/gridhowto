@@ -1,0 +1,29 @@
+#
+# Slurm Scheduler
+#
+---
+- hosts: all
+  vars_files:
+    - slurm_vars.yml
+    - mariadb_vars.yml
+
+  vars:
+    is_master: "'$inventory_hostname' == '$master'"
+    is_slurm_master: "'$inventory_hostname' == '$slurm_master'"
+    is_slurm_backup: "'$inventory_hostname' == '$slurm_backup'"
+
+  tasks:
+
+  - name: Stop slurmdbd
+    service: name=slurmdbd
+             state=stopped
+             enabled=no
+    only_if: '$is_slurm_master or $is_slurm_backup'
+    tags:
+      - slurm
+      - database
+
+  - name: Stop slurm
+    service: name=slurm
+             state=stopped
+             enabled=no

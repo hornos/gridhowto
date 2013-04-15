@@ -263,6 +263,14 @@ Test the bootstrap:
 
     bin/ping admin@root
 
+Intra root server logins need a passwordless root key. This key is used only for and to the root servers. External root or passwordless login is not allowed. Generate the root key by:
+
+    ssh-keygen -C "root key" -f keys/nopass
+
+The `ssh_server` playbook included in `secure` installs this key on the root server. You can reinstall the SSH key by:
+
+    bin/play @@root ssh_server --tags key
+
 By securing the server you lock out root. Only admin is allowed to login with keys thereafter:
 
     bin/play @@root secure
@@ -427,9 +435,24 @@ and mount
 
     bin/play @@root-03 glusterfs
 
-### XtreemFS
-
 ### Ceph
+
+    bin/play @@root ceph --extra-vars "format=yes"
+
+Login to the first server (`root-01`) and run:
+
+    /root/ceph_bootstrap
+
+    service ceph -a start
+
+Reformat everything and start over. Warning all data is lost:
+
+    bin/play @@root ceph --extra-vars \"format=yes clean=yes umount=yes\"
+
+and rerun bootstrap and start. Mount ceph by fuse:
+
+    ceph-fuse -m $(hostname) /common
+
 
 ## LDAP
 

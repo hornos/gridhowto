@@ -57,6 +57,7 @@
                 regexp='^ulimit -n unlimited'
                 line='ulimit -n unlimited'
                 insertbefore='^_init'
+                state=absent
     tags:
       - limits
 
@@ -64,7 +65,7 @@
     mount: name=${common}
            src=127.0.0.1:/${volume}
            fstype=glusterfs
-           opts=${fsopts},defaults,_netdev,acl,log-level=WARNING,log-file=/var/log/gluster.log
+           opts=${fsopts},defaults,acl,log-level=WARNING,log-file=/var/log/gluster.log
            state=mounted
     tags:
       - mount

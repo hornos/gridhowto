@@ -1,0 +1,42 @@
+
+---
+- hosts: all
+  vars_files:
+    - gluster_vars.yml
+    # - gluster_vars_ext4.yml
+
+  vars:
+    is_master: "'$inventory_hostname' == '$master'"
+    is_format: "'$format' == 'yes'"
+    is_mount: "'$mount' == 'yes'"
+
+  tasks:
+
+  - name: Stop Glusterfs
+    service: name=glusterd
+             state=stopped
+             enabled=no
+
+  - name: Umount common
+    mount: name=${common}
+           src=127.0.0.1:/${volume}
+           fstype=glusterfs
+           state=absent
+    tags:
+      - mount
+
+  - name: Mount Glusterfs
+    mount: name=$lv_mnt
+           src=/dev/${vg_root}/${lv_data}
+           fstype=${fstype}
+           state=absent
+    tags:
+      - mount
+
+  - name: Delete Gluster partition
+    lvol: vg=$vg_root
+          lv=$lv_data
+          size=$lv_size
+          state=absent
+    tags:
+      - partition

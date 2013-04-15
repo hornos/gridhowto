@@ -1,7 +1,15 @@
 # This play secures SSH
 # run it with sudo
+#
+# Generate passwordless root key for intra root node logins:
+#
+#     ssh-keygen -C "root key" -f keys/nopass
+#
 ---
 - hosts: all
+
+  vars_files:
+    - networks.yml
 
   tasks:
     - name: Secure SSH Server
@@ -12,11 +20,35 @@
                 mode=0600
                 backup=yes
       notify:
-        - reload sshd
+        - Restart sshd
       tags:
         - config
 
+    - name: Create ssh key directory
+      file: path=/root/.ssh
+            owner=root
+            group=root
+            mode=700
+            state=directory
+      tags:
+        - key
+
+    - name: Install root private key
+      copy: src=keys/nopass
+            dest=/root/.ssh/id_rsa
+            owner=root
+            group=root
+            mode=600
+      tags:
+        - key
+
+    - name: Install root public key
+      authorized_key: user=root
+                      key='$FILE(keys/nopass.pub)'
+      tags:
+        - key
+
   handlers:
-    - name: reload sshd
+    - name: Restart sshd
       service: name=sshd
-               state=reloaded
+               state=restarted

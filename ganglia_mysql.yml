@@ -29,6 +29,8 @@
       - mysql_qcache_report.php
       - mysql_simple_query_report.php
       - mysql_traffic_report.php
+    notify:
+      - Restart gmetad
     tags:
       - mysql
 
@@ -36,14 +38,20 @@
     file: src=${python_modules_dir}/mysqld/python_modules/DBUtil.py
           dest=/usr/lib64/ganglia/python_modules/DBUtil.py
           state=link
+    notify:
+      - Restart gmond
     tags:
+      - config
       - mysql
 
   - name: Link mysql.py
     file: src=${python_modules_dir}/mysqld/python_modules/mysql.py
           dest=/usr/lib64/ganglia/python_modules/mysql.py
           state=link
+    notify:
+      - Restart gmond
     tags:
+      - config
       - mysql
 
   - name: Setup mysql.pyconf
@@ -52,13 +60,19 @@
               owner=root
               group=root
               mode=0644
+    notify:
+      - Restart gmond
     tags:
+      - config
       - mysql
 
-  - name: Restart gmond
-    service: name=gmond
-             state=restarted
+  ### HANDLERS
+  handlers:
+    - name: Restart gmond
+      service: name=gmond
+               state=restarted
 
-  - name: Restart gmetad
-    service: name=gmetad
-             state=restarted
+    - name: Restart gmetad
+      service: name=gmetad
+               state=restarted
+
