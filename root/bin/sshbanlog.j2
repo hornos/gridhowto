@@ -1,0 +1,5 @@
+#!/bin/bash
+_prefix=${*:-root-0}
+multitail -s 2 -R 2 -l "ssh ${_prefix}1 iptables -L fail2ban-SSH" \
+               -R 2 -l "ssh ${_prefix}2 iptables -L fail2ban-SSH" \
+               -R 2 -l "ssh ${_prefix}3 iptables -L fail2ban-SSH"

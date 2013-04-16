@@ -1,6 +1,10 @@
 ---
 - hosts: all
 
+  vars_files:
+    - fail2ban_vars.yml
+    - networks.yml
+
   tasks:
   - name: Install fail2ban
     yum: name=fail2ban
@@ -8,15 +12,27 @@
     tags:
       - packages
 
-  - name: Enable shorewall
-    lineinfile: dest=/etc/fail2ban/jail.conf
-                regexp='^banaction'
-                line='banaction = shorewall'
-                insertafter='^\[DEFAULT\]'
+#  - name: Enable shorewall
+#    lineinfile: dest=/etc/fail2ban/jail.conf
+#                regexp='^banaction'
+#                line='banaction = shorewall'
+#                insertafter='^\[DEFAULT\]'
+#    notify:
+#      - Restart fail2ban
+#    tags:
+#      - config
+
+  - name: Install /etc/fail2ban/jail.conf
+    template: src=etc/fail2ban/jail.conf.j2
+              dest=/etc/fail2ban/jail.conf
+              owner=root
+              group=root
+              mode=0644
     notify:
       - Restart fail2ban
     tags:
       - config
+      - jail
 
   - name: Set loglevel
     lineinfile: dest=/etc/fail2ban/fail2ban.conf

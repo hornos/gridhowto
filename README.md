@@ -357,9 +357,11 @@ Enable Shorewall firewall:
 
     bin/play @@root shorewall
 
-Note that emergency rules are defined in `etc/shorewall/rulestopped.j2`. Please check the `shorewall/interfaces.j2` template fiel aswell. On external services you can enable fail2ban:
+Note that emergency rules are defined in `etc/shorewall/rulestopped.j2`. Please check the `shorewall/interfaces.j2` template. On external services you can enable fail2ban:
 
     bin/play @@root fail2ban
+
+The system network is not banned.
 
 ## Monitoring
 ### Ganglia
