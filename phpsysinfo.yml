@@ -1,0 +1,37 @@
+---
+- hosts: all
+
+  vars_files:
+    - networks.yml
+
+  tasks:
+    - name: Install phpsysinfo
+      git: repo=git://github.com/rk4an/phpsysinfo.git
+           dest=/opt/phpsysinfo
+      tags:
+        - packages
+
+    - name: Install /opt/phpsysinfo/phpsysinfo.ini
+      copy: src=opt/phpsysinfo/phpsysinfo.ini
+            dest=/opt/phpsysinfo/phpsysinfo.ini
+            owner=root
+            group=root
+            mode=0644
+      tags:
+        - config
+
+    - name: Enable phpsysinfo
+      template: src=etc/httpd/conf.d/phpsysinfo.conf.j2
+                dest=/etc/httpd/conf.d/phpsysinfo.conf
+                owner=root
+                group=root
+                mode=0644
+      notify:
+        - Restart httpd
+      tags:
+        - config
+
+  handlers:
+    - name: Restart httpd
+      service: name=httpd
+               state=restarted

@@ -1,0 +1,2 @@
+#!/bin/bash
+multitail -R 2 -l "netstat -t -n | grep -e :80 -e :443" /var/log/httpd/access_log -I /var/log/httpd/error_log

@@ -1,0 +1,37 @@
+# This play installs nodejs and supervisor
+---
+- hosts: all
+
+  tasks:
+    - name: Install prerequisite packages
+      npm: name=$item
+           state=latest
+      with_items:
+        - nodejs
+      tags:
+        - packages
+
+    - name: Enable logio service
+      lineinfile: dest=/etc/services
+                  regexp="^logio 28778/$item"
+                  line="logio 28778/$item"
+      with_items:
+       - tcp
+       - udp
+      tags:
+        - config
+        - services
+
+    - name: Install /etc/shorewall/rules.d/logio
+      template: src=etc/shorewall/rules.d/logio.j2
+                dest=/etc/shorewall/rules.d/logio
+                owner=root
+                group=root
+                mode=0640
+      notify:
+        - Restart shorewall
+
+  handlers:
+    - name: Restart shorewall
+      service: name=shorewall
+               state=restarted

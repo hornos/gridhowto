@@ -1,31 +1,20 @@
 # This play installs nodejs and supervisor
 ---
 - hosts: all
-  vars_files:
-    - epel_vars.yml
 
   tasks:
+    - name: Install prerequisite packages
+      yum: name=$item
+           state=installed
+      with_items:
+        - nodejs
+      tags:
+        - packages
 
-  - name: Download Hornos CentOS repo
-    get_url: url=${hornos_url}
-             dest=/etc/yum.repos.d/hornos.repo
-             owner=root
-             group=root
+    - name: Install nvm package manager
+      git: repo=git://github.com/creationix/nvm.git
+           dest=/opt/nvm
 
-  - name: Install prerequisite packages
-    yum: name=$item
-         state=installed
-    with_items:
-      - nodejs
-      - nodejs-devel
-      - v8
-      - v8-devel
-      - supervisor
-    tags:
-      - packages
-
-  - name: Start supervisord
-    service: name=supervisord
-             state=started
-             enabled=yes
-
+    - name: Install /etc/profile.d/nvm.sh
+      template: src=etc/profile.d/nvm.sh.j2
+                dest=/etc/profile.d/nvm.sh

@@ -21,6 +21,16 @@
     tags:
       - packages
 
+  - name: Install /var/www/html/index.html
+    template: src=var/www/html/index.html.j2
+              dest=/var/www/html/index.html
+              owner=root
+              group=root
+              mode=0644
+    tags:
+      - index
+      - config
+
   - name: Enable HTTP server status
     template: src=etc/httpd/conf.d/status.conf.j2
               dest=/etc/httpd/conf.d/status.conf
@@ -42,6 +52,18 @@
       - Restart httpd
     tags:
       - config
+
+  - name: Set JSON sytle error documents
+    template: src=etc/httpd/conf.d/error.conf.j2
+              dest=/etc/httpd/conf.d/error.conf
+              owner=root
+              group=root
+              mode=0644
+    notify:
+      - Restart httpd
+    tags:
+      - config
+      - error
 
   - name: Allow HTTP connect
     seboolean: name=httpd_can_network_connect

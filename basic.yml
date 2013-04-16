@@ -11,3 +11,4 @@
 - include: basic_tops.yml
 - include: basic_httpd.yml
 - include: basic_config.yml
+- include: basic_tools.yml

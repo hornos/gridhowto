@@ -1,0 +1,12 @@
+#
+#  Web application to manage MySQL
+#
+
+<Directory "/opt/phpsysinfo">
+  Order Deny,Allow
+  Deny from all
+  Allow from {{ networks['system'] }}/{{ masks['system'] }}
+  Allow from 127.0.0.1
+</Directory>
+
+Alias /phpsysinfo /opt/phpsysinfo

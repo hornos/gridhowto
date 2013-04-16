@@ -1,3 +1,7 @@
+#
+# how to check security updates:
+# http://www.cyberciti.biz/faq/redhat-fedora-centos-linux-yum-installs-security-updates/
+#
 ---
 - hosts: all
 
@@ -24,5 +28,9 @@
       - python-sqlite2
       - pyOpenSSL
       - make
+      - nodejs
+      - multitail
+      - rsstail
+      - yum-security
     tags:
       - packages

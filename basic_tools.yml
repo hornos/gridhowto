@@ -1,0 +1,26 @@
+# Switch to permissive mode
+# TODO: enforced
+---
+- hosts: all
+
+  tasks:
+    - name: Install logs and tops
+
+      template: src=root/bin/${item}.j2
+                dest=/root/bin/${item}
+                owner=root
+                group=root
+                mode=0755
+      with_items:
+        - systop
+        - syslog
+        - httplog
+        - netlog
+        - kernlog
+        - auditlog
+        - yumlog
+        - slurmlog
+        - slurmdlog
+        - slurmdbdlog
+        - slurmctldlog
+        - galeralog

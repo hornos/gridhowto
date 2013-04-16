@@ -1,0 +1,6 @@
+#!/bin/bash
+_prefix=${*:-root-0}
+_logdir="/var/lib/mysql"
+multitail -s 2 -l "ssh ${_prefix}1 tail -f ${_logdir}/${_prefix}1.err" \
+               -l "ssh ${_prefix}2 tail -f ${_logdir}/${_prefix}2.err" \
+               -l "ssh ${_prefix}3 tail -f ${_logdir}/${_prefix}3.err"

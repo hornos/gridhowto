@@ -1,0 +1,9 @@
+#!/bin/bash
+_host=$(hostname)
+_node=${1:-${_host}}
+
+if [ "${_node}" = "${_host}" ] ; then
+	htop
+else
+	ssh -t ${_node} htop
+fi

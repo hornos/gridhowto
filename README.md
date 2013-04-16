@@ -318,6 +318,18 @@ Install apache and setup status page:
 
     bin/play @@root basic_httpd
 
+Install basic tools:
+
+    bin/play @@root basic_tools
+
+You can we machine logs in on one multitail screen (on a node):
+
+    bin/syslog
+
+or check a node's top by:
+
+    bin/systop root-03
+
 Finally, the basic configuration:
 
     bin/play @@root basic_config
@@ -368,6 +380,22 @@ The following monitors can be played:
     ganglia_mysql     - mysql
     ganglia_procstat  - basic service monitor
     ganglia_system    - cpu and memory statistics
+
+### Tops & Logs
+The `basic_tools` playbook installs several small wrappers for simple cluster monitoring. The following commands are available:
+
+    systop        - htop with node arg (eg. systop root-03)
+    syslog        - Cluster logs
+    httplog       - Apache logs
+    netlog        - IPv4 connections and Shorewall logs
+    kernlog       - Kernel and security
+    auditlog      - Audit and security
+    yumlog        - Yum and package realted logs
+    slurmlog      - All Slurm on a node
+    slurmdlog     - Slurm execute daemons
+    slurmdbdlog   - HA Slurm database servers
+    slurmctldlog  - HA Slurm controller servers
+    galeralog     - HA Mysql wsrep
 
 ### Webmin
 

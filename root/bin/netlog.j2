@@ -1,0 +1,2 @@
+#!/bin/bash
+multitail -s 2 -R 2 -l "netstat -t -A inet | grep -v localhost" -l "tail -f /var/log/kern | grep Shorewall"

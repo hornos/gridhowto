@@ -1,0 +1,7 @@
+#!/bin/bash
+_prefix=${*:-root-0}
+_logdir="/var/log/slurm"
+multitail -s 2 -l "ssh ${_prefix}1 tail -f ${_logdir}/slurmd.log" \
+               -l "ssh ${_prefix}2 tail -f ${_logdir}/slurmd.log" \
+               -l "ssh ${_prefix}3 tail -f ${_logdir}/slurmd.log"
+
