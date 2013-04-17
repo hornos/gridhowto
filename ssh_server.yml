@@ -10,9 +10,10 @@
 
   vars_files:
     - networks.yml
+    - [ "vars/{{ansible_os_family}}.yml", "vars/Defaults.yml" ]
 
   tasks:
-    - name: Secure SSH Server
+    - name: Secure SSH
       template: src=etc/ssh/sshd_config.j2
                 dest=/etc/ssh/sshd_config
                 owner=root
@@ -24,7 +25,17 @@
       tags:
         - config
 
-    - name: Create ssh key directory
+    - name: Fix sftp subsystem in sshd_config
+      lineinfile: dest=/etc/ssh/sshd_config
+                  regexp='^Subsystem sftp'
+                  line='Subsystem sftp /usr/lib/openssh/sftp-server'
+      when: ansible_os_family == "Debian"
+      notify:
+        - Restart sshd
+      tags:
+        - config
+
+    - name: Create root SSH directory
       file: path=/root/.ssh
             owner=root
             group=root
@@ -50,5 +61,5 @@
 
   handlers:
     - name: Restart sshd
-      service: name=sshd
+      service: name={{service_sshd}}
                state=restarted

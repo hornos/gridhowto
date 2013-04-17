@@ -274,7 +274,7 @@ The bootstrap playbook creates the admin wheel user. You have to bootstrap each 
     bin/play root@root-02 bootstrap
     bin/play root@root-03 bootstrap
 
-The following operator shortcuts are used: `@` is `-k` and `@@` is `-k --sudo`.
+The following operator shortcuts are used: `@` is `-k` and `@@` is `-k --sudo`. On Debian like systems the `wheel` group is created.
 
 Test the bootstrap:
 

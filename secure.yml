@@ -1,7 +1,7 @@
 # This play secures the server
 # Based on RH EAL4+ recommenadtions
 ---
-- name: Secure the server
+- name: Basic system security
   hosts: all
 
 - include: ssh_server.yml

@@ -3,7 +3,7 @@
 - hosts: all
 
   tasks:
-    - name: Secure su
+    - name: Umask 007
       lineinfile: dest=/etc/login.defs
                   state=present
                   regexp="^UMASK"

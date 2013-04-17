@@ -1,0 +1,2 @@
+service_sshd: sshd
+service_rngd: rngd

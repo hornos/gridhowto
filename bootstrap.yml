@@ -14,16 +14,44 @@
     - bootstrap_vars.yml
 
   tasks:
+### PACKAGES
     - name: Install python-simplejson
       raw: yum -y install python-simplejson
+      when: ansible_os_family == "RedHat"
       tags:
         - packages
 
     - name: Install sudo
       yum: name=sudo
            state=installed
+      when: ansible_os_family == "RedHat"
       tags:
         - packages
+
+
+    - name: Install python-simplejson
+      raw: apt-get -y install python-simplejson
+      when: ansible_os_family == "Debian"
+      tags:
+        - packages
+
+    - name: Install sudo
+      apt: name=sudo
+           state=installed
+      when: ansible_os_family == "Debian"
+      tags:
+        - packages
+
+
+### ADMIN USER
+# centos debian gid mismatch: uucp vs wheel
+    - name: Create wheel group
+      group: name=wheel
+             gid=14
+             system=yes
+      when: ansible_os_family == "Debian"
+      tags:
+        - wheel
 
     - name: Create administrator user $admin_user
       user: name=$admin_user
@@ -50,7 +78,7 @@
       tags:
         - sudoers
 
-    - name: Create Root Administrator SSH Directory
+    - name: Create admin SSH directory
       file: path=/home/${admin_user}/.ssh
             state=directory
             owner=$admin_user
@@ -59,7 +87,7 @@
       tags:
         - ssh
 
-    - name: Copy Root Administrator SSH keys
+    - name: Install admin SSH public key
       copy: src=${admin_key}.pub
             dest=/home/${admin_user}/.ssh/authorized_keys
             owner=$admin_user
