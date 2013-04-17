@@ -116,6 +116,7 @@ PATH=/bin:/usr/bin:/sbin:/usr/sbin:$PATH
 ### HOSTNAME
 echo "10.1.1.1 root-01" >> /etc/hosts
 
+# after this point ansible should takeover
 # creat and admin user
 # TODO: selinux
 # useradd -m -c "Admin" -G wheel -p "ROOT_PASSWORD" admin

@@ -159,6 +159,23 @@ A good starting point for a kickstart can be found in the EAL4 package:
     wget ftp://ftp.pbone.net/mirror/ftp.redhat.com/pub/redhat/linux/eal/EAL4_RHEL5/DELL/RPMS/lspp-eal4-config-dell-1.0-1.el5.noarch.rpm
     rpm2cpio lspp-eal4-config-dell-1.0-1.el5.noarch.rpm | cpio -idmv
 
+### Debian Linux
+If you have more than one interface in the VM set the interface for the internet:
+
+    echo "interface=eth3" >> .host
+
+Download the latest netboot package:
+
+    pushd boot
+    rsync -avP ftp.us.debian.org::debian/dists/squeeze/main/installer-amd64/current/images/netboot/ ./squeeze
+    popd
+
+Set the machine for bootstrap:
+
+    ./jockey squeeze 08:00:27:14:68:75
+
+Edit the actual kickstart and start the VM.
+
 ## IPMI Basics
 If you happen to have real metal servers you need to deal with IPMI as well. Enterprise class machiens contain a small computer which you can use to remote control the machine. IPMI interfaces connect to the bmc network. Install ipmitools:
 
