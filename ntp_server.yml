@@ -5,11 +5,20 @@
 
   vars_files:
     - networks.yml
+    - [ "vars/{{ansible_os_family}}.yml", "vars/Defaults.yml" ]
 
   tasks:
     - name: Install NTP Server
       yum: name=ntp
            state=installed
+      when: ansible_os_family == "RedHat"
+      tags:
+        - packages
+
+    - name: Install NTP Server
+      apt: name=ntp
+           state=installed
+      when: ansible_os_family == "Debian"
       tags:
         - packages
 
@@ -25,11 +34,11 @@
         - configs
 
     - name: Start ntpd
-      service: name=ntpd
+      service: name={{service_ntpd}}
                state=started
                enabled=yes
 
   handlers:
     - name: Restart ntpd
-      service: name=ntpd
+      service: name={{service_ntpd}}
                state=restarted

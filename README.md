@@ -51,6 +51,8 @@ You can make a virtual infrastructure in VirtualBox. Create the following virtua
 Setup the virtual server to have 2TB of disk and 4 network cards as well as network boot enabled.
 
 ## Primordial Installation
+Space Jockey is a Cobbler like bootstrap mechanism designed for OS X users. The main goal is to provide an easy and simple tool for laptop-based installs. You should be able to install and configure a cluster grid from scratch with a MacBook.
+
 Install boot servers on the host:
 
     brew install dnsmasq nginx
@@ -160,19 +162,32 @@ A good starting point for a kickstart can be found in the EAL4 package:
     rpm2cpio lspp-eal4-config-dell-1.0-1.el5.noarch.rpm | cpio -idmv
 
 ### Debian Linux
-If you have more than one interface in the VM set the interface for the internet:
-
-    echo "interface=eth3" >> .host
-
-Download the latest netboot package:
+The installer pulls packages form the Internet. Download the latest netboot package:
 
     pushd boot
     rsync -avP ftp.us.debian.org::debian/dists/squeeze/main/installer-amd64/current/images/netboot/ ./squeeze
     popd
 
+If you have more than one interface in the VM set the interface for the internet:
+
+    echo "interface=eth3" >> .host
+
 Set the machine for bootstrap:
 
     ./jockey squeeze 08:00:27:14:68:75
+
+Edit the actual kickstart and start the VM.
+
+### Ubuntu Linux
+Download the latest netboot package:
+
+    pushd boot
+    rsync -avP archive.ubuntu.com::ubuntu/dists/quantal/main/installer-amd64/current/images/netboot/ ./quantal
+    popd
+
+Set the machine for bootstrap:
+
+    ./jockey quantal 08:00:27:14:68:75
 
 Edit the actual kickstart and start the VM.
 
@@ -236,7 +251,7 @@ InfiniBand is a switched fabric communications link used in high-performance com
 
 
 ## Ansible Bootstrap
-This is a blueprint of a HA grid engine cluster. It enables you rapid infrastructure prototyping. First, install Ansible on your host machine (VirtualBox host). Ansible should be installed in `$HOME/ansible`:
+This is a blueprint of a HA grid engine cluster. It enables you rapid prototyping of fractal infrastructures. First, install Ansible on your host machine (VirtualBox host). Ansible should be installed in `$HOME/ansible`:
 
     cd $HOME
     git clone git://github.com/ansible/ansible.git
@@ -265,6 +280,10 @@ Edit `hosts` file:
 Check the connection:
 
     bin/ping root@root-01
+
+Check the ansible setup variables:
+
+    bin/setup root@root-01
 
 The bootstrap playbook creates the admin wheel user. You have to bootstrap each machine separately since root passwords are different:
 
@@ -309,19 +328,18 @@ Create a new LVM partition:
 ## Basic Services
 Root servers provide NTP for the cluster. If you have a very large cluster root servers talk only to satellite servers aka rack leaders. Root servers are stratum 2 time servers. Each root server broadcasts time to the system network with crypto enabled.
 
-Set SELinux premissive mode:
+Set SELinux premissive mode and setup EPEL and rpmforge repositories for RedHat like systems:
 
     bin/play @@root basic_selinux
-
-Setup EPEL and rpmforge repositories:
-
     bin/play @@root basic_repos
+
+For Debian-based systems you have to skip these playbooks.
 
 Setup basic services: DNSmasq, NTP, Syslog-ng:
 
     bin/play @@root basic_services
 
-If you use DHCP, reboot the machine(s) here by `bin/reboot @root`.
+If you use DHCP in order to enable the localhost DNS reboot the machine(s) now by `bin/reboot @root`.
 
 Install some packages:
 

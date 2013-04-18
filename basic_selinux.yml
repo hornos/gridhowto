@@ -1,3 +1,6 @@
+#
+# Only for RedHat based systems
+#
 # Switch to permissive mode
 # TODO: enforced
 ---
@@ -11,6 +14,7 @@
         - setools-libs-python
         - policycoreutils-python
         - libselinux-python
+      when: ansible_os_family == "RedHat"
       tags:
         - packages
 
@@ -18,5 +22,6 @@
       lineinfile: dest=/etc/sysconfig/selinux
                 regexp='^SELINUX='
                 line='SELINUX=permissive'
+      when: ansible_os_family == "RedHat"
       tags:
         - policy

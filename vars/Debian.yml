@@ -1,2 +1,3 @@
 service_sshd: ssh
 service_rngd: rng-tools
+service_ntpd: ntp

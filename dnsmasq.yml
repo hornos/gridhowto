@@ -19,6 +19,8 @@
     - networks.yml
 
   tasks:
+### REDHAT
+
 #    - name: Install dnsmasq packages
 #      yum: name=$item state=installed
 #      with_items:
@@ -31,21 +33,42 @@
     - name: Install dnsmasq
       yum: name=dnsmasq
            state=installed
+      when: ansible_os_family == "RedHat"
       tags:
         - packages
 
     - name: Install dnsmasq-utils
       yum: name=dnsmasq-utils
            state=installed
+      when: ansible_os_family == "RedHat"
       tags:
         - packages
 
     - name: Install bind-utils
       yum: name=bind-utils
            state=installed
+      when: ansible_os_family == "RedHat"
       tags:
         - packages
 
+
+### DEBIAN
+    - name: Install dnsmasq
+      apt: name=dnsmasq
+           state=installed
+      when: ansible_os_family == "Debian"
+      tags:
+        - packages
+
+    - name: Install bind9utils
+      apt: name=bind9utils
+           state=installed
+      when: ansible_os_family == "Debian"
+      tags:
+        - packages
+
+
+### CONFIGURATION
     - name: Enable /etc/dnsmasq.d
       lineinfile: dest=/etc/dnsmasq.conf
                   regexp='^conf-dir.*'
@@ -86,7 +109,7 @@
       tags:
         - hosts
 
-    - name: Disable root server hostnames
+    - name: FIX Disable root server hostnames
       file: path=/etc/hosts.d/root
             state=absent
       when_string: "'$usehosts' == 'yes'"

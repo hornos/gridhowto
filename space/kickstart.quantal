@@ -21,15 +21,17 @@ d-i netcfg/wireless_wep string
 ### MIRRORS
 #d-i mirror/protocol string ftp
 d-i mirror/country string manual
-d-i mirror/http/hostname string http.us.debian.org
-d-i mirror/http/directory string /debian
+d-i mirror/http/hostname string archive.ubuntu.com
+d-i mirror/http/directory string /ubuntu
 d-i mirror/http/proxy string
 
 
 ### ROOT ACCOUNT
 # Alternatively, to skip creation of a normal user account.
+d-i passwd/root-login boolean true
 d-i passwd/make-user boolean false
 d-i passwd/root-password-crypted password ROOT_PASSWORD
+d-i user-setup/allow-password-weak boolean true
 
 
 ### LANGUAGE

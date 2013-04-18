@@ -101,7 +101,7 @@ case ${cmd} in
     echo "ip=${ip}" | tee ${host}
   ;;
 
-  centos63|centos64|squeeze)
+  centos63|centos64|squeeze|quantal)
     if [ -z "${arg}" ] ; then help/jockey; fi
 
     default=${cmd}

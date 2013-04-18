@@ -11,24 +11,54 @@
 #    tags:
 #      - packages
 
+  - name: Stop rsyslog
+    service: name=rsyslog
+             state=stopped
+             enabled=no
+    tags:
+      - prepare
+    ignore_errors: yes
+
+  - name: Uninstall rsyslog for sure
+    yum: name=rsyslog
+         state=absent
+    when: ansible_os_family == "RedHat"
+    tags:
+      - prepare
+
+  - name: Uninstall rsyslog for sure
+    apt: name=rsyslog
+         state=absent
+    when: ansible_os_family == "Debian"
+    tags:
+      - prepare
+
+
+### REDHAT
   - name: Install syslog-ng packages
     yum: name=syslog-ng
          state=installed
+    when: ansible_os_family == "RedHat"
     tags:
       - packages
 
   - name: Install syslog-ng-libdbi packages
     yum: name=syslog-ng-libdbi
          state=installed
+    when: ansible_os_family == "RedHat"
     tags:
       - packages
 
-  - name: Uninstall rsyslog for sure
-    yum: name=rsyslog
-         state=absent
+### DEBIAN
+  - name: Install syslog-ng packages
+    apt: name=syslog-ng
+         state=installed
+    when: ansible_os_family == "Debian"
     tags:
-      - prepare
+      - packages
 
+
+### CONFIGURATION
   - name: Enable ISO 8601 timestamps
     lineinfile: dest=/etc/syslog-ng/syslog-ng.conf
                 regexp='ts_format\(iso\);'
@@ -52,6 +82,18 @@
                 regexp='include "conf.d";'
                 insertafter='^filter f_cron'
                 line='include "conf.d";'
+    when: ansible_os_family == "RedHat"
+    notify:
+      - Restart syslog-ng
+    tags:
+      - config
+
+  - name: Enable /etc/syslog-ng/conf.d
+    lineinfile: dest=/etc/syslog-ng/syslog-ng.conf
+                regexp='include "conf.d";'
+                insertafter='^filter f_console'
+                line='include "conf.d";'
+    when: ansible_distribution == "Debian"
     notify:
       - Restart syslog-ng
     tags:

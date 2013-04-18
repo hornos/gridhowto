@@ -53,20 +53,20 @@
       tags:
         - wheel
 
-    - name: Create administrator user $admin_user
-      user: name=$admin_user
+    - name: Create administrator user {{ admin_user }}
+      user: name={{ admin_user }}
             comment='Administrator'
             groups=wheel
             password=*
+            shell=/bin/bash
       tags:
         - wheel
 
     - name: Sudoers for wheel
-      lineinfile: dest=/etc/sudoers.d/wheel
+      lineinfile: dest=/etc/sudoers.d/wheel line="%wheel ALL=(ALL) NOPASSWD:ALL"
                   create=yes
                   state=present
                   regexp='^%wheel'
-                  line="%wheel ALL=(ALL) NOPASSWD:ALL"
       tags:
         - sudoers
 
@@ -79,19 +79,19 @@
         - sudoers
 
     - name: Create admin SSH directory
-      file: path=/home/${admin_user}/.ssh
+      file: path=/home/{{ admin_user }}/.ssh
             state=directory
-            owner=$admin_user
-            group=$admin_user
+            owner={{ admin_user }}
+            group={{ admin_user }}
             mode=0700
       tags:
         - ssh
 
     - name: Install admin SSH public key
-      copy: src=${admin_key}.pub
-            dest=/home/${admin_user}/.ssh/authorized_keys
-            owner=$admin_user
-            group=$admin_user
+      copy: src={{ admin_key }}.pub
+            dest=/home/{{ admin_user }}/.ssh/authorized_keys
+            owner={{ admin_user }}
+            group={{ admin_user }}
             mode=0600
       tags:
         - ssh

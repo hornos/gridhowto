@@ -1,2 +1,3 @@
 service_sshd: sshd
 service_rngd: rngd
+service_ntpd: ntpd

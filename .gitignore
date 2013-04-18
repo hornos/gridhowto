@@ -4,6 +4,7 @@ keys/*
 *.pass
 src/*
 space/boot/squeeze/*
+space/boot/quantal/*
 space/boot/leases
 space/boot/centos63/*
 space/boot/centos64/*

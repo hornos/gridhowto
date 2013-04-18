@@ -99,7 +99,7 @@ case $gbn in
     host=$(cat ${inventory} | \
     grep ${hosts} | \
     grep ansible_ssh_host | \
-    sed s/.*=//)
+    sed s/.*=// | uniq)
 
     ssh ${opts} -i keys/${user} ${user}@${host}
     exit $?

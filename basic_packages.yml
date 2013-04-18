@@ -32,5 +32,31 @@
       - multitail
       - rsstail
       - yum-security
+    when: ansible_os_family == "RedHat"
+    tags:
+      - packages
+
+  - name: Install basic packages
+    apt: name=$item
+         state=installed
+    with_items:
+      - mc
+      - htop
+      - iptraf
+      - sysstat
+      - nmap
+      - mtr-tiny
+      - manpages
+      - git
+      - gcc
+      - g++
+      - python-pip
+      - python-crypto
+      - python-distutils-extra
+      - python-openssl
+      - make
+      - multitail
+      - rsstail
+    when: ansible_os_family == "Debian"
     tags:
       - packages

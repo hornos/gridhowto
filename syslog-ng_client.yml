@@ -4,9 +4,11 @@
 ---
 - hosts: all
 
+# lineinfile bug?
+
   tasks:
   - name: Enable loghost client
-    template: src=etc/syslog-ng/conf.d/client
+    template: src=etc/syslog-ng/conf.d/client.{{ ansible_distribution }}
               dest=/etc/syslog-ng/conf.d/20-client
               owner=root
               group=root

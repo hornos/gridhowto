@@ -19,6 +19,7 @@
 
   - name: Enable directory creation
     lineinfile: dest=/etc/syslog-ng/syslog-ng.conf
+                insertafter='^options {'
                 regexp='create_dirs \('
                 line='create_dirs (yes);'
     notify:
