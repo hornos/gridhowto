@@ -3,6 +3,7 @@ keys/*
 .*
 *.pass
 src/*
+ca/*
 space/boot/squeeze/*
 space/boot/quantal/*
 space/boot/leases
@@ -26,3 +27,5 @@ space/boot/hdt/modules.pcimap
 *.sublime*
 *.old
 etc/munge/munge.key
+*.pem
+*.log

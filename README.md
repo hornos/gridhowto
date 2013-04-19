@@ -521,6 +521,24 @@ and rerun bootstrap and start. Mount ceph by fuse:
 
 ## LDAP
 
+## Globus
+Install Globus on your local machine as well as on the root servers:
+
+    bin/play @@root globus
+
+On your Mac install the certificate utilities:
+
+    make globus_simple_ca globus_gsi_cert_utils
+
+The Grid needs a PKI, which protects access and the communication. You can create as many CA2 as you like. It is advised to make many short-term and flat CA. Create a Root CA:
+
+    bin/ca new
+
+Install Root CA from the tgz package into `$HOME/.globus/certificates`
+
+    export X509_CERT_DIR=$HOME/.globus/certificates
+
+
 
 ## Slurm
 Slurm is a batch scheduler for the cluster with `low` `normal` and `high` queues. First you have to create a munge key to protect authentication:

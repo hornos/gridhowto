@@ -1,0 +1,139 @@
+#!/bin/bash
+gdn=$(pwd $(dirname $0))
+gbn=$(basename $0)
+inventory=./hosts
+config=./config
+
+tmp=".${gbn}.$$"
+
+ca_dir="./ca"
+
+function ca/exit() {
+  if test -r "${tmp}" ; then
+    rm -f "${tmp}"
+  fi
+  exit 1
+}
+trap ca/exit INT TERM EXIT
+
+function ca/init() {
+  if ! test -d "${ca_dir}/grid-security" ; then
+    ### certificates for requests
+    mkdir -v -p "${ca_dir}/grid-security"
+  fi
+}
+
+
+function ca/hash() {
+  openssl x509 -hash -noout < ${1:-cacert.pem}
+}
+
+
+cmd=${1:-root}
+shift
+
+case "${cmd}" in
+  ### Create CA
+  new)
+    ca_id=${1:-rootca}
+    shift
+    days=${1:-365}
+    shift
+    email=${1}
+    ca/init
+ 
+    if [ ! -z "${email}" ] ; then
+      email="-email ${email}"
+    fi
+    subject="cn=rootca,ou=${ca_id}-$(hostname),o=Grid"
+    pushd "${ca_dir}"
+    grid-ca-create -dir ${ca_id} -subject "${subject}" -days ${days} ${email}
+
+    if ! test -d "${ca_id}/grid-security" ; then
+      ### certificates for the CA
+      mkdir -v -p "${ca_id}/grid-security"
+    fi
+
+    ### install
+    ca_hash=$(ca/hash ${ca_id}/cacert.pem)
+    tgz=globus_simple_ca_${ca_hash}.tar.gz
+    if [ ! -r "${tgz}" ] ; then
+      exit 1
+    fi
+    echo
+    echo "Install ${ca_id} (${ca_hash})"
+    tar xvz --exclude debian --strip-components=1 \
+            -C grid-security -f ${tgz}
+    popd
+  ;;
+
+  ### Request user certificate
+  user)
+    ca_id=${1:-rootca}
+    shift
+    user_id=${1:-test}
+    shift
+    user_cn=${1:-Test}
+    shift
+    opts=${*}
+
+    pushd ${ca_dir}
+
+    if [ ! -r ${ca_id}/cacert.pem ] ; then
+      exit 1
+    fi
+    ca_hash=$(ca/hash ${ca_id}/cacert.pem)
+
+    X509_CERT_DIR=grid-security
+    grid-cert-request -dir "${ca_id}/grid-security" \
+    -prefix "${user_id}_" -ca "${ca_hash}" \
+    -cn "${user_cn}" ${opts}
+
+    popd
+  ;;
+
+  host)
+    ca_id=${1:-rootca}
+    shift
+    fqdn=${1:-localhost}
+    shift
+    opts=${*}
+
+    pushd ${ca_dir}
+
+    if [ ! -r ${ca_id}/cacert.pem ] ; then
+      exit 1
+    fi
+    ca_hash=$(ca/hash ${ca_id}/cacert.pem)
+
+    X509_CERT_DIR=grid-security
+    grid-cert-request -dir "${ca_id}/grid-security" \
+    -prefix "${fqdn}_" -ca "${ca_hash}" \
+    -host "${fqdn}" ${opts}
+
+    popd
+  ;;
+  service)
+    ca_id=${1:-rootca}
+    shift
+    fqdn=${1:-localhost}
+    shift
+    service=${1:-ldap}
+    shift
+    opts=${*}
+
+    pushd ${ca_dir}
+
+    if [ ! -r ${ca_id}/cacert.pem ] ; then
+      exit 1
+    fi
+    ca_hash=$(ca/hash ${ca_id}/cacert.pem)
+
+    X509_CERT_DIR=grid-security
+    grid-cert-request -dir "${ca_id}/grid-security" \
+    -prefix "${fqdn}_${service}_" -ca "${ca_hash}" \
+    -host "${fqdn}" -service "${service}" ${opts}
+
+    popd
+  ;;
+esac
