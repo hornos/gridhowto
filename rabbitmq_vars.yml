@@ -1,5 +1,7 @@
-url: http://repos.fedorapeople.org/repos/peter/erlang
-repo: epel-erlang.repo
+url: http://binaries.erlang-solutions.com/rpm/centos
+repo: erlang_solutions.repo
+key: http://binaries.erlang-solutions.com/debian/erlang_solutions.asc
 
 rpm_url: http://www.rabbitmq.com/releases/rabbitmq-server/v3.0.4
 rpm: rabbitmq-server-3.0.4-1.noarch.rpm
+rpm_key: http://www.rabbitmq.com/rabbitmq-signing-key-public.asc

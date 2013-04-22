@@ -17,10 +17,10 @@ modules {
       value = 'localhost'
     }
     param user {
-      value = 'root'
+      value = '{{ monitor_user }}'
     }
     param passwd {
-      value = ''
+      value = '{{ monitor_password }}'
     }
     param unix_socket {
       value = '/var/run/mysqld/mysqld.sock'

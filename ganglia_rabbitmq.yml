@@ -1,0 +1,30 @@
+# Ganglia cluster monitor
+---
+- hosts: all
+
+  vars_files:
+    - ganglia_vars.yml
+    - networks.yml
+
+  tasks:
+  - name: Link rabbitmq.pyconf
+    file: src=${python_modules_dir}/rabbit/conf.d/rabbitmq.pyconf
+          dest=/etc/ganglia/conf.d/rabbitmq.pyconf
+          state=link
+    tags:
+      - rabbitmq
+
+  - name: Link rabbitmq.py
+    file: src=${python_modules_dir}/rabbit/python_modules/rabbitmq.py
+          dest=/usr/lib64/ganglia/python_modules/rabbitmq.py
+          state=link
+    tags:
+      - rabbitmq
+
+  - name: Restart gmond
+    service: name=gmond
+             state=restarted
+
+  - name: Restart gmetad
+    service: name=gmetad
+             state=restarted

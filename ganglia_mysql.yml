@@ -4,7 +4,11 @@
 
   vars_files:
     - ganglia_vars.yml
+    - mariadb_vars.yml
     - networks.yml
+
+  vars:
+    is_master: "'$inventory_hostname' == '$master'"
 
   tasks:
 
@@ -53,6 +57,16 @@
     tags:
       - config
       - mysql
+
+  - name: Create mysql monitor user
+    mysql_user: name={{ monitor_user }} password={{ monitor_password }} priv=*.*:SUPER,PROCESS
+                login_user=root
+                login_password={{ password }}
+                login_unix_socket={{ socket }}
+    only_if: '$is_master'
+    tags:
+      - config
+      - monitor
 
   - name: Setup mysql.pyconf
     template: src=etc/ganglia/conf.d/mysql.pyconf.j2

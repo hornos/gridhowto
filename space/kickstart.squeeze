@@ -4,7 +4,7 @@
 #
 
 ### LOCALE
-d-i debian-installer/locale string hu_HU.UTF-8
+d-i debian-installer/locale string en_US.UTF-8
 d-i debian-installer/language string en
 d-i debian-installer/country string HU
 d-i console-keymaps-at/keymap select hu

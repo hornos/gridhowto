@@ -1,20 +1,16 @@
 #
-# Network topology
+# Simple Network Topology
 #
 ---
 interfaces:
-  bmc: 'eth0'
-  system: 'eth0'
-  storage: 'eth1'
-  mpi: 'eth2'
-  external: 'eth3'
-  dhcp: 'eth3'
+  bmc: eth0
+  system: eth0
+  external: eth1
+  dhcp: eth1
 
 networks:
   bmc: 10.0.0.0
   system: 10.1.0.0
-  storage: 10.2.0.0
-  mpi: 10.3.0.0
 
 masks:
   system: 16

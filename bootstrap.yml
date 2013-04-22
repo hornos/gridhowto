@@ -4,7 +4,7 @@
 #
 #     mkdir keys
 #     cd keys
-#     ssh-keygen -b 2048 -C Administrator -f admin
+#     ssh-keygen -b 2048 -C Sysop -f sysop
 #
 #
 ---
@@ -14,7 +14,8 @@
     - bootstrap_vars.yml
 
   tasks:
-### PACKAGES
+
+### REDHAT
     - name: Install python-simplejson
       raw: yum -y install python-simplejson
       when: ansible_os_family == "RedHat"
@@ -29,6 +30,7 @@
         - packages
 
 
+### DEBIAN
     - name: Install python-simplejson
       raw: apt-get -y install python-simplejson
       when: ansible_os_family == "Debian"
@@ -53,45 +55,48 @@
       tags:
         - wheel
 
-    - name: Create administrator user {{ admin_user }}
-      user: name={{ admin_user }}
-            comment='Administrator'
+    - name: Create administrator user {{ sysop_user }}
+      user: name={{ sysop_user }}
+            comment='System Operator'
             groups=wheel
             password=*
             shell=/bin/bash
       tags:
         - wheel
 
-    - name: Sudoers for wheel
+### SUDO
+    - name: Sudo for wheel
       lineinfile: dest=/etc/sudoers.d/wheel line="%wheel ALL=(ALL) NOPASSWD:ALL"
                   create=yes
                   state=present
                   regexp='^%wheel'
       tags:
-        - sudoers
+        - sudo
+        - wheel
 
-    - name: Sudoers file mode
+    - name: Set mode for /etc/sudoers.d/wheel
       file: path=/etc/sudoers.d/wheel
             owner=root
             group=root
             mode=0440
       tags:
-        - sudoers
+        - sudo
+        - wheel
 
-    - name: Create admin SSH directory
-      file: path=/home/{{ admin_user }}/.ssh
+    - name: Create sysop SSH directory
+      file: path=/home/{{ sysop_user }}/.ssh
             state=directory
-            owner={{ admin_user }}
-            group={{ admin_user }}
+            owner={{ sysop_user }}
+            group={{ sysop_user }}
             mode=0700
       tags:
         - ssh
 
-    - name: Install admin SSH public key
-      copy: src={{ admin_key }}.pub
-            dest=/home/{{ admin_user }}/.ssh/authorized_keys
-            owner={{ admin_user }}
-            group={{ admin_user }}
+    - name: Install sysop SSH public key
+      copy: src={{ sysop_key }}.pub
+            dest=/home/{{ sysop_user }}/.ssh/authorized_keys
+            owner={{ sysop_user }}
+            group={{ sysop_user }}
             mode=0600
       tags:
         - ssh

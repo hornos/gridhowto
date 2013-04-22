@@ -1,10 +1,4 @@
-# This play enables rsyslog disables syslog and makes a basic configuration.
-# All subsequent play should put configuration into /etc/rsyslog.d/ and
-# notify reload rsyslog.
-# Format gluster disk:
-# --extra-vars "format=yes"
-# Mount gluster disk:
-# --extra-vars "mount=yes"
+
 ---
 - hosts: all
 
@@ -14,21 +8,31 @@
   tasks:
 
   - name: Download Erlang repo
-    get_url: url=${url}/${repo}
-             dest=/etc/yum.repos.d/${repo}
+    get_url: url={{ url }}/{{ repo }}
+             dest=/etc/yum.repos.d/{{ repo }}
+    tags:
+      - repo
 
-  - name: Abort
-    file: path=/etc/yum.repos.d/${repo}
-          state=absent
-
-  - fail: msg=Repo Abort
+  - name: Install Erlang repo key
+    shell: /bin/rpm --import {{ key }}
+    tags:
+      - repo
 
   - name: Install Erlang
     yum: name=erlang
          state=latest
+    tags:
+      - packages
 
   - name: Download rabbitmq-server
-    get_url: url=${rpm_url}/${rpm} dest=/root
+    get_url: url={{ rpm_url }}/{{ rpm }} dest=/root
+    tags:
+      - packages
+
+  - name: Install rabbitmq key
+    shell: /bin/rpm --import {{ rpm_key }}
+    tags:
+      - packages
 
 # purge epel version
 #  - name: Uninstall rabbitmq-server
@@ -36,7 +40,9 @@
 #         state=absent
 
   - name: Install rabbitmq-server
-    command: yum -y localinstall /root/${rpm}
+    command: yum -y localinstall /root/{{ rpm }}
+    tags:
+      - packages
 
   - name: Start rabbitmq-server
     service: name=rabbitmq-server

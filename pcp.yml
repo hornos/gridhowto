@@ -1,0 +1,26 @@
+
+---
+- hosts: all
+
+  tasks:
+
+  - name: Install PCP packages
+    yum: name=$item
+         state=installed
+    with_items:
+      - pcp
+      - pcp-gui
+      - python-pcp
+      - perl-PCP-PMDA
+      - perl-PCP-MMV
+      - perl-PCP-LogSummary
+      - perl-PCP-LogImport
+      - pcp-import-sar2pcp
+      - pcp-import-mrtg2pcp
+      - pcp-import-iostat2pcp
+    tags:
+      - packages
+
+  - name: Start pmcd
+    service: name=pmcd
+             state=started

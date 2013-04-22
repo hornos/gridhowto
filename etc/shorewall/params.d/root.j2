@@ -1,5 +1,6 @@
+# root servers
 {% set first=1 %}
-ROOT={%- for host in groups['root'] %}
+ROOT={%- for host in hostvars %}
 {%- if not first %}
 ,
 {%- endif %}
@@ -8,3 +9,5 @@ ROOT={%- for host in groups['root'] %}
 {%- endif %}
 {{- hostvars[host]['ansible_eth0']['ipv4']['address'] }}
 {%- endfor %}
+# root administrator ips
+# ROOT_ADMIN=

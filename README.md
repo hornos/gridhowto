@@ -39,6 +39,23 @@ The network configuration is found in `networks.yml`. Each network interface can
     broadcasts:
       system: 10.1.255.255
 
+The simplified network topology contains only two interfaces (eth0, eth1). This is also a good model if you have InfiniBand (IB) since TCP/IP is not required for IB RDMA.
+
+    ---
+    interfaces:
+      bmc: 'eth0'
+      system: 'eth0'
+      external: 'eth1'
+      dhcp: 'eth1'
+    networks:
+      bmc: 10.0.0.0
+      system: 10.1.0.0
+    masks:
+      system: 255.255.0.0
+    broadcasts:
+      system: 10.1.255.255
+
+
 ### Root Servers in VirtualBox 
 You can make a virtual infrastructure in VirtualBox. Create the following virtual networks:
 
@@ -48,7 +65,7 @@ You can make a virtual infrastructure in VirtualBox. Create the following virtua
     mpi       intnet
     external  NAT/Bridged
 
-Setup the virtual server to have 2TB of disk and 4 network cards as well as network boot enabled.
+Setup the virtual server to have 2TB of disk and 4 network cards as well as network boot enabled. In the restricted mode you need `system` and `external`.
 
 ## Primordial Installation
 Space Jockey is a Cobbler like bootstrap mechanism designed for OS X users. The main goal is to provide an easy and simple tool for laptop-based installs. You should be able to install and configure a cluster grid from scratch with a MacBook.
@@ -152,6 +169,10 @@ To perform a netinstall of Kali Linux:
     pushd boot/kali
     curl http://repo.kali.org/kali/dists/kali/main/installer-amd64/current/images/netboot/netboot.tar.gz | tar xvzf -
     popd
+    ./jockey rawkali 08:00:27:14:68:75
+
+If you want a kickstart based unattended install:
+
     ./jockey kali 08:00:27:14:68:75
 
 ### Kickstart from scratch
@@ -170,7 +191,7 @@ The installer pulls packages form the Internet. Download the latest netboot pack
 
 If you have more than one interface in the VM set the interface for the internet:
 
-    echo "interface=eth3" >> .host
+    echo "interface=eth1" >> .host
 
 Set the machine for bootstrap:
 
@@ -287,8 +308,8 @@ Check the ansible setup variables:
 
 The bootstrap playbook creates the admin wheel user. You have to bootstrap each machine separately since root passwords are different:
 
-    ssh-keygen -f keys/admin
-    pushd keys; ln -s admin root; popd
+    ssh-keygen -f keys/sysop
+    pushd keys; ln -s sysop root; popd
     bin/play root@root-01 bootstrap
     bin/play root@root-02 bootstrap
     bin/play root@root-03 bootstrap
@@ -297,11 +318,11 @@ The following operator shortcuts are used: `@` is `-k` and `@@` is `-k --sudo`. 
 
 Test the bootstrap:
 
-    bin/ping admin@root
+    bin/ping sysop@root
 
 Intra root server logins need a passwordless root key. This key is used only for and to the root servers. External root or passwordless login is not allowed. Generate the root key by:
 
-    ssh-keygen -C "root key" -f keys/nopass
+    ssh-keygen -C "root" -f keys/nopass
 
 The `ssh_server` playbook included in `secure` installs this key on the root server. You can reinstall the SSH key by:
 
@@ -471,6 +492,21 @@ Install and setup Icinga:
 
 You can access icinga on `http://root-0?/icinga` with `icingaadmin/icingaadmin`. The new interface is on `http://root-0?/icinga-web` with `root/password`. Parameters are in `icinga_vars.yml`.
 
+### RabbitMQ Cluster
+
+    bin/play @@root rabbitmq
+
+Switch on Ganglia monitors for the local MQ:
+
+    bin/play @@root ganglia_rabbitmq.yml
+
+### SGI PCP
+SGI's PCP is a very matured performance monitoring tool especially designed for high-performance systems. Install PCP by:
+
+    bin/play @@root pcp
+
+PCP contains an automated reasoning deamon (`pmie`) which you can use to throw system exceptions.
+
 ## Cluster Filesystems
 
 ### Gluster
@@ -530,14 +566,22 @@ On your Mac install the certificate utilities:
 
     make globus_simple_ca globus_gsi_cert_utils
 
-The Grid needs a PKI, which protects access and the communication. You can create as many CA2 as you like. It is advised to make many short-term and flat CA. Create a Root CA:
+The Grid needs a PKI, which protects access and the communication. You can create as many CA2 as you like. It is advised to make many short-term and flat CA. Create a Root CA (give your email and a password):
 
-    bin/ca new
+    bin/ca new <CA>
 
-Install Root CA from the tgz package into `$HOME/.globus/certificates`
+where `<CA>` is an optional CA id. The new CA is created under the `ca/<ID>` directory. CA certificate is installed under `ca/grid-security` to make requests easy.
 
-    export X509_CERT_DIR=$HOME/.globus/certificates
+Request user certificate by:
 
+    bin/ca user <CA> <USER> <CN>
+
+    bin/ca host <CA> <FQDN>
+    bin/ca service <CA> <FQDN> <SERVICE>
+
+Requests and private keys are under `ca/<CA>/grid-security`.
+
+Sign a request by:
 
 
 ## Slurm

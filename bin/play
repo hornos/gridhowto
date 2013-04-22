@@ -27,7 +27,7 @@ if [ ! -z "$user" ] ; then
 fi
 
 if [ -z "$user" ] ; then
-  user=admin
+  user=sysop
 fi
 
 ops=""
@@ -101,7 +101,7 @@ case $gbn in
     grep ansible_ssh_host | \
     sed s/.*=// | uniq)
 
-    ssh ${opts} -i keys/${user} ${user}@${host}
+    ssh -X ${opts} -i keys/${user} ${user}@${host}
     exit $?
     ;;
   help|*)
