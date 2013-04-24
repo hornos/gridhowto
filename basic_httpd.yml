@@ -8,16 +8,13 @@
     - networks.yml
 
   tasks:
-
-  - name: Install apache
-    yum: name=httpd
+  - name: Install http packages
+    yum: name=$item
          state=installed
-    tags:
-      - packages
-
-  - name: Install apachetop
-    yum: name=apachetop
-         state=installed
+    with_items:
+      - httpd
+      - apachetop
+      - php-xml
     tags:
       - packages
 

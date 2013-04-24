@@ -9,5 +9,6 @@ ROOT={%- for host in hostvars %}
 {%- endif %}
 {{- hostvars[host]['ansible_eth0']['ipv4']['address'] }}
 {%- endfor %}
-# root administrator ips
-# ROOT_ADMIN=
+
+
+SYSOP={{sysop_host}}

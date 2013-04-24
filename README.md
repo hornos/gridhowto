@@ -13,7 +13,7 @@ Download the gridhowto:
 The following network topology is recommended. The BMC network can be on the same interface as system (eth0). The system network is used to boot and provision the cluster.
 
     IF   Network  Address Range
-    bmc  bmc      10.0.0.0/16
+    bmc  bmc      10.0.0.0/16 (eth0)
     eth0 system   10.1.0.0/16
     eth1 storage  10.2.0.0/16
     eth2 mpi      10.3.0.0/16
@@ -38,8 +38,16 @@ The network configuration is found in `networks.yml`. Each network interface can
       system: 255.255.0.0
     broadcasts:
       system: 10.1.255.255
+    sysop_host: 10.1.1.254
 
 The simplified network topology contains only two interfaces (eth0, eth1). This is also a good model if you have InfiniBand (IB) since TCP/IP is not required for IB RDMA.
+
+    IF   Network  Address Range
+    bmc  bmc      10.0.0.0/16 (eth0)
+    eth0 system   10.1.0.0/16
+    eth1 external ?
+
+and the `networks.yml` file:
 
     ---
     interfaces:
@@ -54,7 +62,9 @@ The simplified network topology contains only two interfaces (eth0, eth1). This 
       system: 255.255.0.0
     broadcasts:
       system: 10.1.255.255
+    sysop_host: 10.1.1.254
 
+The `sysop_host` is your remote OS X machine. Leave knives alone!
 
 ### Root Servers in VirtualBox 
 You can make a virtual infrastructure in VirtualBox. Create the following virtual networks:
@@ -318,7 +328,7 @@ The following operator shortcuts are used: `@` is `-k` and `@@` is `-k --sudo`. 
 
 Test the bootstrap:
 
-    bin/ping sysop@root
+    bin/ping @@root
 
 Intra root server logins need a passwordless root key. This key is used only for and to the root servers. External root or passwordless login is not allowed. Generate the root key by:
 
@@ -346,7 +356,7 @@ Create a new LVM partition:
     bin/admin root run "lvcreate -l 30%FREE -n data vg_root" -k --sudo
 
 
-## Basic Services
+## Basic Setup
 Root servers provide NTP for the cluster. If you have a very large cluster root servers talk only to satellite servers aka rack leaders. Root servers are stratum 2 time servers. Each root server broadcasts time to the system network with crypto enabled.
 
 Set SELinux premissive mode and setup EPEL and rpmforge repositories for RedHat like systems:
@@ -356,6 +366,18 @@ Set SELinux premissive mode and setup EPEL and rpmforge repositories for RedHat 
 
 For Debian-based systems you have to skip these playbooks.
 
+### Firewall
+Enable Shorewall firewall. Check `shorewall/params.d/root.j2` template for interface change.
+
+    bin/play @@root shorewall
+
+Note that emergency rules are defined in `etc/shorewall/rulestopped.j2`. Please check `shorewall/interfaces.j2` template. On external services you can enable fail2ban:
+
+    bin/play @@root fail2ban
+
+The system network is not banned.
+
+### Basic Services
 Setup basic services: DNSmasq, NTP, Syslog-ng:
 
     bin/play @@root basic_services
@@ -373,6 +395,10 @@ Install top-like apps:
 Install apache and setup status page:
 
     bin/play @@root basic_httpd
+
+Enable PHP system information:
+
+    bin/play @@root phpsysinfo
 
 Install basic tools:
 
@@ -406,18 +432,6 @@ The basic playbook contains the following inittab changes:
     tty6 - gstat -a (Ganglia)
     tty7 - mingetty
     tty8 - mingetty (and X)
-
-## Firewall
-### Shorewall
-Enable Shorewall firewall:
-
-    bin/play @@root shorewall
-
-Note that emergency rules are defined in `etc/shorewall/rulestopped.j2`. Please check the `shorewall/interfaces.j2` template. On external services you can enable fail2ban:
-
-    bin/play @@root fail2ban
-
-The system network is not banned.
 
 ## Monitoring
 ### Ganglia

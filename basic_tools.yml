@@ -4,8 +4,11 @@
 - hosts: all
 
   tasks:
-    - name: Install logs and tops
+    - name: Create /root/bin
+      file: path=/root/bin
+            state=directory
 
+    - name: Install logs and tops
       template: src=root/bin/${item}.j2
                 dest=/root/bin/${item}
                 owner=root

@@ -4,6 +4,7 @@ keys/*
 *.pass
 src/*
 ca/*
+space/reset
 space/boot/squeeze/*
 space/boot/quantal/*
 space/boot/leases

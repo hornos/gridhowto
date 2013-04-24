@@ -1,11 +1,17 @@
 # This play modifies
 # http://www.ntp.org/ntpfaq/NTP-s-config-adv.htm
+#
+# --extra-vars "bcast=yes"
+#
 ---
 - hosts: all
 
   vars_files:
     - networks.yml
     - [ "vars/{{ansible_os_family}}.yml", "vars/Defaults.yml" ]
+
+  vars:
+    is_bcast: "'$bcast' == 'yes'"
 
   tasks:
     - name: Install NTP Server
@@ -24,7 +30,6 @@
 
     - name: Setup NTP Server
       lineinfile: dest=/etc/ntp.conf
-                  state=present
                   regexp="^broadcast .* autokey version 4"
                   insertafter="# broadcast server"
                   line="broadcast ${broadcasts.system} autokey version 4"
@@ -32,6 +37,8 @@
         - Restart ntpd
       tags:
         - configs
+      only_if: '$is_bcast'
+
 
     - name: Start ntpd
       service: name={{service_ntpd}}

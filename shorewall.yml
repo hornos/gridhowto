@@ -163,6 +163,19 @@
     notify:
       - Restart shorewall
 
+
+  - name: Install /etc/shorewall/rules.d/sysop
+    template: src=etc/shorewall/rules.d/sysop.j2
+              dest=/etc/shorewall/rules.d/sysop
+              owner=root
+              group=root
+              mode=0640
+    tags:
+      - rules
+    notify:
+      - Restart shorewall
+
+
   - name: Install /etc/shorewall/rules
     template: src=etc/shorewall/rules.j2
               dest=/etc/shorewall/rules

@@ -1,0 +1,21 @@
+#
+# syslog-ng remote log client
+#
+---
+- hosts: all
+
+# lineinfile bug?
+
+  tasks:
+  - name: Clean badass tmp files
+    shell: /bin/rm -f /etc/syslog-ng/conf.d/*.tmp
+    notify:
+      - Restart syslog-ng
+    tags:
+      - fix
+    ignore_errors: yes
+
+  handlers:
+    - name: Restart syslog-ng
+      service: name=syslog-ng
+               state=restarted

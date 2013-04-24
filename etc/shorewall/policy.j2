@@ -2,6 +2,4 @@
 #SHELL cat /etc/shorewall/policy.d/* 2> /dev/null || true
 INCLUDE /etc/shorewall/policy.d/root
 #LAST LINE -- ADD YOUR ENTRIES BEFORE THIS ONE -- DO NOT REMOVE
-all        all         DROP      info
-
-
+all        all         DROP      info  30/min:60
