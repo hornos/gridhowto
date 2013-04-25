@@ -5,23 +5,38 @@
     - inittab_vars.yml
 
   tasks:
-
-  - name: Install htop
-    yum: name=htop
+### REDHAT
+  - name: Install packages
+    yum: name=$item
          state=installed
+    with_items:
+      - htop
+      - sysstat
+    when: ansible_os_family == "RedHat"
     tags:
       - packages
 
-  - name: Install sysstat
-    yum: name=sysstat
+### DEBIAN
+  - name: Install packages
+    apt: name=$item
          state=installed
+    with_items:
+      - htop
+      - sysstat
+    when: ansible_os_family == "Debian"
     tags:
       - packages
 
+  - name: Ubuntu Warning
+    debug: msg="Ubuntu's init is a fuckin mess!"
+    when: ansible_os_family == "Debian"
+
+### CONFIGURATION
   - name: Set ttys
     lineinfile: dest=/etc/sysconfig/init
                 regexp='^ACTIVE_CONSOLES'
                 line='ACTIVE_CONSOLES=/dev/tty[7-8]'
+    when: ansible_os_family == "RedHat"
     tags:
       - tty
 
@@ -29,6 +44,7 @@
     lineinfile: dest=/etc/init/start-ttys.conf
                 regexp='^env X_TTY'
                 line='env X_TTY=/dev/tty8'
+    when: ansible_os_family == "RedHat"
     tags:
       - tty
 
@@ -38,6 +54,7 @@
               owner=root
               group=root
               mode=0640
+    when: ansible_os_family == "RedHat"
     tags:
       - messages
 
@@ -47,6 +64,7 @@
               owner=root
               group=root
               mode=0640
+    when: ansible_os_family == "RedHat"
     tags:
       - messages
 
@@ -56,6 +74,7 @@
               owner=root
               group=root
               mode=0640
+    when: ansible_os_family == "RedHat"
     tags:
       - top
 
@@ -65,6 +84,7 @@
               owner=root
               group=root
               mode=0640
+    when: ansible_os_family == "RedHat"
     tags:
       - top
 
@@ -74,6 +94,7 @@
               owner=root
               group=root
               mode=0640
+    when: ansible_os_family == "RedHat"
     tags:
       - top
 
@@ -83,6 +104,7 @@
               owner=root
               group=root
               mode=0640
+    when: ansible_os_family == "RedHat"
     tags:
       - top
 
@@ -92,6 +114,7 @@
               owner=root
               group=root
               mode=0640
+    when: ansible_os_family == "RedHat"
     tags:
       - iostat
 
@@ -101,6 +124,7 @@
               owner=root
               group=root
               mode=0640
+    when: ansible_os_family == "RedHat"
     tags:
       - iostat
 
@@ -110,6 +134,7 @@
               owner=root
               group=root
               mode=0640
+    when: ansible_os_family == "RedHat"
     tags:
       - mpstat
 
@@ -119,6 +144,7 @@
               owner=root
               group=root
               mode=0640
+    when: ansible_os_family == "RedHat"
     tags:
       - mpstat
 
@@ -128,6 +154,7 @@
               owner=root
               group=root
               mode=0640
+    when: ansible_os_family == "RedHat"
     tags:
       - gstat
 
@@ -137,6 +164,7 @@
               owner=root
               group=root
               mode=0640
+    when: ansible_os_family == "RedHat"
     tags:
       - gstat
 
@@ -144,3 +172,4 @@
 
   - name: Restart init
     shell: /sbin/telinit q
+    when: ansible_os_family == "RedHat"

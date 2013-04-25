@@ -7,8 +7,8 @@
   tasks:
 
   - name: Enable syslog-ng loghost
-    template: src=etc/syslog-ng/conf.d/loghost
-              dest=/etc/syslog-ng/conf.d/10-loghost
+    template: src=etc/syslog-ng/conf.d/loghost.j2
+              dest=/etc/syslog-ng/conf.d/10-loghost.conf
               owner=root
               group=root
               mode=0644
@@ -17,16 +17,20 @@
     tags:
       - config
 
+
+### DEBIAN
   - name: Enable directory creation
     lineinfile: dest=/etc/syslog-ng/syslog-ng.conf
                 insertafter='^options {'
                 regexp='create_dirs \('
                 line='create_dirs (yes);'
+    when: ansible_distribution == "Debian"
     notify:
       - Restart syslog-ng
     tags:
       - config
 
+### SERVICE
   handlers:
     - name: Restart syslog-ng
       service: name=syslog-ng

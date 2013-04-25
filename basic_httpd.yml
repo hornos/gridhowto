@@ -6,8 +6,10 @@
 
   vars_files:
     - networks.yml
+    - [ "vars/{{ ansible_os_family }}.yml", "vars/Defaults.yml" ]
 
   tasks:
+### REDHAT
   - name: Install http packages
     yum: name=$item
          state=installed
@@ -15,6 +17,7 @@
       - httpd
       - apachetop
       - php-xml
+    when: ansible_os_family == "RedHat"
     tags:
       - packages
 
@@ -24,13 +27,40 @@
               owner=root
               group=root
               mode=0644
+    when: ansible_os_family == "RedHat"
     tags:
       - index
       - config
 
+### DEBIAN
+  - name: Install http packages
+    apt: name=$item
+         state=installed
+    with_items:
+      - apache2
+      - apachetop
+      - php5
+      - php-xml-parser
+    when: ansible_os_family == "Debian"
+    tags:
+      - packages
+
+  - name: Install /var/www/index.html
+    template: src=var/www/html/index.html.j2
+              dest=/var/www/index.html
+              owner=root
+              group=root
+              mode=0644
+    when: ansible_os_family == "Debian"
+    tags:
+      - index
+      - config
+
+
+### CONFIGURATION
   - name: Enable HTTP server status
     template: src=etc/httpd/conf.d/status.conf.j2
-              dest=/etc/httpd/conf.d/status.conf
+              dest=/etc/{{service_httpd}}/conf.d/status.conf
               owner=root
               group=root
               mode=0644
@@ -41,7 +71,7 @@
 
   - name: Set HTTP server name
     template: src=etc/httpd/conf.d/servername.conf.j2
-              dest=/etc/httpd/conf.d/servername.conf
+              dest=/etc/{{service_httpd}}/conf.d/servername.conf
               owner=root
               group=root
               mode=0644
@@ -52,7 +82,7 @@
 
   - name: Set JSON sytle error documents
     template: src=etc/httpd/conf.d/error.conf.j2
-              dest=/etc/httpd/conf.d/error.conf
+              dest=/etc/{{service_httpd}}/conf.d/error.conf
               owner=root
               group=root
               mode=0644
@@ -66,8 +96,9 @@
     seboolean: name=httpd_can_network_connect
                state=true
                persistent=yes
+    when: ansible_os_family == "RedHat"
     notify:
-      - Restart httpd
+      - Restart {{service_httpd}}
     tags:
       - selinux
 
@@ -75,10 +106,10 @@
 #    command: /usr/sbin/semanage permissive -a httpd_t
 
   - name: Start httpd
-    service: name=httpd
+    service: name={{service_httpd}}
              state=started
 
   handlers:
     - name: Restart httpd
-      service: name=httpd
+      service: name={{service_httpd}}
                state=restarted

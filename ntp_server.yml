@@ -33,6 +33,7 @@
                   regexp="^broadcast .* autokey version 4"
                   insertafter="# broadcast server"
                   line="broadcast ${broadcasts.system} autokey version 4"
+                  backup=yes
       notify:
         - Restart ntpd
       tags:

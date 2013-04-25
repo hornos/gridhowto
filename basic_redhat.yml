@@ -1,0 +1,6 @@
+#
+# Basic configuration for root servers
+# 
+
+- include: basic_selinux.yml
+- include: basic_repos.yml

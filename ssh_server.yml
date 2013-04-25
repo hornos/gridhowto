@@ -19,6 +19,7 @@
                 owner=root
                 group=root
                 mode=0600
+                backup=yes
       notify:
         - Restart sshd
       tags:

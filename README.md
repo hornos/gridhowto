@@ -284,6 +284,8 @@ InfiniBand is a switched fabric communications link used in high-performance com
 ## Ansible Bootstrap
 This is a blueprint of a HA *grid engine cluster*. It enables you rapid prototyping of fractal infrastructures. First, install Ansible on your host machine (VirtualBox host). The goal of the primordial installation is to provision the machines into an *initial ground state*. Ansible is responsible to advance the system to the *true ground state*. Subsequently, the system can excite itself to an *excited state* via dynamic provisioning.
 
+Every playbook is an *operator product* aka tasks evaluated in a row. In order to invert the product you have to change the order and *invert* each task individually. This in mind it is pretty easy rollback or change a playbook. Playbooks are usually *Linux agnostic* and *holistic*.
+
 Ansible should be installed in `$HOME/ansible`:
 
     cd $HOME
@@ -363,13 +365,21 @@ Root servers provide NTP for the cluster. If you have a very large cluster root 
 
 Set SELinux premissive mode and setup EPEL and rpmforge repositories for RedHat like systems:
 
+    bin/play @@root basic_redhat
+
+or one by one:
+
     bin/play @@root basic_selinux
     bin/play @@root basic_repos
 
 For Debian-based systems you have to skip these playbooks.
 
 ### Firewall
-Enable Shorewall firewall. Check `shorewall/params.d/root.j2` template for interface change.
+Play firewall-related scripts by:
+
+    bin/play @@root firewall
+
+or one by one. Enable Shorewall firewall. Check `shorewall/params.d/root.j2` template for interface change.
 
     bin/play @@root shorewall
 
@@ -380,7 +390,11 @@ Note that emergency rules are defined in `etc/shorewall/rulestopped.j2`. Please 
 The system network is not banned.
 
 ### Basic Services
-Setup basic services: DNSmasq, NTP, Syslog-ng:
+You can run all the playbooks once:
+
+    bin/play @@root basic
+
+or one by one. Setup basic services: DNSmasq, NTP, Syslog-ng:
 
     bin/play @@root basic_services
 
@@ -437,6 +451,10 @@ The basic playbook contains the following inittab changes:
     tty8 - mingetty (and X)
 
 ## Monitoring
+Monitoring can be played by:
+
+    bin/playbook @@root monitor
+
 ### Ganglia
 Ganglia is a scalable distributed monitoring system for high-performance computing systems such as clusters and Grids. It is based on a hierarchical design targeted at federations of clusters. You can think of it as a low-level cluster top. Ganglia is running with unicast addresses and root servers cross-monitor each other. Ganglia is a best effort monitor and you should use it to monitor as many things as possible.
 
@@ -461,7 +479,7 @@ SGI's PCP is a very matured performance monitoring tool especially designed for 
 
     bin/play @@root pcp
 
-PCP contains an automated reasoning deamon (`pmie`) which you can use to throw system exceptions.
+PCP contains an automated reasoning deamon (`pmie`) which you can use to throw system exceptions caught by eg. Errbit or broadcasted via an MQ.
 
 ### Tops & Logs
 The `basic_tools` playbook installs several small wrappers for simple cluster monitoring. The following commands are available:

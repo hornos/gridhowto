@@ -43,6 +43,7 @@
       when: ansible_os_family == "Debian"
       tags:
         - packages
+        - sudo
 
 
 ### ADMIN USER
@@ -70,6 +71,7 @@
                   create=yes
                   state=present
                   regexp='^%wheel'
+                  backup=yes
       tags:
         - sudo
         - wheel

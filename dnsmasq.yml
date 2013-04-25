@@ -74,6 +74,7 @@
                   regexp='^conf-dir.*'
                   insertafter='^#conf-dir.*'
                   line='conf-dir=/etc/dnsmasq.d'
+                  backup=yes
       notify:
         - Restart dnsmasq
       tags:
@@ -92,6 +93,7 @@
                   regexp='^addn-hosts.*'
                   insertafter='^#addn-hosts.*'
                   line='addn-hosts=/etc/hosts.d'
+                  backup=yes
       notify:
         - Restart dnsmasq
       tags:
@@ -124,6 +126,7 @@
                 owner=bin
                 group=wheel
                 mode=0644
+                backup=yes
       when_string: "'$usehosts' == 'yes'"
       notify:
         - Restart dnsmasq
@@ -136,6 +139,7 @@
                 owner=bin
                 group=wheel
                 mode=0644
+                backup=yes
       tags:
         - networks
 
@@ -144,6 +148,7 @@
                   regexp='^nameserver 127.0.0.1'
                   insertbefore='^nameserver.*'
                   line='nameserver 127.0.0.1'
+                  backup=yes
       tags:
         - resolv
 
@@ -152,6 +157,7 @@
                 dest=/etc/dhcp/dhclient-${interfaces.dhcp}.conf
                 owner=root
                 group=root
+                backup=yes
       when_string: "'${interfaces.dhcp}' != ''"
       tags:
         - dhcp

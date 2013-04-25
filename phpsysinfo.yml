@@ -3,6 +3,7 @@
 
   vars_files:
     - networks.yml
+    - [ "vars/{{ ansible_os_family }}.yml", "vars/Defaults.yml" ]
 
   tasks:
     - name: Install phpsysinfo
@@ -22,16 +23,16 @@
 
     - name: Enable phpsysinfo
       template: src=etc/httpd/conf.d/phpsysinfo.conf.j2
-                dest=/etc/httpd/conf.d/phpsysinfo.conf
+                dest=/etc/{{service_httpd}}/conf.d/phpsysinfo.conf
                 owner=root
                 group=root
                 mode=0644
       notify:
-        - Restart httpd
+        - Restart {{service_httpd}}
       tags:
         - config
 
   handlers:
-    - name: Restart httpd
-      service: name=httpd
+    - name: Restart {{service_httpd}}
+      service: name={{service_httpd}}
                state=restarted

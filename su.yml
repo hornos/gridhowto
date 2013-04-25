@@ -9,6 +9,7 @@
                   regexp="^auth.*required.*pam_wheel.so.*use_uid"
                   insertbefore="^auth.*include"
                   line="auth required pam_wheel.so use_uid"
+                  backup=yes
       when: ansible_os_family == "RedHat"
       tags:
         - config
@@ -19,6 +20,7 @@
                   regexp="^auth.*required.*pam_wheel.so.*use_uid"
                   insertbefore="^# auth.*required.*pam_wheel.so"
                   line="auth required pam_wheel.so use_uid"
+                  backup=yes
       when: ansible_os_family == "Debian"
       tags:
         - config

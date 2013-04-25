@@ -6,17 +6,11 @@
     - [ "vars/{{ ansible_os_family }}.yml", "vars/Defaults.yml" ]
 
   tasks:
+### REDHAT
     - name: Install rng-tools
       yum: name=rng-tools
            state=installed
       when: ansible_os_family == "RedHat"
-      tags:
-        - packages
-
-    - name: Install rng-tools
-      apt: name=rng-tools
-           state=installed
-      when: ansible_os_family == "Debian"
       tags:
         - packages
 
@@ -26,23 +20,36 @@
                   state=present
                   regexp="^EXTRAOPTIONS"
                   line='EXTRAOPTIONS="-r /dev/urandom"'
+                  backup=yes
       when: ansible_os_family == "RedHat"
       notify:
         - Restart rngd
       tags:
         - config
 
+
+### DEBIAN
+    - name: Install rng-tools
+      apt: name=rng-tools
+           state=installed
+      when: ansible_os_family == "Debian"
+      tags:
+        - packages
+
     - name: Configure rng-tools
       lineinfile: dest=/etc/default/rng-tools
                   state=present
                   regexp="^HRNGDEVICE"
                   line='HRNGDEVICE="/dev/urandom"'
+                  backup=yes
       when: ansible_os_family == "Debian"
       notify:
         - Restart rngd
       tags:
         - config
 
+
+### SERVICES
     - name: Start rngd
       service: name={{ service_rngd }}
                state=started

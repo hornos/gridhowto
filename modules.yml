@@ -4,25 +4,34 @@
     - modules_vars.yml
 
   tasks:
-
+### REDHAT
   - name: Download modules
     get_url: url=${url}/${rpm} dest=/root
+    when: ansible_os_family == "RedHat"
     tags:
       - packages
 
   - name: Install modules
     command: yum -y localinstall /root/${rpm}
+    when: ansible_os_family == "RedHat"
     tags:
       - packages
 
-  - name: Install modulespath
-    template: src=usr/share/Modules/init/modulespath.j2
-              dest=/usr/share/Modules/init/.modulespath
-              owner=root
-              group=root
-              mode=0644
-    tags:
-      - config
+### DEBIAN
+  - name: Install modules
+    apt: name=environment-modules
+         state=installed
+    when: ansible_os_family == "Debian"
+
+### CONFIGURATION
+#  - name: Install modulespath
+#    template: src=usr/share/Modules/init/modulespath.j2
+#              dest=/usr/share/Modules/init/.modulespath
+#              owner=root
+#              group=root
+#              mode=0644
+#    tags:
+#      - config
 
   - name: Create modulefiles
     file: path=/etc/modulefiles

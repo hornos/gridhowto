@@ -35,21 +35,34 @@
 
 
 ### REDHAT
+  - name: Install umask repo
+    template: src=etc/yum.repos.d/umask.repo.j2
+              dest=/etc/yum.repos.d/umask.repo
+              owner=root
+              group=root
+    when: ansible_os_family == "RedHat"
+    tags:
+      - repo
+      - packages
+
   - name: Install syslog-ng packages
     yum: name=syslog-ng
-         state=installed
+         state=latest
+         enablerepo=umask
     when: ansible_os_family == "RedHat"
     tags:
       - packages
 
   - name: Install syslog-ng-libdbi packages
     yum: name=syslog-ng-libdbi
-         state=installed
+         state=latest
+         enablerepo=umask
     when: ansible_os_family == "RedHat"
     tags:
       - packages
 
-### DEBIAN
+
+### DEBIAN -- TODO: update 3.3
   - name: Install syslog-ng packages
     apt: name=syslog-ng
          state=installed
@@ -57,25 +70,16 @@
     tags:
       - packages
 
+### UBUNTU OK
+
 
 ### CONFIGURATION
-  - name: Enable ISO 8601 timestamps
-    lineinfile: dest=/etc/syslog-ng/syslog-ng.conf
-                regexp='ts_format\(iso\);'
-                insertafter='^options {'
-                line='ts_format(iso);'
-    notify:
-      - Restart syslog-ng
-    tags:
-      - config
-
-  - name: Daily statistics update
-    lineinfile: dest=/etc/syslog-ng/syslog-ng.conf
-                regexp='stats_freq\(43200\);'
-                insertafter='^options {'
-                line='stats_freq(43200);'
-    notify:
-      - Restart syslog-ng
+  - name: Install /etc/syslog-ng/syslog-ng.conf
+    template: src=etc/syslog-ng/syslog-ng.conf.j2
+              dest=/etc/syslog-ng/syslog-ng.conf
+              owner=root
+              group=root
+              backup=yes
     tags:
       - config
 
@@ -87,17 +91,8 @@
     tags:
       - config
 
-  - name: Enable /etc/syslog-ng/conf.d
-    lineinfile: dest=/etc/syslog-ng/syslog-ng.conf
-                regexp='include "conf.d";'
-                insertafter='^filter f_cron'
-                line='include "conf.d";'
-    when: ansible_os_family == "RedHat"
-    notify:
-      - Restart syslog-ng
-    tags:
-      - config
 
+### DEBIAN -- TODO update 3.3
   - name: Enable /etc/syslog-ng/conf.d
     lineinfile: dest=/etc/syslog-ng/syslog-ng.conf
                 regexp='include "conf.d";'
@@ -109,6 +104,8 @@
     tags:
       - config
 
+
+### SERVICE
   - name: Start syslog-ng
     service: name=syslog-ng
              state=started

@@ -1,5 +1,5 @@
 #
-# Basic httpd settings
+# Logo
 #
 ---
 - hosts: all

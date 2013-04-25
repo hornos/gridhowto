@@ -5,3 +5,4 @@
 
   - name: Set text theme
     shell: /usr/sbin/plymouth-set-default-theme text --rebuild-initrd
+    when: ansible_os_family == "RedHat"

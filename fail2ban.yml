@@ -6,11 +6,24 @@
     - networks.yml
 
   tasks:
+### REDHAT
   - name: Install fail2ban
     yum: name=fail2ban
          state=installed
+    when: ansible_os_family == "RedHat"
     tags:
       - packages
+
+### DEBIAN
+  - name: Install fail2ban
+    apt: name=fail2ban
+         state=installed
+    when: ansible_os_family == "Debian"
+    tags:
+      - packages
+
+
+### CONFIGURATION
 
 #  - name: Enable shorewall
 #    lineinfile: dest=/etc/fail2ban/jail.conf
@@ -28,6 +41,7 @@
               owner=root
               group=root
               mode=0644
+              backup=yes
     notify:
       - Restart fail2ban
     tags:
@@ -38,6 +52,7 @@
     lineinfile: dest=/etc/fail2ban/fail2ban.conf
                 regexp='^loglevel'
                 line='loglevel=2'
+                backup=yes
     notify:
       - Restart fail2ban
     tags:
@@ -47,11 +62,14 @@
     lineinfile: dest=/etc/shorewall/shorewall.conf
                 regexp='^BLACKLISTNEWONLY'
                 line='BLACKLISTNEWONLY=No'
+                backup=yes
     notify:
       - Restart shorewall
     tags:
       - config
 
+
+### SERVICES
   - name: Start fail2ban
     service: name=fail2ban
              state=restarted

@@ -22,6 +22,7 @@
       lineinfile: dest=/etc/sysconfig/selinux
                 regexp='^SELINUX='
                 line='SELINUX=permissive'
+                backup=yes
       when: ansible_os_family == "RedHat"
       tags:
         - policy

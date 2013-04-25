@@ -1,0 +1,6 @@
+#
+# Basic configuration for root servers
+# 
+
+- include: shorewall.yml
+- include: fail2ban.yml
