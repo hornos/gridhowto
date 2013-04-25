@@ -2,8 +2,6 @@
 root-01 ansible_ssh_host=10.1.1.1
 root-02 ansible_ssh_host=10.1.1.2
 root-03 ansible_ssh_host=10.1.1.3
-root-04 ansible_ssh_host=10.1.1.4
-root-05 ansible_ssh_host=10.1.1.5
 
 [centos]
 root-01 ansible_ssh_host=10.1.1.1

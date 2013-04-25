@@ -282,7 +282,9 @@ InfiniBand is a switched fabric communications link used in high-performance com
 
 
 ## Ansible Bootstrap
-This is a blueprint of a HA grid engine cluster. It enables you rapid prototyping of fractal infrastructures. First, install Ansible on your host machine (VirtualBox host). Ansible should be installed in `$HOME/ansible`:
+This is a blueprint of a HA *grid engine cluster*. It enables you rapid prototyping of fractal infrastructures. First, install Ansible on your host machine (VirtualBox host). The goal of the primordial installation is to provision the machines into an *initial ground state*. Ansible is responsible to advance the system to the *true ground state*. Subsequently, the system can excite itself to an *excited state* via dynamic provisioning.
+
+Ansible should be installed in `$HOME/ansible`:
 
     cd $HOME
     git clone git://github.com/ansible/ansible.git
@@ -382,11 +384,12 @@ Setup basic services: DNSmasq, NTP, Syslog-ng:
 
     bin/play @@root basic_services
 
-If you use DHCP in order to enable the localhost DNS reboot the machine(s) now by `bin/reboot @root`.
+If you use DHCP in order to enable the localhost DNS reboot the machine(s) now by `bin/reboot @@root`.
 
 Install some packages:
 
     bin/play @@root basic_packages
+    bin/play @@root basic_python
 
 Install top-like apps:
 
@@ -453,6 +456,13 @@ The following monitors can be played:
     ganglia_procstat  - basic service monitor
     ganglia_system    - cpu and memory statistics
 
+### SGI PCP
+SGI's PCP is a very matured performance monitoring tool especially designed for high-performance systems. Install PCP by:
+
+    bin/play @@root pcp
+
+PCP contains an automated reasoning deamon (`pmie`) which you can use to throw system exceptions.
+
 ### Tops & Logs
 The `basic_tools` playbook installs several small wrappers for simple cluster monitoring. The following commands are available:
 
@@ -473,6 +483,7 @@ The `basic_tools` playbook installs several small wrappers for simple cluster mo
 
     bin/play @@root webmin
 
+## Databases
 ### MariaDB with Galera
 MariaDB with Galera is used for the cluster SQL service. The first root node (`root-01`) is the pseudo-master.
 
@@ -506,6 +517,7 @@ Install and setup Icinga:
 
 You can access icinga on `http://root-0?/icinga` with `icingaadmin/icingaadmin`. The new interface is on `http://root-0?/icinga-web` with `root/password`. Parameters are in `icinga_vars.yml`.
 
+## Messaging
 ### RabbitMQ Cluster
 
     bin/play @@root rabbitmq
@@ -514,14 +526,11 @@ Switch on Ganglia monitors for the local MQ:
 
     bin/play @@root ganglia_rabbitmq.yml
 
-### SGI PCP
-SGI's PCP is a very matured performance monitoring tool especially designed for high-performance systems. Install PCP by:
-
-    bin/play @@root pcp
-
-PCP contains an automated reasoning deamon (`pmie`) which you can use to throw system exceptions.
-
 ## Cluster Filesystems
+### Bittorrent Sync
+Sharing is caring, even among root servers:
+
+    bin/play btsync
 
 ### Gluster
 Warning Gluster hangs yum chroot install. You might consider ditching in favour of Ceph or XtreemFS.

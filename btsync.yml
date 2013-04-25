@@ -1,0 +1,102 @@
+---
+- hosts: all
+
+  vars_files:
+    - btsync_vars.yml
+
+  tasks:
+  - name: Download btsync
+    get_url: url={{ url }}/{{ tgz }}
+             dest=/root/{{ tgz }}
+    tags:
+      - packages
+
+  - name: Create btsync user
+    user: name=btsync
+          password=*
+    tags:
+      - packages
+
+  # DO NOT REMOVE append=yes!
+  - name: Enable sysop in btsync
+    user: name=sysop
+          groups=btsync
+          append=yes
+
+  - name: Create /opt/btsync/bin
+    file: path=/opt/btsync/bin
+          owner=root
+          group=root
+          state=directory
+    tags:
+      - packages
+
+  - name: Create {{btsync_shared}}
+    file: path={{btsync_shared}}
+          owner=root
+          group=btsync
+          mode=0770
+          state=directory
+    tags:
+      - packages
+
+  - name: Create /var/run/btsync
+    file: path=/var/run/btsync
+          owner=root
+          group=btsync
+          mode=0770
+          state=directory
+    tags:
+      - packages
+
+  - name: Unzip btsync
+    shell: /bin/tar xvz -C /opt/btsync/bin -f /root/{{ tgz }}
+    tags:
+      - packages
+
+  - name: Install /etc/init.d/btsync
+    template: src=etc/init.d/btsync.j2
+              dest=/etc/init.d/btsync
+              owner=root
+              group=root
+              mode=0750
+    tags:
+      - config
+    notify:
+      - Restart btsync
+
+  - name: Install /etc/btsync.conf
+    template: src=etc/btsync.conf.j2
+              dest=/etc/btsync.conf
+              owner=root
+              group=btsync
+              mode=0640
+    tags:
+      - config
+    notify:
+      - Restart btsync
+
+  - name: Install /etc/shorewall/rules.d/btsync
+    template: src=etc/shorewall/rules.d/btsync.j2
+              dest=/etc/shorewall/rules.d/btsync
+              owner=root
+              group=root
+              mode=0640
+    tags:
+      - firewall
+    notify:
+      - Restart shorewall
+
+  - name: Start btsync
+    service: name=btsync
+             state=started
+             enabled=yes
+
+  handlers:
+    - name: Restart btsync
+      service: name=btsync
+               state=restarted
+
+    - name: Restart shorewall
+      service: name=shorewall
+               state=restarted

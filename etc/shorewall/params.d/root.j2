@@ -10,5 +10,4 @@ ROOT={%- for host in hostvars %}
 {{- hostvars[host]['ansible_eth0']['ipv4']['address'] }}
 {%- endfor %}
 
-
 SYSOP={{sysop_host}}

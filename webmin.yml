@@ -8,13 +8,29 @@
               owner=root
               group=root
               mode=0644
+    tags:
+      - repo
 
   - name: Install Webmin key
-    command: rpm --import http://www.webmin.com/jcameron-key.asc
+    command: /bin/rpm --import http://www.webmin.com/jcameron-key.asc
+    tags:
+      - repo
 
-  - name: Install Webmin
-    yum: name=webmin
+  - name: Install Webmin packages
+    yum: name=$item
          state=installed
+    with_items:
+      - webmin
+      - perl-Authen-PAM
+    tags:
+      - packages
+
+  - name: Add sysop to /etc/webmin/miniserv.users
+    lineinfile: dest=/etc/webmin/miniserv.users regexp='^sysop' line='sysop:x:0'
+    notify:
+      - Restart webmin
+    tags:
+      - config
 
   - name: Install /etc/shorewall/rules.d/webmin
     template: src=etc/shorewall/rules.d/webmin.j2
@@ -22,6 +38,8 @@
               owner=root
               group=root
               mode=0640
+    tags:
+      - firewall
     notify:
       - Restart shorewall
 
@@ -33,4 +51,8 @@
   handlers:
     - name: Restart shorewall
       service: name=shorewall
+               state=restarted
+
+    - name: Restart webmin
+      service: name=webmin
                state=restarted

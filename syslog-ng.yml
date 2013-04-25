@@ -69,6 +69,16 @@
     tags:
       - config
 
+  - name: Daily statistics update
+    lineinfile: dest=/etc/syslog-ng/syslog-ng.conf
+                regexp='stats_freq\(43200\);'
+                insertafter='^options {'
+                line='stats_freq(43200);'
+    notify:
+      - Restart syslog-ng
+    tags:
+      - config
+
   - name: Create /etc/syslog-ng/conf.d
     file: path=/etc/syslog-ng/conf.d
           owner=root
