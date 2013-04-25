@@ -2,6 +2,7 @@
 - hosts: all
 
   vars_files:
+    - networks.yml
     - btsync_vars.yml
 
   tasks:

@@ -63,7 +63,7 @@
 {%- set first=0 %}
 {%- endif %}
 "{{- hostvars[host]['ansible_eth0']['ipv4']['address'] }}:{{btsync_port}}"
-{%- endfor %}
+{%- endfor %},"{{sysop_host}}:{{btsync_port}}"
       ]
     }
   ]
