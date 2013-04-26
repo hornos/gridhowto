@@ -104,8 +104,14 @@ case ${cmd} in
   centos63|centos64|squeeze|quantal|raring|kali)
     if [ -z "${arg}" ] ; then help/jockey; fi
 
+    ### args
     default=${cmd}
     mac=${arg}
+    shift
+    addr=${1:-10.1.1.1}
+    shift
+    name=${1:-root-01}
+
     http_listen=${jockey_ip}:8080
 
     pass=$(jockey/pass)
@@ -118,13 +124,23 @@ case ${cmd} in
     ks=$(echo "${mac}" | sed s/:/-/g | tr '[:upper:]' '[:lower:]')
     echo "${pass}" > ${jockey_root}/${ks}.pass
 
-    # kickstart
+    ### kickstart
     cat ${jockey_root}/kickstart.${default} | \
-    awk -v p=${root_pass} -v q=${pass} -v l=${http_listen} -v i=${interface} \
-    '{gsub("ROOT_PASSWORD_PLAIN",q); gsub("ROOT_PASSWORD",p); gsub("HTTP_LISTEN",l); gsub("INTERFACE",i); print}' \
+    awk -v p=${root_pass} \
+        -v q=${pass} \
+        -v l=${http_listen} \
+        -v i=${interface} \
+        -v a=${addr} \
+        -v n=${name} \
+    '{gsub("ROOT_PASSWORD_PLAIN",q);
+      gsub("ROOT_PASSWORD",p);
+      gsub("HTTP_LISTEN",l);
+      gsub("SYSTEM_NAME",n);
+      gsub("SYSTEM_ADDR",a);
+      gsub("INTERFACE",i); print}' \
     > ${http_root}/${ks}.ks
 
-    # pxelinux
+    ### pxelinux
     kickstart=${http_listen}/${ks}.ks
     cat ${jockey_root}/boot/default | \
     awk -v k=${kickstart} -v d=${default} -v i=${interface} \
@@ -136,6 +152,7 @@ case ${cmd} in
     if [ -z "${arg}" ] ; then help/jockey; fi
 
     mac=${arg}
+
     http_listen=${jockey_ip}:8080
     ks=$(echo "${mac}" | sed s/:/-/g | tr '[:upper:]' '[:lower:]')
     kickstart=${http_listen}/${ks}.ks

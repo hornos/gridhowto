@@ -284,7 +284,11 @@ InfiniBand is a switched fabric communications link used in high-performance com
 ## Ansible Bootstrap
 This is a blueprint of a HA *grid engine cluster*. It enables you rapid prototyping of fractal infrastructures. First, install Ansible on your host machine (VirtualBox host). The goal of the primordial installation is to provision the machines into an *initial ground state*. Ansible is responsible to advance the system to the *true ground state*. Subsequently, the system can excite itself to an *excited state* via dynamic provisioning.
 
-Every playbook is an *operator product* aka tasks evaluated in a row. In order to invert the product you have to change the order and *invert* each task individually. This in mind it is pretty easy rollback or change a playbook. Playbooks are usually *Linux agnostic* and *holistic*.
+Every playbook is an *operator product* aka tasks evaluated in a row. In order to invert the product you have to change the order and *invert* each task individually:
+
+    (AB)^-1 = B^-1 A^-1
+
+By keeping this in mind it is pretty easy rollback or change a playbook. Playbooks are usually *Linux agnostic* and *holistic*.
 
 Ansible should be installed in `$HOME/ansible`:
 

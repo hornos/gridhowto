@@ -13,7 +13,7 @@ d-i keyboard-configuration/xkb-keymap select hu
 
 ### BOOT NETWORK
 d-i netcfg/choose_interface select INTERFACE
-d-i netcfg/get_hostname string unassigned-hostname
+d-i netcfg/get_hostname string SYSTEM_NAME
 d-i netcfg/get_domain string unassigned-domain
 d-i netcfg/wireless_wep string
 
@@ -142,7 +142,7 @@ d-i preseed/late_command string \
     echo '' >> /target/etc/network/interfaces && \
     echo 'auto eth0' >> /target/etc/network/interfaces && \
     echo 'iface eth0 inet static' >> /target/etc/network/interfaces && \
-    echo '  address 10.1.1.1' >> /target/etc/network/interfaces && \
+    echo '  address SYSTEM_ADDR' >> /target/etc/network/interfaces && \
     echo '  netmask 255.255.0.0' >> /target/etc/network/interfaces && \
     echo 'auto eth1' >> /target/etc/network/interfaces && \
     echo 'iface eth1 inet dhcp' >> /target/etc/network/interfaces && \

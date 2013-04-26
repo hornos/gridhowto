@@ -68,7 +68,7 @@ logvol /home          --name=home  --vgname=vg_root --fstype=ext4 --size=10000
 # network --onboot=yes --bootproto=dhcp --device=eth3
 
 # simple
-network --onboot=yes --bootproto=static --ip=10.1.1.1 --netmask=255.255.0.0 --device=eth0 --activate
+network --onboot=yes --bootproto=static --ip=SYSTEM_ADDR --netmask=255.255.0.0 --device=eth0 --activate
 network --onboot=yes --bootproto=dhcp --device=eth1 --activate
 
 firewall --enabled --port=22:tcp
@@ -120,7 +120,7 @@ mount -t iso9660 /dev/cdrom /mnt/source
 PATH=/bin:/usr/bin:/sbin:/usr/sbin:$PATH
 
 ### HOSTNAME
-echo "10.1.1.1 root-01" >> /etc/hosts
+echo "SYSTEM_ADDR SYSTEM_NAME" >> /etc/hosts
 
 # after this point ansible should takeover
 # creat and admin user
