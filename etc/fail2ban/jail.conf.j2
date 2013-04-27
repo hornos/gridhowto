@@ -21,7 +21,10 @@ banaction = shorewall
 # "ignoreip" can be an IP address, a CIDR mask or a DNS host. Fail2ban will not
 # ban a host which matches an address in this list. Several addresses can be
 # defined using space separator.
-ignoreip = 127.0.0.1/8 {{networks.system}}/{{masks.system}} {{sysop_host}}
+
+ignoreip = 127.0.0.1/8 {{networks.system}}/{{masks.system}} {%- for host in sysops %}
+ {{ host }}
+{%- endfor %}
 
 # "bantime" is the number of seconds that a host is banned.
 bantime  = {{timeout}}

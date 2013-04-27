@@ -18,4 +18,7 @@ masks:
 broadcasts:
   system: 10.1.255.255
 
-sysop_host: 10.1.1.254
+# system operators
+sysops:
+  - 10.1.1.254
+  - 10.1.1.253

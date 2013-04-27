@@ -38,7 +38,8 @@ The network configuration is found in `networks.yml`. Each network interface can
       system: 255.255.0.0
     broadcasts:
       system: 10.1.255.255
-    sysop_host: 10.1.1.254
+    sysops:
+      - 10.1.1.254
 
 The simplified network topology contains only two interfaces (eth0, eth1). This is also a good model if you have InfiniBand (IB) since TCP/IP is not required for IB RDMA.
 
@@ -62,9 +63,10 @@ and the `networks.yml` file:
       system: 255.255.0.0
     broadcasts:
       system: 10.1.255.255
-    sysop_host: 10.1.1.254
+    sysops:
+      - 10.1.1.254
 
-The `sysop_host` is your remote OS X machine. Leave knives alone!
+The `sysops` contains remote OS X administrator machines. Leave chefs and knives alone in the kitchen!
 
 ### Root Servers in VirtualBox 
 You can make a virtual infrastructure in VirtualBox. Create the following virtual networks:
@@ -455,7 +457,7 @@ The basic playbook contains the following inittab changes:
     tty8 - mingetty (and X)
 
 ## Monitoring
-Monitoring can be played by:
+Monitoring (Ganglia and PCP) can be played by:
 
     bin/playbook @@root monitor
 
@@ -611,23 +613,17 @@ On your Mac install the certificate utilities:
 
     make globus_simple_ca globus_gsi_cert_utils
 
-The Grid needs a PKI, which protects access and the communication. You can create as many CA2 as you like. It is advised to make many short-term and flat CA. Create a Root CA (give your email and a password):
+The Grid needs a PKI, which protects access and the communication. You can create as many CA2 as you like. It is advised to make many short-term and flat CAs. Edit grid scripts as well as templates in `share/globus_simple_ca` if you want to change key parameters. Create a Root CA:
 
-    bin/ca new <CA>
+    bin/ca create <CA> [days] [email]
 
-where `<CA>` is an optional CA id. The new CA is created under the `ca/<ID>` directory. CA certificate is installed under `ca/grid-security` to make requests easy.
+The new CA is created under the `ca/<ID>` directory. The CA certificate is installed under `ca/grid-security` to make requests easy.
 
-Request user certificate by:
-
-    bin/ca user <CA> <USER> <CN>
+Request host certificate:
 
     bin/ca host <CA> <FQDN>
-    bin/ca service <CA> <FQDN> <SERVICE>
 
 Requests and private keys are under `ca/<CA>/grid-security`.
-
-Sign a request by:
-
 
 ## Slurm
 Slurm is a batch scheduler for the cluster with `low` `normal` and `high` queues. First you have to create a munge key to protect authentication:

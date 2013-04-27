@@ -1,0 +1,6 @@
+#!/bin/bash
+
+for i in 01 02 03 ; do
+  pushd space;./passwords;popd
+  bin/play root@root-${i} bootstrap
+done

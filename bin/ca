@@ -4,6 +4,8 @@ gbn=$(basename $0)
 inventory=./hosts
 config=./config
 
+base_dn="ou=Globus,o=Grid"
+
 tmp=".${gbn}.$$"
 
 ca_dir="./ca"
@@ -16,11 +18,26 @@ function ca/exit() {
 }
 trap ca/exit INT TERM EXIT
 
-function ca/init() {
-  if ! test -d "${ca_dir}/grid-security" ; then
-    ### certificates for requests
-    mkdir -v -p "${ca_dir}/grid-security"
+
+function help/ca() {
+  cat <<EOF
+
+Usage: ca <cmd> <args>
+          create CN [days] [email]
+EOF
+  exit 1
+}
+
+
+function ca/mkdir() {
+  local _dir=${*}
+  if ! test -d "${_dir}" ; then
+    mkdir -v -p "${_dir}"
   fi
+}
+
+function ca/init() {
+  ca/mkdir "${ca_dir}/grid-security"
 }
 
 
@@ -28,48 +45,58 @@ function ca/hash() {
   openssl x509 -hash -noout < ${1:-cacert.pem}
 }
 
+function ca/subject() {
+  local _cn=${1:-test}
+  echo "cn=${_cn},ou=${_cn}-$(hostname),${base_dn}"
+}
 
-cmd=${1:-root}
+
+
+### args
+cmd=${1:-create}
 shift
+
+export X509_CERT_DIR=grid-security
 
 case "${cmd}" in
   ### Create CA
-  new)
-    ca_id=${1:-rootca}
+  create)
+    ca_cn=${1:-rootca}
     shift
     days=${1:-365}
     shift
     email=${1}
+
     ca/init
  
     if [ ! -z "${email}" ] ; then
       email="-email ${email}"
     fi
-    subject="cn=rootca,ou=${ca_id}-$(hostname),o=Grid"
+
     pushd "${ca_dir}"
-    grid-ca-create -dir ${ca_id} -subject "${subject}" -days ${days} ${email}
+    subject=$(ca/subject "${ca_cn}")
+    grid-ca-create -dir "${ca_cn}" -subject "${subject}" -days ${days} ${email}
 
-    if ! test -d "${ca_id}/grid-security" ; then
-      ### certificates for the CA
-      mkdir -v -p "${ca_id}/grid-security"
-    fi
+    ### certificates for the CA
+    ca/mkdir "${ca_cn}/grid-security"
 
-    ### install
-    ca_hash=$(ca/hash ${ca_id}/cacert.pem)
+    ### install CA certificate into the global cert dir
+    ca_hash=$(ca/hash ${ca_cn}/cacert.pem)
     tgz=globus_simple_ca_${ca_hash}.tar.gz
     if [ ! -r "${tgz}" ] ; then
       exit 1
     fi
     echo
-    echo "Install ${ca_id} (${ca_hash})"
+    echo "Install ${ca_cn} (${ca_hash})"
     tar xvz --exclude debian --strip-components=1 \
             -C grid-security -f ${tgz}
     popd
+    echo ""
   ;;
 
   ### Request user certificate
   user)
-    ca_id=${1:-rootca}
+    ca_cn=${1:-rootca}
     shift
     user_id=${1:-test}
     shift
@@ -82,10 +109,9 @@ case "${cmd}" in
     if [ ! -r ${ca_id}/cacert.pem ] ; then
       exit 1
     fi
-    ca_hash=$(ca/hash ${ca_id}/cacert.pem)
+    ca_hash=$(ca/hash ${ca_cn}/cacert.pem)
 
-    X509_CERT_DIR=grid-security
-    grid-cert-request -dir "${ca_id}/grid-security" \
+    grid-cert-request -dir "${ca_cn}/grid-security" \
     -prefix "${user_id}_" -ca "${ca_hash}" \
     -cn "${user_cn}" ${opts}
 
@@ -93,7 +119,7 @@ case "${cmd}" in
   ;;
 
   host)
-    ca_id=${1:-rootca}
+    ca_cn=${1:-rootca}
     shift
     fqdn=${1:-localhost}
     shift
@@ -101,20 +127,20 @@ case "${cmd}" in
 
     pushd ${ca_dir}
 
-    if [ ! -r ${ca_id}/cacert.pem ] ; then
+    if [ ! -r ${ca_cn}/cacert.pem ] ; then
       exit 1
     fi
-    ca_hash=$(ca/hash ${ca_id}/cacert.pem)
+    ca_hash=$(ca/hash ${ca_cn}/cacert.pem)
 
-    X509_CERT_DIR=grid-security
-    grid-cert-request -dir "${ca_id}/grid-security" \
+    grid-cert-request -dir "${ca_cn}/grid-security" \
     -prefix "${fqdn}_" -ca "${ca_hash}" \
     -host "${fqdn}" ${opts}
 
     popd
   ;;
+
   service)
-    ca_id=${1:-rootca}
+    ca_cn=${1:-rootca}
     shift
     fqdn=${1:-localhost}
     shift
@@ -124,16 +150,54 @@ case "${cmd}" in
 
     pushd ${ca_dir}
 
-    if [ ! -r ${ca_id}/cacert.pem ] ; then
+    if [ ! -r ${ca_cn}/cacert.pem ] ; then
       exit 1
     fi
-    ca_hash=$(ca/hash ${ca_id}/cacert.pem)
+    ca_hash=$(ca/hash ${ca_cn}/cacert.pem)
 
-    X509_CERT_DIR=grid-security
-    grid-cert-request -dir "${ca_id}/grid-security" \
+    grid-cert-request -dir "${ca_cn}/grid-security" \
     -prefix "${fqdn}_${service}_" -ca "${ca_hash}" \
     -host "${fqdn}" -service "${service}" ${opts}
 
     popd
+  ;;
+
+  req)
+    pushd ${ca_dir}
+    ca_cn=${1:-rootca}
+    shift
+    req=${1:-localhost}
+    openssl req -noout -text -in "${ca_cn}/grid-security/${req}_cert_request.pem"
+    popd
+  ;;
+
+  sign)
+    ca_cn=${1:-rootca}
+    shift
+    req=${1:-localhost}
+    pushd "${ca_dir}/${ca_cn}"
+    grid-ca-sign -in "grid-security/${req}_cert_request.pem" -out "grid-security/${req}_cert.pem" -dir .
+    popd
+  ;;
+
+  revoke)
+    ca_cn=${1:-rootca}
+    shift
+    req=${1:-localhost}
+    pushd "${ca_dir}/${ca_cn}"
+    openssl ca -config grid-ca-ssl.conf -revoke "grid-security/${req}_cert.pem"
+    popd
+  ;;
+
+  crl)
+    ca_cn=${1:-rootca}
+    pushd "${ca_dir}/${ca_cn}"
+    ca_hash=$(ca/hash cacert.pem)
+    openssl ca -config grid-ca-ssl.conf -gencrl > "${ca_hash}.crl"
+    popd
+  ;;
+
+  help|*)
+    help/ca
   ;;
 esac
