@@ -17,13 +17,13 @@ modules {
       value = 'localhost'
     }
     param user {
-      value = '{{ monitor_user }}'
+      value = '{{ monitor.user }}'
     }
     param passwd {
-      value = '{{ monitor_password }}'
+      value = '{{ monitor.password }}'
     }
     param unix_socket {
-      value = '/var/run/mysqld/mysqld.sock'
+      value = '{{mariadb.socket}}'
     }
     param get_innodb {
       value = True

@@ -1,0 +1,4 @@
+shorewall:
+  ipblocks: 'http://www.ipdeny.com/ipblocks/data/countries'
+  blacklist: 'cn,kr,pk,tw,sg,hk,pe,ru'
+  whitelist: 'hu,de,no,se'

@@ -9,5 +9,6 @@ python_modules_dir: /opt/gmond_python_modules
 cluster_name: root
 allow_from: system
 
-monitor_user: monitor
-monitor_password: monitor
+monitor:
+  user: monitor
+  password: monitor

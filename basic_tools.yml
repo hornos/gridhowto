@@ -29,3 +29,4 @@
         - galeralog
         - sshbanlog
         - listen
+        - reinit

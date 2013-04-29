@@ -59,10 +59,10 @@
       - mysql
 
   - name: Create mysql monitor user
-    mysql_user: name={{ monitor_user }} password={{ monitor_password }} priv=*.*:SUPER,PROCESS
+    mysql_user: name={{ monitor.user }} password={{ monitor.password }} priv=*.*:SUPER,PROCESS
                 login_user=root
-                login_password={{ password }}
-                login_unix_socket={{ socket }}
+                login_password={{ mariadb.password }}
+                login_unix_socket={{ mariadb.socket }}
     only_if: '$is_master'
     tags:
       - config
@@ -89,4 +89,3 @@
     - name: Restart gmetad
       service: name=gmetad
                state=restarted
-

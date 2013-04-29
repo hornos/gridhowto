@@ -1,2 +1,2 @@
 #!/bin/bash
-mysql -p -e "SHOW STATUS LIKE 'wsrep_%';" -S {{socket}}
+mysql -p -e "SHOW STATUS LIKE 'wsrep_%';" -S {{mariadb.socket}}

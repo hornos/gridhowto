@@ -22,3 +22,6 @@ broadcasts:
 sysops:
   - 10.1.1.254
   - 10.1.1.253
+
+# root master
+master: root-01

@@ -5,7 +5,13 @@
 <Directory "/usr/share/phpmyadmin">
   Order Deny,Allow
   Deny from all
-  Allow from {{ networks['system'] }}/{{ masks['system'] }}
+  # Allow from {{ networks['system'] }}/{{ masks['system'] }}
+{% for host in hostvars %}
+Allow from {{ hostvars[host]['ansible_eth0']['ipv4']['address'] }}
+{% endfor %}
+{% for host in sysops %}
+Allow from {{ host }}
+{% endfor %}
   Allow from 127.0.0.1
 </Directory>
 

@@ -7,3 +7,4 @@
 - include: syslog-ng.yml
 - include: syslog-ng_loghost.yml
 - include: syslog-ng_client.yml
+- include: logcheck.yml

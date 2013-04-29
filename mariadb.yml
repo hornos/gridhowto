@@ -3,90 +3,109 @@
 - hosts: all
 
   vars_files:
+    - networks.yml
     - mariadb_vars.yml
+    - [ "vars/{{ ansible_os_family }}.yml", "vars/Defaults.yml" ]
+
+  vars:
+    is_master: "'$inventory_hostname' == '$master'"
 
   tasks:
-  - name: Install MariaDB Repo
-    template: src=etc/yum.repos.d/MariaDB.repo.j2
-              dest=/etc/yum.repos.d/MariaDB.repo
-              owner=root
-              group=root
-              mode=0644
-    tags:
-      - repo
+### REDHAT
+    - name: Install MariaDB Repo
+      template: src=etc/yum.repos.d/MariaDB.repo.j2
+                dest=/etc/yum.repos.d/MariaDB.repo
+                owner=root
+                group=root
+                mode=0644
+      when: ansible_os_family == "RedHat"
+      tags:
+        - repo
 
-  - name: Install MariaDB packages
-    yum: name=$item
-         state=installed
-    with_items:
-      - MariaDB-Galera-server
-      - MariaDB-client
-      - MariaDB-server
-      - MariaDB-shared
-      - MariaDB-compat
-      - galera
-    tags:
-      - packages
+    - name: Install MariaDB packages
+      yum: name=$item
+           state=installed
+      with_items:
+        - MariaDB-Galera-server
+        - MariaDB-client
+        - MariaDB-server
+        - MariaDB-shared
+        - MariaDB-compat
+        - galera
+      when: ansible_os_family == "RedHat"
+      tags:
+        - packages
 
-  - name: Set service timeout
-    lineinfile: dest=/etc/init.d/mysql
-                regexp="^service_startup_timeout"
-                line="service_startup_timeout=${timeout}"
-    tags:
-      - config
+### DEBIAN
 
-  - name: Setup /etc/my.cnf
-    template: src=etc/my.cnf.j2
-              dest=/etc/my.cnf
-              owner=root
-              group=root
-              mode=0644
-    notify:
-      - Restart mysqld
-    tags:
-      - config
+### CONFIGURATION
+    - name: Create /var/run/mysql
+      file: path=/var/run/mysql
+            owner=mysql
+            group=mysql
+            state=directory
 
-  - name: Setup /etc/my.cnf.d/server.cnf
-    template: src=etc/my.cnf.d/server.cnf.j2
-              dest=/etc/my.cnf.d/server.cnf
-              owner=root
-              group=root
-              mode=0644
-    notify:
-      - Restart mysqld
-    tags:
-      - config
+    - name: Set service timeout
+      lineinfile: dest=/etc/init.d/mysql
+                  regexp="^service_startup_timeout"
+                  line="service_startup_timeout={{mariadb.timeout}}"
+      tags:
+        - config
 
-  - name: Setup PHP mysql socket
-    lineinfile: dest=/etc/php.ini
-                regexp="^mysql.default_socket"
-                line="mysql.default_socket = ${socket}"
-    notify:
-      - Restart httpd
-    tags:
-      - config
+    - name: Setup /etc/my.cnf
+      template: src=etc/my.cnf.j2
+                dest=/etc/my.cnf
+                owner=root
+                group=root
+                mode=0644
+      notify:
+        - Restart mysql
+      tags:
+        - config
 
-  - name: Setup PHP mysqli socket
-    lineinfile: dest=/etc/php.ini
-                regexp="^mysqli.default_socket"
-                line="mysqli.default_socket = ${socket}"
-    notify:
-      - Restart httpd
-    tags:
-      - config
+    - name: Setup /etc/my.cnf.d/server.cnf
+      template: src=etc/my.cnf.d/server.cnf.j2
+                dest=/etc/my.cnf.d/server.cnf
+                owner=root
+                group=root
+                mode=0644
+      notify:
+        - Restart mysql
+      tags:
+        - config
 
-  - name: Start mysqld
-    service: name=mysql
-             state=started
-             enabled=yes
+    - name: Setup PHP mysql socket
+      lineinfile: dest=/etc/php.ini
+                  regexp="^mysql.default_socket"
+                  line="mysql.default_socket = {{mariadb.socket}}"
+      notify:
+        - Restart httpd
+      tags:
+        - config
+
+    - name: Setup PHP mysqli socket
+      lineinfile: dest=/etc/php.ini
+                  regexp="^mysqli.default_socket"
+                  line="mysqli.default_socket = {{mariadb.socket}}"
+      notify:
+        - Restart httpd
+      tags:
+        - config
+
+    - name: Start mysql
+      service: name=mysql
+               state=started
+               enabled=yes
+      tags:
+        - start
 
   handlers:
-    - name: Restart mysqld
-      service: name=mysql
+    - name: Restart mysql
+      service: name={{service_mysql}}
                state=restarted
 
     - name: Restart httpd
-      service: name=httpd
+      service: name={{service_httpd}}
                state=restarted
 
 

@@ -4,20 +4,21 @@
 
   vars_files:
     - mariadb_vars.yml
+    - [ "vars/{{ ansible_os_family }}.yml", "vars/Defaults.yml" ]
 
   tasks:
 
     - name: Remove Galera State
-      file: path=$state
+      file: path={{mariadb.state}}
             state=absent
       notify:
-        - Restart mysqld
+        - Restart mysql
       tags:
         - reset
 
   handlers:
-    - name: Restart mysqld
-      service: name=mysql
+    - name: Restart mysql
+      service: name={{service_mysql}}
                state=restarted
 
 

@@ -1,0 +1,14 @@
+# http://www.rootkit.nl/projects/rootkit_hunter.html
+---
+- hosts: all
+
+  tasks:
+    - name: Install rkhunter
+      yum: name=rkhunter
+           state=installed
+      when: ansible_os_family == "RedHat"
+      tags:
+        - packages
+
+#    - name: Run rkhunter
+#      command: /usr/bin/rkhunter --update --check-all -q -sk

@@ -1,0 +1,30 @@
+# http://linuxaria.com/pills/how-to-scan-linux-for-vulnerabilities-with-lynis?lang=en
+# http://www.rootkit.nl/projects/lynis.html
+---
+- hosts: all
+
+  vars_files:
+    - lynis_vars.yml
+
+  tasks:
+  - name: Download lynis
+    get_url: url="{{url}}/{{tgz}}"
+             dest="/root/{{tgz}}"
+
+  - name: Unpack lynis
+    command: tar xvzf "/root/{{tgz}}" -C /opt
+
+  - name: Install /root/check_lynis
+    template: src=root/bin/check_lynis.j2
+              dest=/root/bin/check_lynis
+              owner=root
+              group=root
+              mode=0755
+
+  - name: Run lyns check
+    shell: cd /opt/{{ pkg }}; sudo ./lynis --check-all -Q
+
+#
+# - Test and debug information      : /var/log/lynis.log
+# - Report data                     : /var/log/lynis-report.dat
+#

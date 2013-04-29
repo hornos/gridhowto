@@ -10,12 +10,12 @@
   tasks:
 
   - name: Download GLB
-    get_url: url=${mariadb_glb_url}/${mariadb_glb_rpm} dest=/root
+    get_url: url=${mariadb.glb_url}/${mariadb.glb_rpm} dest=/root
     tags:
       - packages
 
   - name: Install GLB
-    command: yum -y localinstall /root/${mariadb_glb_rpm}
+    command: yum -y localinstall /root/${mariadb.glb_rpm}
     tags:
       - packages
 

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# http://www.ipdeny.com/blog/blocking-country-ip-tables-using-our-data-blocks-and-ipset-utility/
+
+blockset=${1:-blacklist}
+shift
+countries=${*:-cn,kr,pk,tw,sg,hk,pe}
+
+ipset -exist -N ${blockset} nethash
+
+for block in $(curl --retry 3 -s {{shorewall.ipblocks}}/{${countries}}.zone); do
+  ipset -exist -A ${blockset} ${block}
+done

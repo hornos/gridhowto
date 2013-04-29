@@ -14,7 +14,9 @@
  * This is needed for cookie based authentication to encrypt password in
  * cookie
  */
-$cfg['blowfish_secret'] = 'PSb2eN9hYDkd';
+$cfg['blowfish_secret'] = '{{mariadb.secret}}';
+
+$cfg['Lang'] = 'en-utf-8';
 
 /*
  * Servers configuration
@@ -30,7 +32,7 @@ $cfg['Servers'][$i]['auth_type'] = 'cookie';
 /* Server parameters */
 $cfg['Servers'][$i]['host'] = 'localhost';
 $cfg['Servers'][$i]['connect_type'] = 'socket';
-$cfg['Servers'][$i]['socket'] = '/var/run/mysqld/mysqld.sock';
+$cfg['Servers'][$i]['socket'] = '{{mariadb.socket}}';
 $cfg['Servers'][$i]['compress'] = false;
 /* Select mysqli if your server has it */
 $cfg['Servers'][$i]['extension'] = 'mysql';

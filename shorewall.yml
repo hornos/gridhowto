@@ -216,7 +216,7 @@
               mode=0640
               backup=yes
     tags:
-      - misc
+      - config
     notify:
       - Restart shorewall
 
@@ -228,7 +228,7 @@
               mode=0640
               backup=yes
     tags:
-      - misc
+      - config
     notify:
       - Restart shorewall
 
@@ -240,15 +240,24 @@
               mode=0640
               backup=yes
     tags:
-      - misc
+      - config
     notify:
       - Restart shorewall
 
-#  - name: Enable multicast
-#    lineinfile: dest=/etc/shorewall/shorewall.conf
-#                regexp='^MULTICAST='
-#                line='MULTICAST=Yes'
+  - name: Enable startup
+    lineinfile: dest=/etc/shorewall/shorewall.conf
+                regexp='^STARTUP_ENABLED'
+                line='STARTUP_ENABLED=Yes'
+    tags:
+      - config
 
+  - name: Enable startup
+    lineinfile: dest=/etc/sysconfig/shorewall
+                regexp='^startup'
+                line='startup=1'
+    when: ansible_os_family == "RedHat"
+    tags:
+      - config
 
   - name: Enable Shorwall startup
     lineinfile: dest=/etc/default/shorewall

@@ -3,7 +3,11 @@
 - hosts: all
 
   vars_files:
+    - networks.yml
     - mariadb_vars.yml
+
+  vars:
+    is_master: "'$inventory_hostname' == '$master'"
 
   tasks:
 # set root password
@@ -11,19 +15,25 @@
   - name: Install MySQL-python
     yum: name=MySQL-python
          state=installed
+    when: ansible_os_family == "RedHat"
     tags:
       - packages
 
-  - name: update mysql root password for all root accounts
+  - name: Update mysql root password for all root accounts
     mysql_user: name=root
-                password=$password
+                password={{mariadb.password}}
                 login_password=''
                 login_user=root
-                login_unix_socket=$socket
+                login_unix_socket={{mariadb.socket}}
+    only_if: '$is_master'
 
-  - name: remove the test database
+  - name: Remove the test database
     mysql_db: name=test
               state=absent
               login_user=root
-              login_password=$password
-              login_unix_socket=$socket
+              login_password={{mariadb.password}}
+              login_unix_socket={{mariadb.socket}}
+    only_if: '$is_master'
+
+    tags:
+      - init

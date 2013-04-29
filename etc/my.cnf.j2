@@ -1,10 +1,10 @@
 [client]
 port = 3306
-socket = /var/run/mysqld/mysqld.sock
+socket = {{mariadb.socket}}
 
 [mysqld_safe]
 nice = 0
-socket = /var/run/mysqld/mysqld.sock
+socket = {{mariadb.socket}}
 
 [mysqld]
 basedir = /usr
@@ -33,14 +33,14 @@ myisam-recover = BACKUP
 myisam_sort_buffer_size = 64M
 net_buffer_length = 8K
 open-files-limit = 65535
-pid-file = /var/run/mysqld/mysqld.pid
+pid-file = {{mariadb.pid}}
 port = 3306
 query_cache_limit = 8M
 query_cache_size = 16M
 read_buffer_size = 8M
 read_rnd_buffer_size = 8M
 skip-external-locking
-socket = /var/run/mysqld/mysqld.sock
+socket = {{mariadb.socket}}
 sort_buffer_size = 16M
 table_cache = 2M
 table_definition_cache = 65535

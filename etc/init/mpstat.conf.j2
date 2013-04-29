@@ -1,5 +1,5 @@
 stop on runlevel [S016]
 
 respawn
-exec /usr/bin/watch -n {{delay}} /usr/bin/mpstat >$TTY
+exec /usr/bin/watch -n {{watch.delay}} /usr/bin/mpstat >$TTY
 usage 'mpstat TTY=/dev/ttyX  - where X is console id'

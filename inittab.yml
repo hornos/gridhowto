@@ -1,8 +1,13 @@
+# reinit:
+# --extra-vars "reinit=yes"
 ---
 - hosts: all
 
   vars_files:
     - inittab_vars.yml
+
+  vars:
+    is_reinit: "'$reinit' == 'yes'"
 
   tasks:
 ### REDHAT
@@ -168,8 +173,21 @@
     tags:
       - gstat
 
+  - name: Install /root/bin/reinit
+    template: src=root/bin/${item}.j2
+              dest=/root/bin/${item}
+              owner=root
+              group=root
+              mode=0755
+    with_items:
+      - reinit
+
 # TODO: tcptrack external
 
   - name: Restart init
     shell: /sbin/telinit q
     when: ansible_os_family == "RedHat"
+
+  - name: Reinit
+    command: /root/bin/reinit
+    only_if: '$is_reinit'

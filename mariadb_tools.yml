@@ -4,6 +4,7 @@
   vars_files:
     - networks.yml
     - mariadb_vars.yml
+    - [ "vars/{{ ansible_os_family }}.yml", "vars/Defaults.yml" ]
 
   tasks:
     - name: Install packages
@@ -14,13 +15,28 @@
         - mtop
         - innotop
         - php-mcrypt
+        - php-mbstring
         - phpmyadmin
+      when: ansible_os_family == "RedHat"
+      notify:
+        - Restart httpd
       tags:
         - packages
 
+# https://github.com/repoforge/rpms/issues/254
+    - name: Fix php-mcrypt
+      lineinfile: dest=/etc/php.d/mcrypt.ini
+                  regexp='^extension'
+                  line='extension=mcrypt.so'
+      when: ansible_os_family == "RedHat"
+      notify:
+        - Restart httpd
+      tags:
+        - fix
+
     - name: Enable phpmyadmin
-      template: src=etc/httpd/conf.d/phpmyadmin.conf.j2
-              dest=/etc/httpd/conf.d/phpmyadmin.conf
+      template: src=etc/{{service_httpd}}/conf.d/phpmyadmin.conf.j2
+              dest=/etc/{{service_httpd}}/conf.d/phpmyadmin.conf
               owner=root
               group=root
               mode=0644
@@ -70,5 +86,5 @@
 
   handlers:
     - name: Restart httpd
-      service: name=httpd
+      service: name={{service_httpd}}
                state=restarted

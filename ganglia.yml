@@ -64,7 +64,7 @@
               group=root
               mode=0644
     notify:
-      - Restart {{service_gmond}}
+      - Restart gmond
     tags:
       - config
 
@@ -86,7 +86,7 @@
               group=root
               mode=0644
     notify:
-      - Restart {{service_gmond}}
+      - Restart gmond
     tags:
       - config
 
@@ -97,7 +97,7 @@
               group=root
               mode=0644
     notify:
-      - Restart {{service_httpd}}
+      - Restart httpd
     tags:
       - config
 
@@ -134,7 +134,7 @@
       - config
       - services
 
-  - name: Start {{service_gmond}}
+  - name: Start gmond
     service: name={{service_gmond}}
              state=started
              enabled=yes
@@ -151,7 +151,7 @@
 
 
   handlers:
-    - name: Restart {{service_gmond}}
+    - name: Restart gmond
       service: name={{service_gmond}}
                state=restarted
 
@@ -159,6 +159,6 @@
       service: name=gmetad
                state=restarted
 
-    - name: Restart {{service_httpd}}
+    - name: Restart gmond
       service: name={{service_httpd}}
                state=restarted

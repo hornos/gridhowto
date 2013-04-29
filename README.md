@@ -40,6 +40,7 @@ The network configuration is found in `networks.yml`. Each network interface can
       system: 10.1.255.255
     sysops:
       - 10.1.1.254
+    master: root-01
 
 The simplified network topology contains only two interfaces (eth0, eth1). This is also a good model if you have InfiniBand (IB) since TCP/IP is not required for IB RDMA.
 
@@ -65,6 +66,7 @@ and the `networks.yml` file:
       system: 10.1.255.255
     sysops:
       - 10.1.1.254
+    master: root-01
 
 The `sysops` contains remote OS X administrator machines. Leave chefs and knives alone in the kitchen!
 
@@ -365,7 +367,6 @@ Create a new LVM partition:
 
     bin/admin root run "lvcreate -l 30%FREE -n data vg_root" -k --sudo
 
-
 ## Basic Setup
 Root servers provide NTP for the cluster. If you have a very large cluster root servers talk only to satellite servers aka rack leaders. Root servers are stratum 2 time servers. Each root server broadcasts time to the system network with crypto enabled.
 
@@ -389,7 +390,11 @@ or one by one. Enable Shorewall firewall. Check `shorewall/params.d/root.j2` tem
 
     bin/play @@root shorewall
 
-Note that emergency rules are defined in `etc/shorewall/rulestopped.j2`. Please check `shorewall/interfaces.j2` template. On external services you can enable fail2ban:
+Note that emergency rules are defined in `etc/shorewall/rulestopped.j2`. Please check `shorewall/interfaces.j2` template. If you want ipset based blacklisting:
+
+    bin/play @@root shorewall_blacklist
+
+On external services you can enable fail2ban:
 
     bin/play @@root fail2ban
 
@@ -459,7 +464,7 @@ The basic playbook contains the following inittab changes:
 ## Monitoring
 Monitoring (Ganglia and PCP) can be played by:
 
-    bin/playbook @@root monitor
+    bin/playbook @@root monitors
 
 ### Ganglia
 Ganglia is a scalable distributed monitoring system for high-performance computing systems such as clusters and Grids. It is based on a hierarchical design targeted at federations of clusters. You can think of it as a low-level cluster top. Ganglia is running with unicast addresses and root servers cross-monitor each other. Ganglia is a best effort monitor and you should use it to monitor as many things as possible.
@@ -509,13 +514,13 @@ The `basic_tools` playbook installs several small wrappers for simple cluster mo
 
 ## Databases
 ### MariaDB with Galera
-MariaDB with Galera is used for the cluster SQL service. The first root node (`root-01`) is the pseudo-master.
+MariaDB with Galera is used for the cluster SQL service. The first root node (`root-01`) is the pseudo-master. Edit `networks.yml` to change master host.
 
     bin/play @@root mariadb
 
-Secure mysql on the first node:
+Secure mysql (delete test database and set root password):
 
-    bin/play @@root-01 mariadb_secure
+    bin/play @@root mariadb_secure
 
 Install mysql tools:
 
@@ -528,11 +533,15 @@ The following tools are installed under `/root/bin`:
     mtop         - Mysql thread list (-p <PASSWORD>)
     innotop      - InnoDB statistics (-p <PASSWORD>)
 
-You can access phpmyadmin on `http://root-0?/phpmyadmin`.
+You can access phpmyadmin on `http://root-0?/phpmyadmin`. The default user/pass is `root/root`.
 
-Galera state can be reset by:
+When shit happens Galera state can be reset by:
 
     bin/play @@root-03 mariadb_reset
+
+Enable Ganglia mysql monitor:
+
+    bin/play @@root ganglia_mysql
 
 ### Icinga
 Install and setup Icinga:
