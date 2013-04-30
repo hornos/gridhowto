@@ -1,0 +1,133 @@
+#
+# Shorewall firewall ipset blacklist
+#
+# http://www.ipdeny.com/blog/blocking-country-ip-tables-using-our-data-blocks-and-ipset-utility/
+# http://shorewall.net/blacklisting_support.htm
+# http://www.shorewall.net/ipsets.html
+#
+# http://braindump.mrzesty.net/68.html
+#
+# TODO: dhcp from networks.yml
+#
+# reset ipset:
+# --extra-vars "reset=yes"
+#
+# TODO: fix fooX ipset?
+# TODO: ipset at init
+#
+---
+- hosts: all
+
+  vars_files:
+    - networks.yml
+    - shorewall_vars.yml
+
+  vars:
+    is_reset: "'$reset' == 'yes'"
+
+  tasks:
+  - name: Install ipset packages
+    yum: name=$item
+         state=installed
+    with_items:
+      - ipset
+    when: ansible_os_family == "RedHat"
+    tags:
+      - packages
+
+  - name: Install /etc/init.d/ipset
+    template: src=etc/init.d/ipset.j2
+              dest=/etc/init.d/ipset
+              owner=root
+              group=root
+              mode=0755
+    tags:
+      - config
+
+  - name: Create /etc/ipset.d
+    file: path=/etc/ipset.d
+          owner=root
+          group=root
+          state=directory
+    tags:
+      - config
+      - directories
+
+  - name: Install ipset lists
+    template: src=etc/ipset.d/${item}.j2
+              dest=/etc/ipset.d/$item
+              owner=root
+              group=root
+              mode=0755
+    with_items:
+      - blacklist.sh
+      - whitelist.sh
+      - root.sh
+      - sysop.sh
+    tags:
+      - config
+
+  - name: Delete saved ipsets
+    file: path=/etc/ipset.d/${item}
+          state=absent
+    with_items:
+      - blacklist.save
+      - whitelist.save
+      - root.save
+      - sysop.save
+    only_if: '$is_reset'
+    tags:
+      - fix
+
+  - name: Reset fooX shit
+    shell: for i in $(ipset -n -L | uniq | grep fooX); do ipset -exist x $i;done
+    tags:
+      - fix
+
+  - name: Fix start() for fooX in /etc/init.d/shorewall
+    lineinfile: dest=/etc/init.d/shorewall
+                regexp='^for i in \$\(ipset'
+                line='for i in $(ipset -n -L | uniq | grep fooX); do ipset -exist x $i;done'
+                insertafter='^start() {'
+    tags:
+      - fix
+      - v4.5
+
+  - name: Fix restart() for fooX in /etc/init.d/shorewall
+    lineinfile: dest=/etc/init.d/shorewall
+                regexp='^for i in \$\(ipset'
+                line='for i in $(ipset -n -L | uniq | grep fooX); do ipset -exist x $i;done'
+                insertafter='^restart() {'
+    tags:
+      - fix
+      - v4.5
+
+  - name: Remove /var/lib/shorewall/ipset.save
+    file: path=/var/lib/shorewall/ipset.save
+          state=absent
+    tags:
+      - fix
+
+  - name: Disable SAVE_IPSETS
+    lineinfile: dest=/etc/shorewall/shorewall.conf
+                regexp='^SAVE_IPSETS='
+                line='SAVE_IPSETS=No'
+    tags:
+      - config
+
+  - name: Disable DYNAMIC_BLACKLIST
+    lineinfile: dest=/etc/shorewall/shorewall.conf
+                regexp='^DYNAMIC_BLACKLIST='
+                line='DYNAMIC_BLACKLIST=Yes'
+    tags:
+      - config
+
+  - name: Start ipset
+    service: name=ipset
+             state=reloaded
+             enabled=yes
+
+  handlers:
+    - name: Restart shorewall
+      service: name=shorewall
+               state=restarted

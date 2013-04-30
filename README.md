@@ -386,19 +386,30 @@ Play firewall-related scripts by:
 
     bin/play @@root firewall
 
-or one by one. Enable Shorewall firewall. Check `shorewall/params.d/root.j2` template for interface change.
+or one by one. Use ipset whenever it is possible. Check templates in `etc/ipset.d` for ip lists. Enable IP sets and the Shorewall firewall:
 
+    bin/play @@root shorewall_ipset
     bin/play @@root shorewall
 
-Note that emergency rules are defined in `etc/shorewall/rulestopped.j2`. Please check `shorewall/interfaces.j2` template. If you want ipset based blacklisting:
+Emergency rules are defined in `etc/shorewall/rutestopped.j2` and should contain an ssh access rule. UPNP client support is on by default.
 
-    bin/play @@root shorewall_blacklist
+#### IP Sets
+The following lists are defines by default (ground state):
 
-On external services you can enable fail2ban:
+    blacklist - always DROP
+    whitelist - allow some service on the external network
+    root      - always ALLOW
+    sysop     - allow some service on the system network
+
+#### Fail2ban
 
     bin/play @@root fail2ban
 
 The system network is not banned.
+
+#### GeoIP
+
+    bin/play @@root geoip
 
 ### Basic Services
 You can run all the playbooks once:

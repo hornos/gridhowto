@@ -1,8 +1,4 @@
 #ZONE      INTERFACE     BROADCAST     OPTIONS
-sys        {{interfaces['system']}}    detect
-ext        {{interfaces['external']}}  detect dhcp,tcpflags,nosmurfs,routefilter,logmartians,blacklist
-
-### extended
-# sto        {{interfaces['storage']}} detect
-# mpi        {{interfaces['mpi']}}     detect
+sys        {{interfaces.system}}    detect
+ext        {{interfaces.external}}  detect dhcp,tcpflags,nosmurfs,routefilter,logmartians,blacklist,upnpclient
 #LAST LINE -- ADD YOUR ENTRIES BEFORE THIS ONE -- DO NOT REMOVE

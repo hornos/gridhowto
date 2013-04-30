@@ -1,5 +1,4 @@
 ACCEPT     ext:+whitelist $FW       tcp        22
-ACCEPT     sys            $FW       tcp        22
 # allow root servers
-ACCEPT     sys:$ROOT      $FW         -         -
+ACCEPT     sys:+root      $FW         -         -
 #RULESEND

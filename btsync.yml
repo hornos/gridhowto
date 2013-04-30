@@ -15,14 +15,18 @@
   - name: Create btsync user
     user: name=btsync
           password=*
+          home={{btsync.home}}
+          shell=/sbin/nologin
     tags:
-      - packages
+      - users
 
   # DO NOT REMOVE append=yes!
   - name: Enable sysop in btsync
     user: name=sysop
           groups=btsync
           append=yes
+    tags:
+      - users
 
   - name: Create /opt/btsync/bin
     file: path=/opt/btsync/bin
@@ -30,16 +34,19 @@
           group=root
           state=directory
     tags:
-      - packages
+      - directories
 
-  - name: Create {{btsync_shared}}
-    file: path={{btsync_shared}}
+  - name: Create directories
+    file: path=$item
           owner=root
           group=btsync
-          mode=0770
+          mode=0775
           state=directory
+    with_items:
+      - {{btsync.rwdir}}
+      - {{btsync.rodir}}
     tags:
-      - packages
+      - directories
 
   - name: Create /var/run/btsync
     file: path=/var/run/btsync
@@ -48,7 +55,7 @@
           mode=0770
           state=directory
     tags:
-      - packages
+      - directories
 
   - name: Unzip btsync
     shell: /bin/tar xvz -C /opt/btsync/bin -f /root/{{ tgz }}

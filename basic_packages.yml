@@ -33,6 +33,8 @@
       - rsstail
       - yum-security
       - xorg-x11-xauth
+      - jailkit
+      - nedit
     when: ansible_os_family == "RedHat"
     tags:
       - packages

@@ -2,5 +2,6 @@
 # Basic configuration for root servers
 # 
 
+- include: shorewall_ipset.yml
 - include: shorewall.yml
 - include: fail2ban.yml

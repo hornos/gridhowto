@@ -1,4 +1,4 @@
-# http
-ACCEPT     sys:$SYSOP           $FW       tcp        80
-ACCEPT     sys:$SYSOP           $FW       tcp       443
+ACCEPT     sys:+sysop           $FW       tcp        22
+ACCEPT     sys:+sysop           $FW       tcp        80
+ACCEPT     sys:+sysop           $FW       tcp       443
 #RULESEND

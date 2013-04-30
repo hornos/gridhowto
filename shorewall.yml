@@ -24,24 +24,24 @@
       - packages
 
 ### PARAMETERS
-  - name: Create /etc/shorewall/params.d
+  - name: OBSOLETE Create /etc/shorewall/params.d
     file: path=/etc/shorewall/params.d
           owner=root
           group=root
-          state=directory
+          state=absent
     tags:
       - parameters
 
-  - name: Install /etc/shorewall/params.d/root
-    template: src=etc/shorewall/params.d/root.j2
-              dest=/etc/shorewall/params.d/root
-              owner=root
-              group=root
-              mode=0640
-    tags:
-      - parameters
-    notify:
-      - Restart shorewall
+#  - name: Install /etc/shorewall/params.d/root
+#    template: src=etc/shorewall/params.d/root.j2
+#              dest=/etc/shorewall/params.d/root
+#              owner=root
+#              group=root
+#              mode=0640
+#    tags:
+#      - parameters
+#    notify:
+#      - Restart shorewall
 
   - name: Install params
     template: src=etc/shorewall/params.j2
@@ -188,51 +188,25 @@
       - Restart shorewall
 
 
-  - name: Install /etc/shorewall/rules
-    template: src=etc/shorewall/rules.j2
-              dest=/etc/shorewall/rules
+  - name: Install other configurations
+    template: src=etc/shorewall/${item}.j2
+              dest=/etc/shorewall/${item}
               owner=root
               group=root
               mode=0640
               backup=yes
+    with_items:
+      - rules
+      - blrules
+      - interfaces
+      - routestopped
     tags:
+      - config
       - rules
     notify:
       - Restart shorewall
 
-#  - name: Enable root in /etc/shorewall/rules
-#    lineinfile: dest=/etc/shorewall/rules
-#                regexp='^INCLUDE /etc/shorewall/rules.d/root'
-#                insertbefore='^#LAST'
-#                line='INCLUDE /etc/shorewall/rules.d/root'
-
-
-### OTHER
-  - name: Install interfaces
-    template: src=etc/shorewall/interfaces.j2
-              dest=/etc/shorewall/interfaces
-              owner=root
-              group=root
-              mode=0640
-              backup=yes
-    tags:
-      - config
-    notify:
-      - Restart shorewall
-
-  - name: Install routestopped
-    template: src=etc/shorewall/routestopped.j2
-              dest=/etc/shorewall/routestopped
-              owner=root
-              group=root
-              mode=0640
-              backup=yes
-    tags:
-      - config
-    notify:
-      - Restart shorewall
-
-  - name: Enable shorewall
+  - name: Enable shorewall.conf
     template: src=etc/shorewall/shorewall.conf.j2
               dest=/etc/shorewall.conf
               owner=root

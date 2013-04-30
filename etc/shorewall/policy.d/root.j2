@@ -1,15 +1,5 @@
 #SOURCE    DEST        POLICY      LOG LEVEL    LIMIT:BURST
 sys        sys         ACCEPT
-
-### extended
-# sto        sto         ACCEPT
-# mpi        mpi         ACCEPT
-
 $FW        sys         ACCEPT
-
-### extended
-# $FW        sto         ACCEPT
-# $FW        mpi         ACCEPT
-
 $FW        $FW         ACCEPT
 $FW        ext         ACCEPT

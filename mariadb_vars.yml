@@ -4,7 +4,7 @@ mariadb:
   pid: '/var/run/mysql/mysql.pid'
   state: '/var/lib/mysql/grastate.dat'
   secret: 'PSb2eN9hYDkd'
-  timeout: 1800
+  timeout: 60
   glb_url: http://downloads.sourceforge.net/project/glb-rpm
   glb_rpm: glb-0.9.2-1.x86_64.rpm
   glb_port: 3307
