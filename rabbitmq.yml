@@ -3,22 +3,30 @@
 - hosts: all
 
   vars_files:
+    - networks.yml
     - rabbitmq_vars.yml
+    - [ "vars/{{ ansible_os_family }}.yml", "vars/Defaults.yml" ]
+
+  vars:
+    is_master: "'$inventory_hostname' == '$master'"
 
   tasks:
 
   - name: Download Erlang repo
     get_url: url={{ url }}/{{ repo }}
              dest=/etc/yum.repos.d/{{ repo }}
+    when: ansible_os_family == "RedHat"
     tags:
       - repo
 
   - name: Install Erlang repo key
     shell: /bin/rpm --import {{ key }}
+    when: ansible_os_family == "RedHat"
     tags:
       - repo
 
   - name: Install Erlang
+    when: ansible_os_family == "RedHat"
     yum: name=erlang
          state=latest
     tags:
@@ -26,11 +34,13 @@
 
   - name: Download rabbitmq-server
     get_url: url={{ rpm_url }}/{{ rpm }} dest=/root
+    when: ansible_os_family == "RedHat"
     tags:
       - packages
 
   - name: Install rabbitmq key
     shell: /bin/rpm --import {{ rpm_key }}
+    when: ansible_os_family == "RedHat"
     tags:
       - packages
 
@@ -41,10 +51,55 @@
 
   - name: Install rabbitmq-server
     command: yum -y localinstall /root/{{ rpm }}
+    when: ansible_os_family == "RedHat"
     tags:
       - packages
 
-  - name: Start rabbitmq-server
+  - name: Enable rabbitmq_management
+    rabbitmq_plugin: names=rabbitmq_management
+                     state=enabled
+    notify:
+      - Restart rabbitmq
+
+  - name: Start rabbitmq
     service: name=rabbitmq-server
              state=started
              enabled=yes
+
+  - name: Create root user
+    rabbitmq_user: user={{rabbitmq.user}}
+                   password={{rabbitmq.password}}
+                   vhost=/
+                   configure_priv=.*
+                   read_priv=.*
+                   write_priv=.*
+                   tags=administrator
+                   state=present
+    tags:
+      - users
+
+  - name: Delete guest user
+    rabbitmq_user: user=guest
+                   state=absent
+    tags:
+      - users
+
+  - name: Install /etc/shorewall/rules.d/rabbitmq
+    template: src=etc/shorewall/rules.d/rabbitmq.j2
+              dest=/etc/shorewall/rules.d/rabbitmq
+              owner=root
+              group=root
+              mode=0640
+    tags:
+      - firewall
+    notify:
+      - Restart shorewall
+
+  handlers:
+    - name: Restart rabbitmq
+      service: name=rabbitmq-server
+               state=restarted
+
+    - name: Restart shorewall
+      service: name=shorewall
+               state=restarted

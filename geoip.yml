@@ -1,0 +1,36 @@
+# http://dev.maxmind.com/geoip/geolite
+---
+- hosts: all
+
+  tasks:
+### REDHAT
+    - name: Install GeoIP packages
+      yum: name=$item
+           state=installed
+      with_items:
+        - GeoIP
+        - mod_geoip
+        - python-GeoIP
+      when: ansible_os_family == "RedHat"
+      tags:
+        - packages
+
+### DEBIAN
+
+### CONFIGURATION
+    - name: Download databases
+      get_url: url=http://geolite.maxmind.com/download/geoip/database/$item dest=/usr/share/GeoIP
+      with_items:
+        - GeoLiteCountry/GeoIP.dat.gz
+        - GeoIPv6.dat.gz
+        - GeoLiteCity.dat.gz
+        - GeoLiteCityv6-beta/GeoLiteCityv6.dat.gz
+        - asnum/GeoIPASNum.dat.gz
+        - asnum/GeoIPASNumv6.dat.gz
+      tags:
+        - databases
+
+    - name: Uncompress databases
+      shell: /usr/bin/gunzip -f /usr/share/GeoIP/*.gz
+      tags:
+        - config

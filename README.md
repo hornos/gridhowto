@@ -19,30 +19,7 @@ The following network topology is recommended. The BMC network can be on the sam
     eth2 mpi      10.3.0.0/16
     ethX external ?
 
-The network configuration is found in `networks.yml`. Each network interface can be a bond. On high-performance systems storage and mpi is InfiniBand or other high-speed network. If you have less than 4 interfaces use alias networks. Separate external network form the others. An Example network topology (`networks.yml`) is:
-
-    ---
-    interfaces:
-      bmc: 'eth0'
-      system: 'eth0'
-      storage: 'eth1'
-      mpi: 'eth2'
-      external: 'eth3'
-      dhcp: 'eth3'
-    networks:
-      bmc: 10.0.0.0
-      system: 10.1.0.0
-      storage: 10.2.0.0
-      mpi: 10.3.0.0
-    masks:
-      system: 255.255.0.0
-    broadcasts:
-      system: 10.1.255.255
-    sysops:
-      - 10.1.1.254
-    master: root-01
-
-The simplified network topology contains only two interfaces (eth0, eth1). This is also a good model if you have InfiniBand (IB) since TCP/IP is not required for IB RDMA.
+The network configuration is found in `networks.yml`. Each network interface can be a bond. On high-performance systems storage and mpi is InfiniBand or other high-speed network. If you have less than 4 interfaces use alias networks. Separate external network form the others. The simplified network topology contains only two interfaces (eth0, eth1). This is also a good model if you have InfiniBand (IB) since TCP/IP is not required for IB RDMA.
 
     IF   Network  Address Range
     bmc  bmc      10.0.0.0/16 (eth0)
@@ -82,7 +59,7 @@ You can make a virtual infrastructure in VirtualBox. Create the following virtua
 Setup the virtual server to have 2TB of disk and 4 network cards as well as network boot enabled. In the restricted mode you need `system` and `external`.
 
 ## Primordial Installation
-Space Jockey is a Cobbler like bootstrap mechanism designed for OS X users. The main goal is to provide an easy and simple tool for laptop-based installs. You should be able to install and configure a cluster grid from scratch with a MacBook.
+Space Jockey is a Cobbler like bootstrap mechanism designed for OS X users. The main goal is to provide an easy and simple tool for laptop-based installs. You should be able to install and configure a cluster grid from scratch with a MacBook. Leave vagrants alone as well!
 
 Install boot servers on the host:
 
@@ -286,7 +263,7 @@ InfiniBand is a switched fabric communications link used in high-performance com
 
 
 ## Ansible Bootstrap
-This is a blueprint of a HA *grid engine cluster*. It enables you rapid prototyping of fractal infrastructures. First, install Ansible on your host machine (VirtualBox host). The goal of the primordial installation is to provision the machines into an *initial ground state*. Ansible is responsible to advance the system to the *true ground state*. Subsequently, the system can excite itself to an *excited state* via dynamic provisioning.
+This is a blueprint of a HA *grid engine cluster*. It enables you rapid prototyping of fractal infrastructures. First, install Ansible on your host machine (VirtualBox host). The goal of the primordial installation is to provision the machines into an *initial ground state*. Ansible is responsible to advance the system to the *true ground state*. Subsequently, the system can excite itself into an *excited state* via *self-interaction*.
 
 Every playbook is an *operator product* aka tasks evaluated in a row. In order to invert the product you have to change the order and *invert* each task individually:
 
@@ -386,22 +363,26 @@ Play firewall-related scripts by:
 
     bin/play @@root firewall
 
-or one by one. Use ipset whenever it is possible. Check templates in `etc/ipset.d` for ip lists. Enable IP sets and the Shorewall firewall:
+or one by one. Use IP sets everywhere and everytime and do not restart the firewall. Check templates in `etc/ipset.d` for ip lists. Enable IP sets and the Shorewall firewall:
 
     bin/play @@root shorewall_ipset
     bin/play @@root shorewall
 
-Emergency rules are defined in `etc/shorewall/rutestopped.j2` and should contain an ssh access rule. UPNP client support is on by default.
+Emergency rules are defined in `etc/shorewall/rutestopped.j2` and should contain an SSH access rule. UPNP client support is on by default.
 
 #### IP Sets
 The following lists are defines by default (ground state):
 
-    blacklist - always DROP
-    whitelist - allow some service on the external network
-    root      - always ALLOW
-    sysop     - allow some service on the system network
+    blacklist  - always DROP
+    whitelist  - allow some service on the external network
+    root       - always ALLOW
+    sysop      - allow some service on the system network
+    friendlist - allow some service with timeout
+
+The `friendlist` is populated by *interactions* via general purpose UPNP (GPUPNP). You can provide services for shared secret circles for a limited time.
 
 #### Fail2ban
+Fail2ban is protecting SSH by default.
 
     bin/play @@root fail2ban
 
