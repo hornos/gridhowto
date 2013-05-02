@@ -4,29 +4,30 @@
   vars_files:
     - globus_vars.yml
 
-
   tasks:
-  - name: Download Globus repo
-    get_url: url=${url}/${rpm} dest=/root
-    tags:
-      - repo
+    - name: Download Globus repo
+      get_url: url=${url}/${rpm} dest=/root
+      when: ansible_os_family == "RedHat"
+      tags:
+        - repo
 
-  - name: Install Globus repo
-    command: yum -y localinstall /root/${rpm}
-    tags:
-      - repo
+    - name: Install Globus repo
+      command: yum -y localinstall /root/${rpm}
+      when: ansible_os_family == "RedHat"
+      tags:
+        - repo
 
-  - name: Install Globus packages
-    yum: name=$item
-         state=installed
-    with_items:
-      - globus-gridftp
-      - globus-gram5
-      - globus-gsi
-      - globus-data-management-server
-      - globus-data-management-client
-      - globus-resource-management-server
-      - globus-resource-management-client
-      - gsi-openssh
-    tags:
-      - packages
+    - name: Install Globus packages
+      when: ansible_os_family == "RedHat"
+      yum: name=$item
+           state=installed
+      with_items:
+        - globus-gridftp
+        - globus-gram5
+        - globus-gsi
+        - globus-data-management-server
+        - globus-data-management-client
+        - globus-resource-management-server
+        - globus-resource-management-client
+      tags:
+        - packages

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+for i in 01 02 03 ; do
+  bin/ca host rootca root-${i}
+  bin/ca sign rootca root-${i}
+done

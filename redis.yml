@@ -1,0 +1,20 @@
+
+---
+- hosts: all
+
+  vars_files:
+    - networks.yml
+
+  tasks:
+
+  - name: Install Redis
+    when: ansible_os_family == "RedHat"
+    yum: name=redis
+         state=installed
+    tags:
+      - packages
+
+  - name: Start Redis
+    service: name=redis
+             state=started
+             enabled=yes

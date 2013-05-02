@@ -504,6 +504,13 @@ The `basic_tools` playbook installs several small wrappers for simple cluster mo
 
     bin/play @@root webmin
 
+### Sensu
+Install RabbitMQ and Redis
+
+    bin/play @@root rabbitmq
+    bin/play @@root redis
+
+
 ## Databases
 ### MariaDB with Galera
 MariaDB with Galera is used for the cluster SQL service. The first root node (`root-01`) is the pseudo-master. Edit `networks.yml` to change master host.
@@ -602,29 +609,74 @@ and rerun bootstrap and start. Mount ceph by fuse:
 
     ceph-fuse -m $(hostname) /common
 
-
-## LDAP
-
 ## Globus
-Install Globus on your local machine as well as on the root servers:
-
-    bin/play @@root globus
-
-On your Mac install the certificate utilities:
+Install the certificate utilities and Globus on your mac:
 
     make globus_simple_ca globus_gsi_cert_utils
+
+There is a hash mismatch between OpenSSL 0.9 and 1.X. Install newer OpenSSL on your mac. You can use the NCE module/package manager. Load the Globus and the new OpenSSL environment:
+
+    module load globus openssl
 
 The Grid needs a PKI, which protects access and the communication. You can create as many CA2 as you like. It is advised to make many short-term and flat CAs. Edit grid scripts as well as templates in `share/globus_simple_ca` if you want to change key parameters. Create a Root CA:
 
     bin/ca create <CA> [days] [email]
 
-The new CA is created under the `ca/<ID>` directory. The CA certificate is installed under `ca/grid-security` to make requests easy.
+The new CA is created under the `ca/<ID>` directory. The CA certificate is installed under `ca/grid-security` to make requests easy. If you compile Globus with the old OpenSSL (system default) you have to use old-style subject hash. Create old CA hash by:
 
-Request host certificate:
+    bin/ca oldhash
+
+Request & sign host certificates:
 
     bin/ca host <CA> <FQDN>
+    bin/ca sign <CA> <FQDN>
 
-Requests and private keys are under `ca/<CA>/grid-security`.
+Certs, private keys and requests are in `ca/<CA>/grid-security`. There is also a `ca/<CAHASH>` directory link for each CA. You have to use the `<CAHASH>` in the playbooks. Edit `globus_vars.yml` and set the default CA hash.
+
+Create and sign the sysop cert:
+
+    bin/ca user <CA> sysop "System Operator"
+    bin/ca sign <CA> sysop
+
+In order to use `sysop` as a default grid user you have to copy cert and key into the `keys` directory:
+
+    bin/ca keys <CA> sysop
+
+Create a pkcs12 version if you need for the browser (this command works in the `keys` directory):
+
+    bin/ca p12 sysop
+
+Test your user certificate:
+
+    bin/ca verify rootca sysop
+
+### GSI SSH
+Install Globus on the root servers:
+
+    bin/play @@root globus
+
+Install CA certificates, host key and host cert:
+
+    bin/play @@root globus_ca
+
+Install the Gridmap file. Get the `sysop` DN and edit `globus_vars.yml`:
+
+    bin/ca subject <CA> sysop
+    bin/play @@root globus_gridmap
+
+This command starts GSI SSH on port 2222:
+
+    bin/play @@root globus_ssh
+
+Test GSI SSH from OS X by shf3 since it is the best CLI tool for SSH stuff. Check DNS resolution, client and host should resolv the root server names. Other users should be created by LDAP.
+
+### Apache with Globus
+You can use the Globus PKI for Apache SSL (the default CA is used):
+
+    bin/play @@root globus_httpd
+
+
+## LDAP
 
 ## Slurm
 Slurm is a batch scheduler for the cluster with `low` `normal` and `high` queues. First you have to create a munge key to protect authentication:

@@ -2,13 +2,13 @@
 gdn=$(pwd $(dirname $0))
 gbn=$(basename $0)
 inventory=./hosts
-config=./config
-
-base_dn="ou=Globus,o=Grid"
-
+config=./config.ca
 tmp=".${gbn}.$$"
 
-ca_dir="./ca"
+if [ -r ${config} ] ; then
+  # echo "Configuration: ${config}"
+  . ${config}
+fi
 
 function ca/exit() {
   if test -r "${tmp}" ; then
@@ -23,7 +23,8 @@ function help/ca() {
   cat <<EOF
 
 Usage: ca <cmd> <args>
-          create CN [days] [email]
+          create <CN> [days] [email]
+          host <CA> <FQDN>
 EOF
   exit 1
 }
@@ -45,12 +46,14 @@ function ca/hash() {
   openssl x509 -hash -noout < ${1:-cacert.pem}
 }
 
-function ca/subject() {
-  local _cn=${1:-test}
-  echo "cn=${_cn},ou=${_cn}-$(hostname),${base_dn}"
+function ca/hash_old() {
+  openssl x509 -subject_hash_old -noout < ${1:-cacert.pem}
 }
 
-
+function ca/subject() {
+  local _cn=${1:-test}
+  echo "cn=${_cn},ou=${_cn}-${grid_ca_hostname:-cahost},${base_dn}"
+}
 
 ### args
 cmd=${1:-create}
@@ -84,14 +87,28 @@ case "${cmd}" in
     ca_hash=$(ca/hash ${ca_cn}/cacert.pem)
     tgz=globus_simple_ca_${ca_hash}.tar.gz
     if [ ! -r "${tgz}" ] ; then
+      echo "Not found: ${tgz}"
       exit 1
     fi
     echo
     echo "Install ${ca_cn} (${ca_hash})"
     tar xvz --exclude debian --strip-components=1 \
             -C grid-security -f ${tgz}
+    ln -v -s "${ca_cn}" "${ca_hash}"
+
     popd
     echo ""
+  ;;
+
+  oldhash)
+    pushd "${ca_dir}/grid-security"
+    for i in *.0 ; do
+      ca_hash=$(ca/hash ${i})
+      ca_hash_old=$(ca/hash_old ${i})
+      ln -v -s "${ca_hash}.0" "${ca_hash_old}.0"
+      ln -v -s "${ca_hash}.signing_policy" "${ca_hash_old}.signing_policy"
+    done
+    popd
   ;;
 
   ### Request user certificate
@@ -106,7 +123,7 @@ case "${cmd}" in
 
     pushd ${ca_dir}
 
-    if [ ! -r ${ca_id}/cacert.pem ] ; then
+    if [ ! -r ${ca_cn}/cacert.pem ] ; then
       exit 1
     fi
     ca_hash=$(ca/hash ${ca_cn}/cacert.pem)
@@ -116,6 +133,22 @@ case "${cmd}" in
     -cn "${user_cn}" ${opts}
 
     popd
+  ;;
+
+  verify)
+    ca_cn=${1:-rootca}
+    shift
+    user_id=${1:-test}
+    shift
+    opts=${*}
+
+    _certdir=${ca_dir}/grid-security
+    _dir="${ca_dir}/${ca_cn}/grid-security"
+    _key=${_dir}/${user_id}_key.pem
+    _cert=${_dir}/${user_id}_cert.pem
+
+    grid-proxy-init -verify -debug -cert ${_cert} \
+                    -key ${_key} -certdir ${_certdir}
   ;;
 
   host)
@@ -128,6 +161,7 @@ case "${cmd}" in
     pushd ${ca_dir}
 
     if [ ! -r ${ca_cn}/cacert.pem ] ; then
+      echo "Not found: ${ca_cn}/cacert.pem"
       exit 1
     fi
     ca_hash=$(ca/hash ${ca_cn}/cacert.pem)
@@ -159,10 +193,12 @@ case "${cmd}" in
     -prefix "${fqdn}_${service}_" -ca "${ca_hash}" \
     -host "${fqdn}" -service "${service}" ${opts}
 
+    ln -v -s "${ca_cn}" "${ca_hash}"
+
     popd
   ;;
 
-  req)
+  showreq)
     pushd ${ca_dir}
     ca_cn=${1:-rootca}
     shift
@@ -178,6 +214,42 @@ case "${cmd}" in
     pushd "${ca_dir}/${ca_cn}"
     grid-ca-sign -in "grid-security/${req}_cert_request.pem" -out "grid-security/${req}_cert.pem" -dir .
     popd
+  ;;
+
+  keys)
+    ca_cn=${1:-rootca}
+    shift
+    user_id=${1:-test}
+    shift
+    opts=${*}
+
+    _dir="${ca_dir}/${ca_cn}/grid-security"
+
+    cp -v ${_dir}/${user_id}_key.pem ./keys/
+    cp -v ${_dir}/${user_id}_cert.pem ./keys/  
+  ;;
+
+  p12)
+    user_id=${1:-test}
+    shift
+    opts=${*}
+    pushd keys
+    openssl pkcs12 -export -in ${user_id}_cert.pem \
+                   -inkey ${user_id}_key.pem \
+                   -out ${user_id}.p12
+    popd
+  ;;
+
+  subject)
+    ca_cn=${1:-rootca}
+    shift
+    user_id=${1:-test}
+    shift
+    opts=${*}
+
+    _dir="${ca_dir}/${ca_cn}/grid-security"
+
+    grid-cert-info -subject -file "${_dir}/${user_id}_cert.pem"
   ;;
 
   revoke)

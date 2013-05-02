@@ -1,2 +1,12 @@
 url: http://www.globus.org/ftppub/gt5/5.2/5.2.4/installers/repo
 rpm: Globus-5.2.stable-config.centos-6-1.noarch.rpm
+
+# to be installed
+globus_ca:
+  - b2680c1d
+
+# default
+globus_default_ca: b2680c1d
+
+globus_gridmap:
+  sysop: '/O=Grid/OU=Globus/OU=rootca-cahost/OU=local/CN=System Operator'

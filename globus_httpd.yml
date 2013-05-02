@@ -1,0 +1,40 @@
+
+---
+- hosts: all
+  vars_files:
+    - globus_vars.yml
+    - [ "vars/{{ ansible_os_family }}.yml", "vars/Defaults.yml" ]
+
+  tasks:
+    - name: Install Globus packages
+      when: ansible_os_family == "RedHat"
+      yum: name=$item
+           state=installed
+      with_items:
+        - mod_ssl
+      tags:
+        - packages
+
+    - name: Link default CA
+      file: src=/etc/grid-security/certificates/{{globus_default_ca}}.0
+            dest=/etc/grid-security/certificates/cacert.pem
+            state=link
+      tags:
+        - config
+
+    - name: Install SSL configuration
+      template: src=etc/httpd/conf.d/ssl.conf.j2
+                dest=/etc/{{service_httpd}}/conf.d/ssl.conf
+                owner=root
+                group=root
+                mode=0644
+                backup=yes
+      tags:
+        - config
+      notify:
+        - Restart httpd
+
+  handlers:
+    - name: Restart httpd
+      service: name={{service_httpd}}
+               state=restarted

@@ -1,0 +1,4 @@
+# grid_ca_hostname=$(hostname)
+grid_ca_hostname=cahost
+base_dn="ou=Globus,o=Grid"
+ca_dir="./ca"

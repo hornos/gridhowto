@@ -1,0 +1,16 @@
+
+---
+- hosts: all
+  vars_files:
+    - globus_vars.yml
+
+  tasks:
+    - name: Install /etc/grid-security/grid-mapfile
+      template: src=etc/grid-security/grid-mapfile.j2
+                dest=/etc/grid-security/grid-mapfile
+                owner=root
+                group=root
+                mode=0644
+                backup=yes
+      tags:
+        - config

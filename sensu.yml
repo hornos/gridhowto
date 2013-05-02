@@ -1,0 +1,33 @@
+
+---
+- hosts: all
+
+  vars_files:
+    - networks.yml
+    - rabbitmq_vars.yml
+    - [ "vars/{{ ansible_os_family }}.yml", "vars/Defaults.yml" ]
+
+  vars:
+    is_master: "'$inventory_hostname' == '$master'"
+
+  tasks:
+
+### REDHAT
+    - name: Install Sensu Repo
+      template: src=etc/yum.repos.d/sensu.repo.j2
+                dest=/etc/yum.repos.d/sensu.repo
+                owner=root
+                group=root
+                mode=0644
+      when: ansible_os_family == "RedHat"
+      tags:
+        - repo
+
+    - name: Install packages
+      when: ansible_os_family == "RedHat"
+      yum: name=sensu
+           state=installed
+           enablerepo=sensu
+      tags:
+        - packages
+

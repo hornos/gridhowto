@@ -1,0 +1,6 @@
+#!/bin/bash
+
+grid-cert-diagnostics
+echo ""
+openssl verify -CApath /etc/grid-security/certificates \
+               -purpose sslserver /etc/grid-security/hostcert.pem

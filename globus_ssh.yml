@@ -1,0 +1,67 @@
+
+---
+- hosts: all
+  vars_files:
+    - globus_vars.yml
+
+  tasks:
+    - name: Install Globus packages
+      when: ansible_os_family == "RedHat"
+      yum: name=$item
+           state=installed
+      with_items:
+        - gsi-openssh-server
+      tags:
+        - packages
+
+    - name: Link SSH keys
+      file: src=/etc/ssh/$item
+            dest=/etc/gsissh/$item
+            state=link
+      with_items:
+        - ssh_host_dsa_key
+        - ssh_host_key
+        - ssh_host_rsa_key
+        - ssh_host_dsa_key.pub
+        - ssh_host_key.pub
+        - ssh_host_rsa_key.pub
+      tags:
+        - config
+
+    - name: Install /etc/gsissh/sshd_config
+      template: src=etc/gsissh/sshd_config.j2
+                dest=/etc/gsissh/sshd_config
+                owner=root
+                group=root
+                mode=0600
+                backup=yes
+      tags:
+        - config
+      notify:
+        - Restart gsisshd
+
+    - name: Install /etc/shorewall/rules.d/globus
+      template: src=etc/shorewall/rules.d/globus.j2
+                dest=/etc/shorewall/rules.d/globus
+                owner=root
+                group=root
+                mode=0640
+      tags:
+        - firewall
+        - config
+      notify:
+        - Restart shorewall
+
+    - name: Start gsisshd
+      service: name=gsisshd
+               state=started
+               enabled=yes
+
+  handlers:
+    - name: Restart shorewall
+      service: name=shorewall
+               state=restarted
+
+    - name: Restart gsisshd
+      service: name=gsisshd
+               state=restarted
