@@ -5,6 +5,7 @@
   vars_files:
     - networks.yml
     - rabbitmq_vars.yml
+    - sensu_vars.yml
     - [ "vars/{{ ansible_os_family }}.yml", "vars/Defaults.yml" ]
 
   vars:
@@ -31,3 +32,37 @@
       tags:
         - packages
 
+    - name: Create sensu vhost
+      rabbitmq_vhost: name=/sensu
+                      state=present
+      tags:
+        - config
+
+    - name: Create sensu user
+      rabbitmq_user: user={{sensu.user}}
+                     password={{sensu.password}}
+                     vhost=/sensu
+                     configure_priv=.*
+                     read_priv=.*
+                     write_priv=.*
+                     state=present
+      tags:
+        - config
+
+    - name: Install /etc/sensu/config.json
+      template: src=etc/sensu/config.json.j2
+                dest=/etc/sensu/config.json
+                owner=root
+                group=root
+                mode=0644
+      tags:
+        - config
+
+    - name: Start sensu services
+      service: name=$item
+               state=started
+      with_items:
+        - sensu-server
+        - sensu-api
+        - sensu-client
+        - sensu-dashboard

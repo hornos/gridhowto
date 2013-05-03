@@ -1,0 +1,50 @@
+{
+  "rabbitmq": {
+    "host": "localhost",
+    "port": 5672,
+    "user": "{{sensu.user}}",
+    "password": "{{sensu.password}}",
+    "vhost": "/sensu"
+  },
+  "redis": {
+    "host": "localhost",
+    "port": 6379
+  },
+  "api": {
+    "host": "localhost",
+    "port": 4567
+  },
+  "dashboard": {
+    "port": 8080,
+    "user": "sysop",
+    "password": "sysop"
+  },
+  "handlers": {
+    "default": {
+      "type": "set",
+      "handlers": [
+        "stdout"
+      ]
+    },
+    "stdout": {
+      "type": "pipe",
+      "command": "cat"
+    }
+  },
+  "checks": {
+    "test": {
+      "command": "echo -n OK",
+      "subscribers": [
+        "test"
+      ],
+      "interval": 60
+    }
+  },
+  "client": {
+    "name": "localhost",
+    "address": "127.0.0.1",
+    "subscriptions": [
+      "test"
+    ]
+  }
+}

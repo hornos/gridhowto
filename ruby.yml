@@ -3,12 +3,17 @@
   tasks:
 
   - name: Install ruby packages
-    yum: name=make
-    yum: name=gcc
-    yum: name=gcc-c++
-    yum: name=zlib-devel
-    yum: name=libxml2-devel
-    yum: name=libxslt-devel
+    yum: name=$item
+    with_items:
+      - make
+      - gcc
+      - gcc-c++
+      - zlib-devel
+      - libxml2-devel
+      - libxslt-devel
+    when: ansible_os_family == "RedHat"
+    tags:
+      - packages
 
   - name: Copy RVM Installer
     copy: src=root/install_rvm.sh
@@ -16,6 +21,19 @@
           owner=root
           group=root
           mode=0700
+    tags:
+      - packages
 
   - name: Install RVM
     shell: /root/install_rvm.sh
+    tags:
+      - packages
+
+  - name: Install RVM prompt
+    template: src=etc/profile.d/rvm-ps1.sh.j2
+              dest=/etc/profile.d/90-rvm-ps1.sh
+              owner=root
+              group=root
+              mode=0644
+    tags:
+      - config

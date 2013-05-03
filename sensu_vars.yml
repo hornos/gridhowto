@@ -1,0 +1,4 @@
+
+sensu:
+  user: 'sensu'
+  password: 'sensu'
