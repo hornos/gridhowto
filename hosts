@@ -14,3 +14,6 @@ client-01 ansible_ssh_host=10.1.1.220
 [debian]
 root-04 ansible_ssh_host=10.1.1.4
 root-05 ansible_ssh_host=10.1.1.5
+
+[coursera]
+scicomp ansible_ssh_host=10.1.1.11

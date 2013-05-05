@@ -146,4 +146,7 @@ d-i preseed/late_command string \
     echo '  netmask 255.255.0.0' >> /target/etc/network/interfaces && \
     echo 'auto eth1' >> /target/etc/network/interfaces && \
     echo 'iface eth1 inet dhcp' >> /target/etc/network/interfaces && \
-    echo '' >> /target/etc/network/interfaces
+    echo '' >> /target/etc/network/interfaces && \
+    echo 'SYSTEM_ADDR SYSTEM_NAME' >> /etc/hosts && \
+    echo 'SYSTEM_NAME' > /etc/hostname
+

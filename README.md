@@ -65,9 +65,19 @@ Install boot servers on the host:
 
     brew install dnsmasq nginx
 
+### VM Grinder
+You can create a VM by the following command:
+
+    bin/vm create <NAME>
+
+### Space Jockey
 From now on all commands are relative to the `space` directory:
 
     cd $HOME/gridhowto/space
+
+Jockey has the following command structure:
+
+    .jockey [@]CMD [@]ARGS
 
 If you don't know which machine to boot you can check bootp requests from the root servers:
 
@@ -146,6 +156,10 @@ You have to use syslinux 4.X . Mount ESXi install media under `boot/esxi/repo`. 
 
     ./jockey esxi 08:00:27:14:68:75
 
+or the name of the VM:
+
+    ./jockey esxi @<VM>
+
 Edit the kickstart file if you want to change the default settings.
 
 ### Other Mini-Linux Variants
@@ -202,6 +216,53 @@ Set the machine for bootstrap:
     ./jockey quantal 08:00:27:14:68:75
 
 Edit the actual kickstart and start the VM.
+
+### Create Coursera Ubuntu VM from scratch
+Create a `hostonly` network wit the following parameters: `10.1.0.0/255.255.0.0`. The host machine is at `10.1.1.254`. The default IP for a guest is `10.1.1.1`. The 3rd command sets IP and hostname explicitly (`10.1.1.1` and `scicomp`).
+
+    cd $HOME/gridhowto
+    bin/vm create scicomp
+    bin/jockey raring @scicomp 10.1.1.1 scicomp
+    bin/jockey http
+    bin/jockey boot
+    bin/vm start scicomp
+    (when finished)
+    bin/vm off scicomp
+    bin/vm boot scicomp disk
+    bin/vm start @scicomp
+
+Edit the `hosts` file and put the following section:
+
+    [root]
+    scicomp ansible_ssh_host=10.1.1.1
+
+Check the root password that you need for the bootstrap process:
+
+    bin/password @scicomp
+
+Setup `sysop` key if you do not have one by:
+
+    ssh-keygen -f keys/sysop
+    pushd keys; ln -s sysop root; popd
+    bin/play root@scicomp bootstrap
+
+You need the follwing key as well for intra-cluster root logins (do not give password):
+
+    ssh-keygen -f keys/nopass
+
+Secure the installation and reboot
+
+    bin/play @@scicomp secure
+
+Finally, play the Coursera scicomp provision:
+
+    bin/play @@scicomp coursera_scicomp
+
+Login to the machine and kickstart:
+
+    bin/ssh @@scicomp
+    cd uwhpsc/lectures/lecture1
+    make plots; firefox *.png
 
 ## IPMI Basics
 If you happen to have real metal servers you need to deal with IPMI as well. Enterprise class machiens contain a small computer which you can use to remote control the machine. IPMI interfaces connect to the bmc network. Install ipmitools:
@@ -260,7 +321,6 @@ Get the error log:
 
 ## InfiniBand Basics
 InfiniBand is a switched fabric communications link used in high-performance computing and enterprise data centers. If you need RDMA you need InfiniBand. You have to run the subnet manager (OpenSM) which assigns Local IDentifiers (LIDs) to each port connected to the InfiniBand fabric, and develops a routing table based off of the assigned LIDs.There are two types of SMs, software based and hardware based. Hardware based subnet managers are typically part of the firmware of the attached InfiniBand switch. Buy a switch with HW-based SM.
-
 
 ## Ansible Bootstrap
 This is a blueprint of a HA *grid engine cluster*. It enables you rapid prototyping of fractal infrastructures. First, install Ansible on your host machine (VirtualBox host). The goal of the primordial installation is to provision the machines into an *initial ground state*. Ansible is responsible to advance the system to the *true ground state*. Subsequently, the system can excite itself into an *excited state* via *self-interaction*.

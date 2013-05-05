@@ -1,0 +1,4 @@
+#!/bin/bash
+pushd space
+./jockey $*
+popd

@@ -1,0 +1,88 @@
+#!/bin/bash
+# VM tool
+
+vbox="VBoxManage -q"
+
+function vm/valid() {
+  ${vbox} showvminfo ${1} 2>/dev/null
+}
+
+function vm/path() {
+  ${vbox} showvminfo ${1} | \
+  grep 'Config file:' | \
+  sed 's/[^.\/]*//'
+}
+
+function vm/create() {
+  local _name=${1}
+  local _type=${2}
+  local _cpus=${3}
+  local _memory=${4}
+  local _hdsize=${5}
+  local _hostnet=${6}
+
+  vm/valid ${_name}
+  if ! test $? -gt 0 ; then
+    echo " VM ${_name} already created"
+    exit 1
+  fi
+  echo "Create VM ${_name} [${_type}]"
+  ${vbox} createvm --name "${_name}" --ostype ${_type} --register
+  if test $? -gt 0 ; then exit 1; fi
+
+  local _path=$(vm/path "${_name}")
+  _path=$(dirname "${_path}")
+  local _disk="${_path}/${_name}-disk01.vdi"
+  echo -n "Create HD ${_disk} [${_hdsize}MB]"
+  ${vbox} createhd --filename "${_disk}" --size ${_hdsize}
+  if test $? -gt 0 ; then exit 1; fi
+
+  ${vbox} modifyvm "${_name}" --memory ${_memory} --cpus ${_cpus} \
+                --acpi on --boot1 net --boot2 disk \
+                --nic1 hostonly --hostonlyadapter1 ${_hostnet} \
+                --nic2 nat --macaddress1 auto --macaddress2 auto \
+                --audio none
+
+  local _controller="Controller: SATA"
+
+  ${vbox} storagectl "${_name}" --name "${_controller}" --add sata
+
+  ${vbox} storageattach "${_name}" --storagectl "${_controller}" \
+                --port 0 --device 0 \
+                --type hdd --medium "${_disk}"
+}
+
+
+### main
+cmd=${1:-create}
+shift
+
+### args
+case ${cmd} in
+  create)
+    name=${1:-test}
+    type=${2:-Ubuntu_64}
+    cpus=${3:-2}
+    memory=${4:-1024}
+    hdsize=${5:-2000000}
+    hostnet=${6:-vboxnet1}
+    vm/create ${name} ${type} ${cpus} ${memory} ${hdsize} ${hostnet}
+  ;;
+  start)
+    host="${1}"
+    opts=""
+    if [ "${host:0:1}" = "@" ] ; then
+      opts="--type headless"
+      host="${host:1}"
+    fi
+    ${vbox} startvm "${host}" ${opts}
+  ;;
+  off)
+    ${vbox} controlvm "${1}" poweroff
+  ;;
+  boot)
+    name=${1:-test}
+    boot=${2:-net}
+    ${vbox} modifyvm "${name}" --boot1 "${boot}"
+  ;;
+esac

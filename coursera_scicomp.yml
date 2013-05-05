@@ -1,0 +1,59 @@
+#
+# Coursera Scicomp
+#
+---
+- hosts: all
+
+  tasks:
+  - name: Install packages
+    apt: name=$item
+         state=installed
+    with_items:
+      - xterm
+      - xauth
+      - ipython
+      - ipython-notebook
+      - ipython-qtconsole
+      - python-numpy
+      - python-scipy
+      - python-matplotlib
+      - python-scientific
+      - python-sphinx
+      - python-sympy
+      - python-nose
+      - git
+      - gitk
+      - gfortran
+      - make
+      - openmpi-bin
+      - libopenmpi-dev
+      - liblapack-dev
+      - mayavi2
+      - fldiff
+      - firefox
+
+    when: ansible_os_family == "Debian"
+    tags:
+      - packages
+
+  - name: Clone uwhpsc
+    git: repo=https://rjleveque@bitbucket.org/rjleveque/uwhpsc.git
+         dest=/home/sysop/uwhpsc
+         version=coursera
+    tags:
+      - config
+
+  - name: Set permissions on /home/sysop/uwhpsc
+    file: path=/home/sysop/uwhpsc
+          owner=sysop
+          group=sysop
+          recurse=yes
+          state=directory
+    tags:
+      - config
+
+  - name: Install UWHPSC environment
+    template: src=etc/profile.d/uwhpsc.sh.j2
+              dest=/etc/profile.d/uwhpsc.sh
+    tags:
+      - config

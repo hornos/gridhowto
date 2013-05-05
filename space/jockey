@@ -84,6 +84,19 @@ function jockey/netpass() {
   jockey/_pass
 }
 
+function jockey/mac() {
+  local _mac=$*
+  if [ "${1:0:1}" = "@" ] ; then
+    local _host="${1:1}"
+    _mac=$(VBoxManage showvminfo "${_host}" | \
+    grep 'NIC 1:' | \
+    sed 's/.*MAC:\ *//' | \
+    sed 's/,.*//' | \
+    sed 's/\(.\{2\}\)/&-/g;s/-$//')
+  fi
+  echo "${_mac}"
+}
+
 ### main
 case ${cmd} in
   pass|netpass)
@@ -106,7 +119,7 @@ case ${cmd} in
 
     ### args
     default=${cmd}
-    mac=${arg}
+    mac=$(jockey/mac ${arg})
     shift
     addr=${1:-10.1.1.1}
     shift
@@ -151,7 +164,7 @@ case ${cmd} in
   local|memtest|detect|firmware|cirros|tiny|kali)
     if [ -z "${arg}" ] ; then help/jockey; fi
 
-    mac=${arg}
+    mac=$(jockey/mac ${arg})
 
     http_listen=${jockey_ip}:8080
     ks=$(echo "${mac}" | sed s/:/-/g | tr '[:upper:]' '[:lower:]')
@@ -165,7 +178,8 @@ case ${cmd} in
   esxi)
     if [ -z "${arg}" ] ; then help/jockey; fi
 
-    mac=${arg}
+    mac=$(jockey/mac ${arg})
+
     http_listen=${jockey_ip}:8080
     default=${cmd}
 

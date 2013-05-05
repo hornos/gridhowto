@@ -1,0 +1,42 @@
+---
+- hosts: all
+  vars_files:
+    - riemann_vars.yml
+
+  tasks:
+
+  - name: Download riemann
+    get_url: url=${url}/${tgz} dest=/root/${tgz}
+    tags:
+      - packages
+
+  - name: Untar riemann
+    command: /bin/tar -C /opt xjf /root/${tgz}
+    tags:
+      - packages
+
+  - name: Install ruby packages
+    gem: name=$item
+         state=present
+    with_items:
+      - riemann-client
+      - riemann-tools
+      - riemann-dash
+    tags:
+      - packages
+
+  - name: Install /etc/shorewall/rules.d/riemann
+    template: src=etc/shorewall/rules.d/riemann.j2
+              dest=/etc/shorewall/rules.d/riemann
+              owner=root
+              group=root
+              mode=0640
+    tags:
+      - firewall
+    notify:
+      - Restart shorewall
+
+  handlers:
+    - name: Restart shorewall
+      service: name=shorewall
+               state=restarted
