@@ -2,9 +2,11 @@
 # Basic configuration for root servers
 # 
 
-- include: basic_services.yml
 - include: basic_packages.yml
+- include: basic_services.yml
 - include: basic_python.yml
+- include: basic_ruby.yml
+- include: basic_crypto.yml
 - include: basic_tops.yml
 - include: basic_httpd.yml
 - include: phpsysinfo.yml

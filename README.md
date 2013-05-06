@@ -71,17 +71,14 @@ You can create a VM by the following command:
     bin/vm create <NAME>
 
 ### Space Jockey
-From now on all commands are relative to the `space` directory:
-
-    cd $HOME/gridhowto/space
 
 Jockey has the following command structure:
 
-    .jockey [@]CMD [@]ARGS
+    bin/jockey [@]CMD [@]ARGS
 
 If you don't know which machine to boot you can check bootp requests from the root servers:
 
-    ./jockey dump <INTERFACE>
+    bin/jockey dump <INTERFACE>
 
 where the last argument is the interface to listen on eg. vboxnet0.
 
@@ -91,15 +88,15 @@ Create the `boot/centos64` directory and put `vmlinuz` and `initrd.img` from the
 
 Set the address of the host machine (your laptop's corresponding interface). In this example 
 
-    ./jockey host 10.1.1.254
+    bin/jockey host 10.1.1.254
 
 or you can give an interface and let the script autodetect the host IP:
 
-    ./jockey @host vboxnet5
+    bin/jockey @host vboxnet5
 
 Kickstart a MAC address with the CentOS installation:
 
-    ./jockey centos64 08:00:27:14:68:75
+    bin/jockey centos64 08:00:27:14:68:75
 
 You can use `-` instead of `:`. Letters are converted to lowercase.
 
@@ -107,12 +104,12 @@ The `centos64` command creates a kickstart file in `boot` and a pxelinux configu
 
 Finish the preparatin by starting the boot servers (http, dnsmasq) each in a separate terminal:
 
-    ./jockey http
-    ./jockey boot
+    bin/jockey http
+    bin/jockey boot
 
 Boot servers listen on the IP you specified by the `host` command. The boot process should start now and the automatic installation continues. If finished change the boot order of the machine by:
 
-    ./jockey local 08:00:27:14:68:75
+    bin/jockey local 08:00:27:14:68:75
 
 This command changes the pxelinux order to local boot. You can also switch to local boot by IPMI for real servers.
 
@@ -137,7 +134,7 @@ For hardware detection you need to have the following files installed from sysli
 
 Switch to detection (and reboot the machine):
 
-    ./jockey detect 08:00:27:14:68:75 
+    bin/jockey detect 08:00:27:14:68:75 
 
 ### Firmware Upgrade with FreeDOS
 This section is based on http://wiki.gentoo.org/wiki/BIOS_Update . You have to use a Linux host to create the bootdisk image. You have to download freedos tools from ibiblio.org:
@@ -149,23 +146,23 @@ This section is based on http://wiki.gentoo.org/wiki/BIOS_Update . You have to u
 
 Copy the firmware upgrade files to `$PWD/mnt` and umount the disk. Put `memdisk` and `freedos` to `boot` directory and switch to firmware (and reboot the machine):
 
-    ./jockey firmware 08:00:27:14:68:75
+    bin/jockey firmware 08:00:27:14:68:75
 
 ### Install ESXi 5.X
 You have to use syslinux 4.X . Mount ESXi install media under `boot/esxi/repo`. Put `mboot.c32` from the install media into jockey's root directory. Kickstart the machine to boot ESXi installer:
 
-    ./jockey esxi 08:00:27:14:68:75
+    bin/jockey esxi 08:00:27:14:68:75
 
 or the name of the VM:
 
-    ./jockey esxi @<VM>
+    bin/jockey esxi @<VM>
 
 Edit the kickstart file if you want to change the default settings.
 
 ### Other Mini-Linux Variants
 You can boot Cirros and Tiny Linux as well. For CirrOS put `initrd.img` and `vmlinuz` into `boot/cirros`, for Tiny Linux put `core.gz` and `vmlinuz` into `boot/tiny`, and switch eg. to Tiny:
 
-    ./jockey tiny 08:00:27:14:68:75
+    bin/jockey tiny 08:00:27:14:68:75
 
 ### Kali Linux
 To perform a netinstall of Kali Linux:
@@ -174,11 +171,11 @@ To perform a netinstall of Kali Linux:
     pushd boot/kali
     curl http://repo.kali.org/kali/dists/kali/main/installer-amd64/current/images/netboot/netboot.tar.gz | tar xvzf -
     popd
-    ./jockey rawkali 08:00:27:14:68:75
+    bin/jockey rawkali 08:00:27:14:68:75
 
 If you want a kickstart based unattended install:
 
-    ./jockey kali 08:00:27:14:68:75
+    bin/jockey kali 08:00:27:14:68:75
 
 ### Kickstart from scratch
 A good starting point for a kickstart can be found in the EAL4 package:
@@ -191,7 +188,7 @@ A good starting point for a kickstart can be found in the EAL4 package:
 The installer pulls packages form the Internet. Download the latest netboot package:
 
     pushd boot
-    rsync -avP ftp.us.debian.org::debian/dists/squeeze/main/installer-amd64/current/images/netboot/ ./squeeze
+    rsync -avP ftp.us.debian.org::debian/dists/wheezy/main/installer-amd64/current/images/netboot/ ./wheezy
     popd
 
 If you have more than one interface in the VM set the interface for the internet:
@@ -200,7 +197,7 @@ If you have more than one interface in the VM set the interface for the internet
 
 Set the machine for bootstrap:
 
-    ./jockey squeeze 08:00:27:14:68:75
+    bin/jockey wheezy 08:00:27:14:68:75
 
 Edit the actual kickstart and start the VM.
 
@@ -213,7 +210,7 @@ Download the latest netboot package:
 
 Set the machine for bootstrap:
 
-    ./jockey quantal 08:00:27:14:68:75
+    bin/jockey quantal 08:00:27:14:68:75
 
 Edit the actual kickstart and start the VM.
 
@@ -453,7 +450,7 @@ The system network is not banned.
     bin/play @@root geoip
 
 ### Basic Services
-You can run all the playbooks once:
+You can run all the basic playbooks at once (takes several minutes):
 
     bin/play @@root basic
 
@@ -516,7 +513,7 @@ The basic playbook contains the following inittab changes:
 ## Monitoring
 Monitoring (Ganglia and PCP) can be played by:
 
-    bin/playbook @@root monitors
+    bin/play @@root monitors
 
 ### Ganglia
 Ganglia is a scalable distributed monitoring system for high-performance computing systems such as clusters and Grids. It is based on a hierarchical design targeted at federations of clusters. You can think of it as a low-level cluster top. Ganglia is running with unicast addresses and root servers cross-monitor each other. Ganglia is a best effort monitor and you should use it to monitor as many things as possible.

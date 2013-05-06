@@ -17,9 +17,6 @@
       - python-memcached
       - bitmap
       - bitmap-fonts
-      - python-zope-filesystem
-      - python-zope-interface
-      - zlib-static
     tags:
       - packages
 
@@ -84,6 +81,7 @@
     shell: cd /root/${pkg_web};python ./setup.py install
     tags:
       - web
+
 
   - name: Set directory modes on storage
     file: path=/opt/graphite/storage

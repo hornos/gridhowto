@@ -11,6 +11,7 @@
     yum: name=$item
          state=installed
     with_items:
+      - cronie
       - mc
       - htop
       - iptraf-ng
@@ -34,7 +35,7 @@
       - yum-security
       - xorg-x11-xauth
       - jailkit
-      - nedit
+      - libtool
     when: ansible_os_family == "RedHat"
     tags:
       - packages

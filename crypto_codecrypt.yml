@@ -1,0 +1,22 @@
+#
+# http://pqcrypto.org/
+#
+---
+- hosts: all
+
+  tasks:
+  - name: Download codecrypt
+    git: repo=git://github.com/exaexa/codecrypt.git
+         dest=/opt/codecrypt
+    tags:
+      - packages
+
+  - name: Install packages
+    yum: name=$item
+         state=installed
+    with_items:
+      - gmp-devel
+      - libtool
+    when: ansible_os_family == "RedHat"
+    tags:
+      - packages

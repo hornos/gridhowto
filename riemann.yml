@@ -11,7 +11,7 @@
       - packages
 
   - name: Untar riemann
-    command: /bin/tar -C /opt xjf /root/${tgz}
+    command: /bin/tar -C /opt -xjf /root/${tgz}
     tags:
       - packages
 
@@ -24,6 +24,16 @@
       - riemann-dash
     tags:
       - packages
+      - gems
+
+  - name: Install java
+    yum: name=$item
+         state=installed
+    with_items:
+      - java-1.7.0-openjdk
+    tags:
+      - packages
+      - java
 
   - name: Install /etc/shorewall/rules.d/riemann
     template: src=etc/shorewall/rules.d/riemann.j2

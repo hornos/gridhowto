@@ -85,6 +85,12 @@
         - sudo
         - wheel
 
+#    # TODO: template in template
+#    - name: Install {{sysop_user}} SSH public key
+#      authorized_key: user={{sysop_user}}
+#                      key="{{ lookup('file', 'keys/{{sysop_user}}.pub') }}"
+#                      manage_dir=yes
+
     - name: Create sysop SSH directory
       file: path=/home/{{ sysop_user }}/.ssh
             state=directory
@@ -93,6 +99,7 @@
             mode=0700
       tags:
         - ssh
+        - legacy
 
     - name: Install sysop SSH public key
       copy: src={{ sysop_key }}.pub
@@ -102,3 +109,5 @@
             mode=0600
       tags:
         - ssh
+        - legacy
+

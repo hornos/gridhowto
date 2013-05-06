@@ -144,8 +144,8 @@
              state=started
              enabled=yes
 
-  - name: Start HTTP
-    service: name=httpd
+  - name: Start httpd
+    service: name={{service_httpd}}
              state=started
              enabled=yes
 
@@ -159,6 +159,6 @@
       service: name=gmetad
                state=restarted
 
-    - name: Restart gmond
+    - name: Restart httpd
       service: name={{service_httpd}}
                state=restarted

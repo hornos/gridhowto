@@ -17,3 +17,6 @@ root-05 ansible_ssh_host=10.1.1.5
 
 [coursera]
 scicomp ansible_ssh_host=10.1.1.11
+
+[test]
+wheezy ansible_ssh_host=10.1.1.100

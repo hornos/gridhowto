@@ -7,6 +7,7 @@ ca/*
 space/reset
 space/boot/squeeze/*
 space/boot/quantal/*
+space/boot/wheezy/*
 space/boot/raring/*
 space/boot/leases
 space/boot/centos63/*

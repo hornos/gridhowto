@@ -10,6 +10,11 @@ d-i debian-installer/country string HU
 d-i console-keymaps-at/keymap select hu
 d-i keyboard-configuration/xkb-keymap select hu
 
+### NETCONSOLE
+d-i anna/choose_modules string network-console openssh-client-udeb
+d-i network-console/password password ROOT_PASSWORD_PLAIN
+d-i network-console/password-again password ROOT_PASSWORD_PLAIN
+d-i network-console/start note
 
 ### BOOT NETWORK
 d-i netcfg/choose_interface select INTERFACE
@@ -17,6 +22,8 @@ d-i netcfg/get_hostname string unassigned-hostname
 d-i netcfg/get_domain string unassigned-domain
 d-i netcfg/wireless_wep string
 
+d-i netcfg/enable boolean false
+# d-i netcfg/target_network_config ifupdown
 
 ### MIRRORS
 #d-i mirror/protocol string ftp
@@ -28,6 +35,7 @@ d-i mirror/http/proxy string
 
 ### ROOT ACCOUNT
 # Alternatively, to skip creation of a normal user account.
+d-i passwd/root-login boolean true
 d-i passwd/make-user boolean false
 d-i passwd/root-password-crypted password ROOT_PASSWORD
 

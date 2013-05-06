@@ -1,0 +1,18 @@
+
+---
+- hosts: all
+  vars_files:
+    - google_chrome_vars.yml
+
+  tasks:
+    - name: Download Google Chrome
+      get_url: url=${url}/${rpm} dest=/root
+      when: ansible_os_family == "RedHat"
+      tags:
+        - packages
+
+    - name: Install Google Chrome
+      command: yum -y localinstall /root/${rpm}
+      when: ansible_os_family == "RedHat"
+      tags:
+        - packages

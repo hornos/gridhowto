@@ -1,0 +1,21 @@
+#
+#
+---
+- hosts: all
+
+  tasks:
+### REDHAT
+  - name: Install packages
+    yum: name=$item
+         state=installed
+    with_items:
+      - python-keyczar
+      - openssl
+      - fuse-cryptofs
+      - crypto-utils
+      - gpgme
+      - pygpgme
+      - tor
+    when: ansible_os_family == "RedHat"
+    tags:
+      - packages

@@ -44,6 +44,10 @@ LABEL squeeze
 	MENU LABEL squeeze
 	KERNEL squeeze/debian-installer/amd64/linux
 	APPEND vga=788 initrd=squeeze/debian-installer/amd64/initrd.gz auto=true priority=critical interface=INTERFACE preseed/url=http://KICKSTART
+LABEL wheezy
+	MENU LABEL wheezy
+	KERNEL wheezy/debian-installer/amd64/linux
+	APPEND vga=788 initrd=wheezy/debian-installer/amd64/initrd.gz auto=true priority=critical interface=INTERFACE preseed/url=http://KICKSTART
 LABEL quantal
 	MENU LABEL quantal
 	KERNEL quantal/ubuntu-installer/amd64/linux

@@ -1,0 +1,21 @@
+#
+#  TODO: auto install
+#
+---
+- hosts: all
+
+  vars_files:
+    - networks.yml
+    - crypto_truecrypt_vars.yml
+
+  tasks:
+  - name: Download truecrypt
+    get_url: url=${url}/${tgz} dest=/root/${tgz}
+    tags:
+      - packages
+
+  - name: Untar truecrypt
+    command: /bin/tar -C /root -xzf /root/${tgz}
+    tags:
+      - packages
+

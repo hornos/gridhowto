@@ -31,6 +31,7 @@
          state=installed
     with_items:
       - ipset
+      - shorewall
     when: ansible_os_family == "RedHat"
     tags:
       - packages
