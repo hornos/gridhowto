@@ -5,9 +5,11 @@
 - name: Repositories
   hosts: all
 
-- include: epel.yml
-- include: rpmforge.yml
-- include: hornos.yml
+- include: repo_epel.yml
+- include: repo_rpmforge.yml
+- include: repo_hornos.yml
+- include: repo_elrepo.yml
+
 # TODO
 # - include: nodejs.yml
 # - include: ruby.yml

@@ -1,7 +1,7 @@
 ---
 - hosts: all
   vars_files:
-    - hornos_vars.yml
+    - repo_hornos_vars.yml
 
   tasks:
 

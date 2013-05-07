@@ -114,7 +114,7 @@ case ${cmd} in
     echo "ip=${ip}" | tee ${host}
   ;;
 
-  centos63|centos64|squeeze|wheezy|quantal|raring|kali)
+  centos63|centos64|squeeze|wheezy|quantal|raring|kali|harmonia)
     if [ -z "${arg}" ] ; then help/jockey; fi
 
     ### args

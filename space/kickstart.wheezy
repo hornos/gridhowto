@@ -150,7 +150,7 @@ d-i debian-installer/exit/halt boolean true
 # network --onboot=yes --bootproto=static --ip=10.3.1.1 --netmask=255.255.0.0 --device=eth2
 # network --onboot=yes --bootproto=dhcp --device=eth3
 
-# the ugliest shit I've ever seen
+# the ugliest shit I've ever seen + a shitfix for sickdebian target net
 d-i preseed/late_command string \
     echo '' > /target/etc/network/interfaces && \
     echo 'auto lo' >> /target/etc/network/interfaces && \
@@ -162,4 +162,6 @@ d-i preseed/late_command string \
     echo '  netmask 255.255.0.0' >> /target/etc/network/interfaces && \
     echo 'auto eth1' >> /target/etc/network/interfaces && \
     echo 'iface eth1 inet dhcp' >> /target/etc/network/interfaces && \
-    echo '' >> /target/etc/network/interfaces
+    echo '' >> /target/etc/network/interfaces && \
+    rm -f /usr/lib/finish-install.d/55netcfg-copy-config && \
+    rm -f /usr/lib/finish-install.d/50config-target-network

@@ -6,7 +6,7 @@
 
   tasks:
 
-  - name: Download Glusterfs repo
+  - name: Download XCat repo
     get_url: url=${url}/${repo} dest=/etc/yum.repos.d/${repo}
 
   - name: Install XCat

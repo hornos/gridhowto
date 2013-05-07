@@ -1,7 +1,7 @@
 #!/bin/bash
 
 {% set first=1 %}
-ROOT="{%- for host in groups['root'] %}
+ROOT="{%- for host in hostvars %}
 {%- if not first %}
 {{- ' ' }}
 {%- endif %}
@@ -12,7 +12,7 @@ ROOT="{%- for host in groups['root'] %}
 {%- endfor %}"
 
 {% set first=1 %}
-ROOT_IP="{%- for host in groups['root'] %}
+ROOT_IP="{%- for host in hostvars %}
 {%- if not first %}
 {{- ' ' }}
 {%- endif %}
@@ -22,7 +22,7 @@ ROOT_IP="{%- for host in groups['root'] %}
 {{- hostvars[host]['ansible_eth0']['ipv4']['address'] }}
 {%- endfor %}"
 
-ROOT_AUTH="{%- for host in groups['root'] %}
+ROOT_AUTH="{%- for host in hostvars %}
 {%- if not first %}
 ,
 {%- endif %}
@@ -33,18 +33,18 @@ ROOT_AUTH="{%- for host in groups['root'] %}
 {%- endfor %}"
 
 {% set first=1 %}
-ROOT_DISK="{%- for host in groups['root'] %}
+ROOT_DISK="{%- for host in hostvars %}
 {%- if not first %}
 {{- ' ' }}
 {%- endif %}
 {%- if first %}
 {%- set first=0 %}
 {%- endif %}
-{{- hostvars[host]['ansible_eth0']['ipv4']['address'] }}:{{- lv_mnt }}
+{{- hostvars[host]['ansible_eth0']['ipv4']['address'] }}:{{- gluster.lv_mnt }}
 {%- endfor %}"
 
-VOLUME={{ volume }}
-REPLICA={{ replica }}
+VOLUME={{ gluster.volume }}
+REPLICA={{ gluster.replica }}
 
 echo ""
 echo "Peers: $ROOT_IP"
@@ -61,7 +61,7 @@ gluster peer status
 
 echo ""
 read -p "Create volume $VOLUME on $ROOT_DISK?"
-gluster volume create $VOLUME replica $REPLICA transport {{transport}} $ROOT_DISK
+gluster volume create $VOLUME replica $REPLICA transport {{gluster.transport}} $ROOT_DISK
 
 echo ""
 read -p "Start volume $VOLUME"

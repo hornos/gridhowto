@@ -40,6 +40,10 @@ LABEL kali
 	MENU LABEL kali
 	KERNEL kali/debian-installer/amd64/linux
 	APPEND vga=788 initrd=kali/debian-installer/amd64/initrd.gz auto=true priority=critical interface=INTERFACE preseed/url=http://KICKSTART
+LABEL harmonia
+	MENU LABEL harmonia
+	KERNEL kali/debian-installer/amd64/linux
+	APPEND vga=788 initrd=kali/debian-installer/amd64/initrd.gz auto=true priority=critical interface=INTERFACE preseed/url=http://KICKSTART
 LABEL squeeze
 	MENU LABEL squeeze
 	KERNEL squeeze/debian-installer/amd64/linux

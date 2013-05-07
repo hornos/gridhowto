@@ -1,132 +1,69 @@
-# Format disk:
-# --extra-vars "format=yes"
-#
-# --extra-vars "clean=yes"
-#
-# --extra-vars "umount=yes"
-#
+
 ---
 - hosts: all
   vars_files:
+    - networks.yml
+    - bootstrap_vars.yml
     - ceph_vars.yml
     - vars/${inventory_hostname}.yml
-
-  vars:
-    is_master: "'$inventory_hostname' == '$master'"
-    is_format: "'$format' == 'yes'"
-    is_clean: "'$clean' == 'yes'"
-    is_mount: "'$mount' == 'yes'"
-    is_umount: "'$umount' == 'yes'"
 
   tasks:
 
   - name: Download Ceph release key
-    get_url: url=${key} dest=/root/ceph-release.asc
+    get_url: url={{key_url}}/{{key}} dest=/root/ceph-release.asc
     tags:
       - packages
+      - key
 
   - name: Install Ceph release key
     shell: /bin/rpm --import /root/ceph-release.asc
     tags:
       - packages
+      - key
 
   - name: Download Ceph repo
-    get_url: url=${url}/${rpm} dest=/root
+    get_url: url={{url}}/{{rpm}} dest=/root
     tags:
       - packages
+      - repo
 
   - name: Install Ceph repo
-    command: yum -y localinstall /root/${rpm}
+    command: yum -y localinstall /root/{{rpm}}
     tags:
       - packages
+      - repo
+
+  - name: Fix repo url
+    lineinfile: dest=/etc/yum.repos.d/ceph.repo regexp='^baseurl' line='baseurl=http://ceph.com/rpm-cuttlefish/el6/$basearch'
+    tags:
+      - packages
+      - repo
+      - fix
 
   - name: Install Ceph packages
     yum: name=$item
-         state=installed
+         state=latest
     with_items:
       - ceph
-      - ceph-fuse
+      - python-virtualenv
     tags:
       - packages
 
-
-  - name: Creat base directories
-    file: path=${ceph_base}/$item
-          state=directory
-    with_items:
-      - osd.11
-      - osd.21
-      - osd.31
-      - mds.1
-      - mds.2
-      - mds.3
-      - mon.1
-      - mon.2
-      - mon.3
+  - name: Fix sudo require tty
+    lineinfile: dest=/etc/sudoers
+                backrefs=true
+                backup=yes
+                state=present
+                regexp='^(Defaults.*requiretty)$'
+                line="#\\1"
     tags:
-      - directories
+      - config
+      - sudo
 
-  - name: Unmount Cephfs
-    mount: name=${ceph_base}/osd.${ceph_id}1
-           src=/dev/${vg_root}/${lv_data}
-           fstype=${fstype}
-           opts=${fsopts}
-           state=absent
-    only_if: '$is_umount'
-    tags:
-      - clean
-
+### PARTITIONS
   - name: Create partition
     lvol: vg=$vg_root
           lv=$lv_data
           size=$lv_size
     tags:
       - partition
-
-  - name: Create filesystem
-    command: $fscreate /dev/${vg_root}/${lv_data}
-    only_if: '$is_format'
-    tags:
-      - partition
-
-  - name: Mount Cephfs
-    mount: name=${ceph_base}/osd.${ceph_id}1
-           src=/dev/${vg_root}/${lv_data}
-           fstype=${fstype}
-           opts=${fsopts}
-           state=mounted
-    tags:
-      - partition
-      - mount
-
-
-  - name: Install Ceph config
-    template: src=etc/ceph/ceph.conf.j2
-              dest=/etc/ceph/ceph.conf
-              owner=root
-              group=root
-              mode=0640
-    tags:
-      - config
-
-  - name: Cleanup
-    shell: /bin/rm -fr ${ceph_base}/$item/*
-    with_items:
-      - mds.1
-      - mds.2
-      - mds.3
-      - mon.1
-      - mon.2
-      - mon.3
-    only_if: '$is_clean'
-    tags:
-      - clean
-
-  - name: Install Ceph bootstrap
-    template: src=root/ceph_bootstrap.j2
-              dest=/root/ceph_bootstrap
-              owner=root
-              group=root
-              mode=0700
-    ignore_errors: yes
-    only_if: '$is_master'

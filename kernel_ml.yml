@@ -1,0 +1,19 @@
+#
+# Install Mainline Kernel
+#
+---
+- hosts: all
+
+  tasks:
+
+  - name: Install mainline kernel
+    yum: name=kernel-ml
+         state=latest
+         enablerepo=elrepo-kernel
+    tags:
+      - repo
+
+  - name: Set grub default
+    lineinfile: dest=/boot/grub/grub.conf
+                regexp='^default'
+                line='default=0'

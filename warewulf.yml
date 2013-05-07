@@ -11,8 +11,8 @@
 
   vars:
     is_master: "'$inventory_hostname' == '$master'"
-    is_warewulf_master: "'$inventory_hostname' == '$warewulf_master'"
-    is_warewulf_backup: "'$inventory_hostname' == '$warewulf_backup'"
+    is_warewulf_master: "'$inventory_hostname' == '$warewulf.master'"
+    is_warewulf_backup: "'$inventory_hostname' == '$warewulf.backup'"
 
   tasks:
 
@@ -39,7 +39,7 @@
       - packages
 
   - name: Setup warewulf mysql db
-    mysql_db: db=$warewulf_db
+    mysql_db: db={{warewulf.db}}
               login_user=root
               login_password=$password
               login_unix_socket=$socket

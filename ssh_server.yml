@@ -9,6 +9,7 @@
 - hosts: all
 
   vars_files:
+    - bootstrap_vars.yml
     - networks.yml
     - [ "vars/{{ ansible_os_family }}.yml", "vars/Defaults.yml" ]
 
@@ -35,16 +36,19 @@
       tags:
         - config
 
-    - name: Create root SSH directory
-      file: path=/root/.ssh
-            owner=root
-            group=root
+    - name: Create sysops SSH directory
+      file: path=/${item}/.ssh
+            owner=${item}
+            group=${item}
             mode=700
             state=directory
+      with_items:
+        - root
+        - sysop
       tags:
         - key
 
-    - name: Install root private key
+    - name: Install root nopass key
       copy: src=keys/nopass
             dest=/root/.ssh/id_rsa
             owner=root
@@ -53,11 +57,24 @@
       tags:
         - key
 
-    - name: Install root public key
-      authorized_key: user=root
-                      key='$FILE(keys/nopass.pub)'
+    - name: Install nopass private key
+      copy: src=keys/nopass
+            dest=/home/{{sysop_user}}/.ssh/id_rsa
+            owner={{sysop_user}}
+            group={{sysop_user}}
+            mode=600
       tags:
         - key
+
+    - name: Install nopass public key
+      authorized_key: user=$item
+                      key='$FILE(keys/nopass.pub)'
+      with_items:
+        - root
+        - sysop
+      tags:
+        - key
+
 
   handlers:
     - name: Restart sshd

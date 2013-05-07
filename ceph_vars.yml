@@ -1,6 +1,8 @@
-url: http://ceph.com/rpm-bobtail/el6/x86_64
+url: http://ceph.com/rpm-cuttlefish/el6/x86_64
 rpm: ceph-release-1-0.el6.noarch.rpm
-key: 'https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/release.asc'
+key_url: 'https://ceph.com/git/?p=ceph.git;a=blob_plain;f=keys'
+key: release.asc
+
 
 vg_root: 'vg_root'
 lv_data: 'cephfs_common_brick1'

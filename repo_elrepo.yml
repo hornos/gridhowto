@@ -1,0 +1,39 @@
+#
+# http://elrepo.org/tiki/tiki-index.php
+#
+---
+- hosts: all
+  vars_files:
+    - repo_elrepo_vars.yml
+
+  tasks:
+
+  - name: Download elrepo key
+    get_url: url={{url}}/{{key}} dest=/root/{{key}}
+    tags:
+      - packages
+      - key
+
+  - name: Import elrepo key
+    command: rpm --import /root/{{key}}
+    tags:
+      - packages
+      - key
+
+  - name: Download elrepo
+    get_url: url={{url}}/{{rpm}} dest=/root/{{rpm}}
+    tags:
+      - packages
+      - key
+
+  - name: Install elrepo
+    command: yum -y localinstall /root/{{rpm}}
+    tags:
+      - packages
+      - repo
+
+  - name: Install fastestmirror
+    yum: name=yum-plugin-fastestmirror
+         state=installed
+    tags:
+      - repo

@@ -1,0 +1,35 @@
+
+---
+- hosts: all
+  vars_files:
+    - networks.yml
+    - bootstrap_vars.yml
+    - ceph_vars.yml
+    - vars/${inventory_hostname}.yml
+
+  tasks:
+
+  - name: Download Ceph deploy
+    git: repo=https://github.com/ceph/ceph-deploy.git
+         dest=/home/{{sysop_user}}/ceph-deploy
+    tags:
+      - packages
+
+  - name: Install Ceph deploy
+    shell: cd /home/{{sysop_user}}/ceph-deploy;./bootstrap
+    tags:
+      - packages
+
+  - name: Create bin directory
+    file: path=/home/{{sysop_user}}/bin
+          state=directory
+    tags:
+      - packages
+
+  - name: Link ceph-deploy
+    file: src=/home/{{sysop_user}}/ceph-deploy/ceph-deploy
+          dest=/home/{{sysop_user}}/bin/ceph-deploy
+          state=link
+    tags:
+      - packages
+      - link

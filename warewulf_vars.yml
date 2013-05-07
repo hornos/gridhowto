@@ -1,11 +1,11 @@
 url: http://warewulf.lbl.gov/downloads/repo
 repo: warewulf-rhel6.repo
 
-warewulf_db: 'warewulf'
-warewulf_user: 'warewulf'
-warewulf_password: 'warewulf'
-warewulf_common: '/common/warewulf'
-warewulf_interface: eth0
-# Failover DHCP
-warewulf_master: 'root-01'
-warewulf_backup: 'root-02'
+warewulf:
+  db: 'warewulf'
+  user: 'warewulf'
+  password: 'warewulf'
+  common: '/common/warewulf'
+  interface: eth0
+  master: 'root-01'
+  backup: 'root-02'

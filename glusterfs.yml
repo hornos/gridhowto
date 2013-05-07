@@ -1,29 +1,24 @@
 
-# Format gluster disk:
-# --extra-vars "format=yes"
-# Mount gluster disk:
-# --extra-vars "mount=yes"
 ---
 - hosts: all
 
   vars_files:
-    # - gluster_vars.yml
-    - gluster_vars_ext4.yml
+    - gluster_vars.yml
 
   tasks:
 
   - name: Set deadline I/O scheduler
-    shell: /bin/echo "deadline" > /sys/block/${gluster_disk}/queue/scheduler
+    shell: /bin/echo "deadline" > /sys/block/{{gluster.disk}}/queue/scheduler
     tags:
       - tune
 
   - name: Set I/O request size
-    shell: /bin/echo "256" > /sys/block/${gluster_disk}/queue/nr_requests
+    shell: /bin/echo "256" > /sys/block/{{gluster.disk}}/queue/nr_requests
     tags:
       - tune
 
   - name: Set read-ahead size
-    shell: /sbin/blockdev --setra 4096 /dev/${gluster_disk}
+    shell: /sbin/blockdev --setra 4096 /dev/{{gluster.disk}}
     tags:
       - tune
 
@@ -62,10 +57,10 @@
       - limits
 
   - name: Mount Glusterfs
-    mount: name=${common}
-           src=127.0.0.1:/${volume}
+    mount: name={{gluster.common}}
+           src=127.0.0.1:/{{gluster.volume}}
            fstype=glusterfs
-           opts=${fsopts},defaults,acl,log-level=WARNING,log-file=/var/log/gluster.log
+           opts={{gluster.fsopts}},defaults,acl,log-level=WARNING,log-file=/var/log/gluster.log
            state=mounted
     tags:
       - mount

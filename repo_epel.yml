@@ -1,17 +1,17 @@
-# Enable rpmforge repo
+# Enable EPEL repo
 ---
 - hosts: all
   vars_files:
-    - rpmforge_vars.yml
+    - repo_epel_vars.yml
 
   tasks:
 
-  - name: Download rpmforge repo
+  - name: Download EPEL repo
     get_url: url=${url}/${rpm} dest=/root
     tags:
       - packages
 
-  - name: Install rpmforge repo
+  - name: Install EPEL repo
     command: yum -y localinstall /root/${rpm}
     tags:
       - packages
