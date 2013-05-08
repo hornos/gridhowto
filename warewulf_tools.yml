@@ -1,0 +1,19 @@
+
+---
+- hosts: all
+  vars_files:
+    - warewulf_vars.yml
+
+  tasks:
+    - name: Create /root/bin
+      file: path=/root/bin
+            state=directory
+
+    - name: Install warewulf tools
+      template: src=root/bin/${item}.j2
+                dest=/root/bin/${item}
+                owner=root
+                group=root
+                mode=0755
+      with_items:
+        - wwyum

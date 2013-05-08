@@ -1,6 +1,8 @@
 #!/bin/bash
 
-for i in 01 02 03 ; do
-  pushd space;./passwords;popd
+for i in 01 02 03; do
+  pass=$(bin/password @grid-root-${i}|cut -d' ' -f3)
+  # expect -c "spawn bin/play root@root-${i} bootstrap; expect -re \".*password.*\"; send \"${pass}\n\";"
+  echo "$pass"
   bin/play root@root-${i} bootstrap
 done

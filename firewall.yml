@@ -5,3 +5,4 @@
 - include: shorewall_ipset.yml
 - include: shorewall.yml
 - include: fail2ban.yml
+- include: geoip.yml

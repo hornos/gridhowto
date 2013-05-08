@@ -1,0 +1,5 @@
+#!/bin/bash
+_target=${1:-sl-6}
+shift
+/usr/bin/yum --config {{warewulf.common}}/chroots/${_target}/root/yum-ww.conf \
+             --installroot {{warewulf.common}}/chroots/${_target} $*

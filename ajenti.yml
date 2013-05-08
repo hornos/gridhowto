@@ -1,0 +1,39 @@
+#
+# http://ajenti.org/
+#
+---
+- hosts: all
+
+  tasks:
+  - name: Install Ajenti Repo
+    template: src=etc/yum.repos.d/ajenti.repo.j2
+              dest=/etc/yum.repos.d/ajenti.repo
+              owner=root
+              group=root
+              mode=0644
+    tags:
+      - repo
+
+  - name: Install Ajenti packages
+    yum: name=$item
+         state=installed
+    with_items:
+      - ajenti
+    tags:
+      - packages
+
+  - name: Install /etc/shorewall/rules.d/ajenti
+    template: src=etc/shorewall/rules.d/ajenti.j2
+              dest=/etc/shorewall/rules.d/ajenti
+              owner=root
+              group=root
+              mode=0640
+    tags:
+      - firewall
+    notify:
+      - Restart shorewall
+
+  handlers:
+    - name: Restart shorewall
+      service: name=shorewall
+               state=restarted

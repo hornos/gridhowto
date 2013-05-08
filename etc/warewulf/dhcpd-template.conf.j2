@@ -5,9 +5,9 @@
  
 failover peer "warewulf" {             # Failover configuration
   primary;                             # I am the primary
-  address {{hostvars[warewulf_master]['ansible_eth0']['ipv4']['address']}};        # My IP address
+  address {{hostvars[warewulf.master]['ansible_eth0']['ipv4']['address']}};        # My IP address
   port 647;
-  peer address {{hostvars[warewulf_master]['ansible_eth0']['ipv4']['address']}};   # Peer's IP address
+  peer address {{hostvars[warewulf.master]['ansible_eth0']['ipv4']['address']}};   # Peer's IP address
   peer port 647;
   max-response-delay 60;
   max-unacked-updates 10;

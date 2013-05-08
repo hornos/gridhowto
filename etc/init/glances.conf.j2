@@ -1,0 +1,5 @@
+stop on runlevel [S016]
+
+respawn
+exec /usr/bin/glances -t {{watch.delay}} >$TTY <$TTY
+usage 'glances TTY=/dev/ttyX  - where X is console id'

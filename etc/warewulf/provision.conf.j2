@@ -1,6 +1,6 @@
 # What is the default network device that the master will use to
 # communicate with the nodes?
-network device = {{warewulf_interface}}
+network device = {{warewulf.interface}}
 
 # Which DHCP server implementation should be used?
 dhcp server = isc
@@ -8,7 +8,7 @@ dhcp server = isc
 # What is the TFTP root directory that should be used to store the
 # network boot images? By default Warewulf will try and find the
 # proper directory. Just add this if it can't locate it.
-tftpdir = {{warewulf_common}}/tftpboot
+tftpdir = {{warewulf.common}}/tftpboot
 
 # Automatically generate and manage a dynamnic_host virtual file
 # object in the datastore? This is useful for provisioning this

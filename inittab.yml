@@ -40,7 +40,7 @@
   - name: Set ttys
     lineinfile: dest=/etc/sysconfig/init
                 regexp='^ACTIVE_CONSOLES'
-                line='ACTIVE_CONSOLES=/dev/tty[7-8]'
+                line="ACTIVE_CONSOLES={{ttys.consoles}}"
     when: ansible_os_family == "RedHat"
     tags:
       - tty
@@ -48,7 +48,7 @@
   - name: Set X tty
     lineinfile: dest=/etc/init/start-ttys.conf
                 regexp='^env X_TTY'
-                line='env X_TTY=/dev/tty8'
+                line="env X_TTY={{ttys.x}}"
     when: ansible_os_family == "RedHat"
     tags:
       - tty
@@ -73,45 +73,27 @@
     tags:
       - messages
 
-  - name: Install Init start-top
-    template: src=etc/init/start-top.conf.j2
-              dest=/etc/init/start-top.conf
+  - name: Install Init start-glances
+    template: src=etc/init/start-glances.conf.j2
+              dest=/etc/init/start-glances.conf
               owner=root
               group=root
               mode=0640
     when: ansible_os_family == "RedHat"
     tags:
-      - top
+      - glances
 
-  - name: Install Init top
-    template: src=etc/init/top.conf.j2
-              dest=/etc/init/top.conf
+  - name: Install Init glances
+    template: src=etc/init/glances.conf.j2
+              dest=/etc/init/glances.conf
               owner=root
               group=root
               mode=0640
     when: ansible_os_family == "RedHat"
     tags:
-      - top
+      - glances
 
-  - name: Install Init start-top-mem
-    template: src=etc/init/start-top-mem.conf.j2
-              dest=/etc/init/start-top-mem.conf
-              owner=root
-              group=root
-              mode=0640
-    when: ansible_os_family == "RedHat"
-    tags:
-      - top
 
-  - name: Install Init top-mem
-    template: src=etc/init/top-mem.conf.j2
-              dest=/etc/init/top-mem.conf
-              owner=root
-              group=root
-              mode=0640
-    when: ansible_os_family == "RedHat"
-    tags:
-      - top
 
   - name: Install Init start-iostat
     template: src=etc/init/start-iostat.conf.j2

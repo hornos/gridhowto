@@ -4,7 +4,7 @@ repo: glusterfs-epel.repo
 gluster:
   vg_root: 'vg_root'
   lv_data: 'glusterfs_common_brick1'
-  lv_size: 131072
+  lv_size: 256000
   lv_mnt: '/data/glusterfs/common/brick1'
   transport: 'tcp,rdma'
   volume: 'common'
@@ -12,4 +12,4 @@ gluster:
   common: '/common'
   fio_size: '100M'
   disk: 'sda'
-  fsopts: ''
+  opts: '_netdev,noatime,defaults,acl'

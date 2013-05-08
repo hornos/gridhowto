@@ -11,13 +11,13 @@
 
   vars:
     is_master: "'$inventory_hostname' == '$master'"
-    is_warewulf_master: "'$inventory_hostname' == '$warewulf.master'"
-    is_warewulf_backup: "'$inventory_hostname' == '$warewulf.backup'"
+    is_warewulf_master: "'$inventory_hostname' == '{{warewulf.master}}'"
+    is_warewulf_backup: "'$inventory_hostname' == '{{warewulf.backup}}'"
 
   tasks:
 
   - name: Download Warewulf repo
-    get_url: url=${url}/${repo} dest=/etc/yum.repos.d/${repo}
+    get_url: url={{url}}/{{repo}} dest=/etc/yum.repos.d/{{repo}}
     tags:
       - packages
 
@@ -25,33 +25,36 @@
     yum: name=$item
          state=installed
     with_items:
+      - xinetd
       - httpd
       - dhcp
       - tcpdump
       - tftp-server
       - mod_perl
       - warewulf-common
+      - warewulf-cluster
+      - warewulf-cluster-node
       - warewulf-provision
+      - warewulf-provision-server
       - warewulf-vnfs
       - warewulf-nhc
-      - warewulf-provision-server
     tags:
       - packages
 
   - name: Setup warewulf mysql db
     mysql_db: db={{warewulf.db}}
               login_user=root
-              login_password=$password
-              login_unix_socket=$socket
+              login_password={{mariadb.password}}
+              login_unix_socket={{mariadb.socket}}
     only_if: '$is_master'
     tags:
       - database
 
   - name: Setup warewulf mysql user
-    mysql_user: name=$warewulf_user password=$warewulf_password priv=${warewulf_db}.*:ALL
+    mysql_user: name={{warewulf.user}} password={{warewulf.password}} priv={{warewulf.db}}.*:ALL
                 login_user=root
-                login_password=$password
-                login_unix_socket=$socket
+                login_password={{mariadb.password}}
+                login_unix_socket={{mariadb.socket}}
     only_if: '$is_master'
     tags:
       - database
@@ -66,7 +69,7 @@
       - config
 
   - name: Create common directory
-    file: path=$warewulf_common
+    file: path={{warewulf.common}}
           owner=root
           group=root
           state=directory
@@ -75,7 +78,7 @@
     only_if: '$is_master'
 
   - name: Create common tftpboot directory
-    file: path=${warewulf_common}/tftpboot
+    file: path={{warewulf.common}}/tftpboot
           owner=root
           group=root
           state=directory
@@ -85,7 +88,7 @@
     only_if: '$is_master'
 
   - name: Create common chroots directory
-    file: path=${warewulf_common}/chroots
+    file: path={{warewulf.common}}/chroots
           owner=root
           group=root
           state=directory
@@ -95,7 +98,7 @@
     only_if: '$is_master'
 
   - name: Create common tftpboot/warewulf directory
-    file: path=${warewulf_common}/tftpboot/warewulf
+    file: path={{warewulf.common}}/tftpboot/warewulf
           owner=root
           group=root
           state=directory
@@ -105,7 +108,7 @@
     only_if: '$is_master'
 
   - name: Copy tfptboot files
-    shell: /bin/cp /var/lib/tftpboot/warewulf/* ${warewulf_common}/tftpboot/warewulf
+    shell: /bin/cp /usr/share/warewulf/* {{warewulf.common}}/tftpboot/warewulf
     tags:
       - config
       - ftp
@@ -158,6 +161,14 @@
     notify:
       - Update dhcp
     only_if: '$is_warewulf_backup'
+
+  - name: Exclude /boot
+    lineinfile: dest=/etc/warewulf/vnfs.conf
+                regexp='^excludes \+= \/boot'
+                line='excludes += /boot'
+                backup=yes
+    tags:
+      - exclude
 
   ### SERVICES
   - name: Start xinetd

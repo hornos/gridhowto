@@ -60,7 +60,7 @@
     mount: name={{gluster.common}}
            src=127.0.0.1:/{{gluster.volume}}
            fstype=glusterfs
-           opts={{gluster.fsopts}},defaults,acl,log-level=WARNING,log-file=/var/log/gluster.log
+           opts={{gluster.opts}},log-level=WARNING,log-file=/var/log/gluster.log
            state=mounted
     tags:
       - mount

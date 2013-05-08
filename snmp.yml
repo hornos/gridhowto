@@ -1,0 +1,26 @@
+#
+# SNMP
+#
+---
+- hosts: all
+  vars_files:
+    - networks.yml
+
+  vars:
+    is_master: "'$inventory_hostname' == '$master'"
+
+  tasks:
+  - name: Install SNMP packages
+    yum: name=$item
+         state=installed
+    with_items:
+      - net-snmp
+      - net-snmp-utils
+      - net-snmp-python
+    tags:
+      - packages
+
+  - name: Start SNMP server
+    service: name=snmpd
+             state=started
+             enabled=yes

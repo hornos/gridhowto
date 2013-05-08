@@ -406,24 +406,26 @@ Root servers provide NTP for the cluster. If you have a very large cluster root 
 
 Set SELinux premissive mode and setup EPEL and rpmforge repositories for RedHat like systems:
 
-    bin/play @@root basic_redhat
+    ./play @@root basic_redhat
 
 or one by one:
 
-    bin/play @@root basic_selinux
-    bin/play @@root basic_repos
+    ./play @@root basic_selinux
+    ./play @@root basic_repos
 
 For Debian-based systems you have to skip these playbooks.
 
 ### Firewall
 Play firewall-related scripts by:
 
-    bin/play @@root firewall
+    ./play @@root firewall
 
-or one by one. Use IP sets everywhere and everytime and do not restart the firewall. Check templates in `etc/ipset.d` for ip lists. Enable IP sets and the Shorewall firewall:
+or one by one. Due to some IPset related bug Shorewall failes to start at first. Reboot the machines and rerun the `firewall` playbook.
 
-    bin/play @@root shorewall_ipset
-    bin/play @@root shorewall
+Use IP sets everywhere and everytime and do not restart the firewall. Check templates in `etc/ipset.d` for ip lists. Enable IP sets and the Shorewall firewall:
+
+    ./play @@root shorewall_ipset
+    ./play @@root shorewall
 
 Emergency rules are defined in `etc/shorewall/rutestopped.j2` and should contain an SSH access rule. UPNP client support is on by default.
 
@@ -441,45 +443,45 @@ The `friendlist` is populated by *interactions* via general purpose UPNP (GPUPNP
 #### Fail2ban
 Fail2ban is protecting SSH by default.
 
-    bin/play @@root fail2ban
+    ./play @@root fail2ban
 
 The system network is not banned.
 
 #### GeoIP
 
-    bin/play @@root geoip
+    ./play @@root geoip
 
 ### Basic Services
 You can run all the basic playbooks at once (takes several minutes):
 
-    bin/play @@root basic
+    ./play @@root basic
 
 or one by one. Setup basic services: DNSmasq, NTP, Syslog-ng:
 
-    bin/play @@root basic_services
+    ./play @@root basic_services
 
 If you use DHCP in order to enable the localhost DNS reboot the machine(s) now by `bin/reboot @@root`.
 
 Install some packages:
 
-    bin/play @@root basic_packages
-    bin/play @@root basic_python
+    ./play @@root basic_packages
+    ./play @@root basic_python
 
 Install top-like apps:
 
-    bin/play @@root basic_tops
+    ./play @@root basic_tops
 
 Install apache and setup status page:
 
-    bin/play @@root basic_httpd
+    ./play @@root basic_httpd
 
 Enable PHP system information:
 
-    bin/play @@root phpsysinfo
+    ./play @@root phpsysinfo
 
 Install basic tools:
 
-    bin/play @@root basic_tools
+    ./play @@root basic_tools
 
 You can we machine logs in on one multitail screen (on a node):
 
@@ -491,7 +493,7 @@ or check a node's top by:
 
 Finally, the basic configuration:
 
-    bin/play @@root basic_config
+    ./play @@root basic_config
 
 and reboot:
 
@@ -510,15 +512,98 @@ The basic playbook contains the following inittab changes:
     tty7 - mingetty
     tty8 - mingetty (and X)
 
+## Admin panels
+### Webmin
+
+    ./play @@root webmin
+
+### Ajenti
+
+    ./play @@root ajenti
+
+## Globus
+Install the certificate utilities and Globus on your mac:
+
+    make globus_simple_ca globus_gsi_cert_utils
+
+There is a hash mismatch between OpenSSL 0.9 and 1.X. Install newer OpenSSL on your mac. You can use the [NCE module/package manager](https://github.com/NIIF/nce). Load the Globus and the new OpenSSL environment:
+
+    module load globus openssl
+
+The Grid needs a PKI, which protects access and the communication. You can create as many CA as you like. It is advised to make many short-term flat CAs. Edit grid scripts as well as templates in `share/globus_simple_ca` if you want to change key parameters. Create a Root CA:
+
+    bin/ca create <CA> [days] [email]
+
+The new CA is created under the `ca/<ID>` directory. The CA certificate is installed under `ca/grid-security` to make requests easy. If you compile Globus with the old OpenSSL (system default) you have to use old-style subject hash. Create old CA hash by:
+
+    bin/ca oldhash
+
+Request & sign host certificates:
+
+    bin/ca host <CA> <FQDN>
+    bin/ca sign <CA> <FQDN>
+
+Certs, private keys and requests are in `ca/<CA>/grid-security`. There is also a `ca/<CAHASH>` directory link for each CA. You have to use the `<CAHASH>` in the playbooks. Edit `globus_vars.yml` and set the default CA hash.
+
+Create and sign the sysop cert:
+
+    bin/ca user <CA> sysop "System Operator"
+    bin/ca sign <CA> sysop
+
+In order to use `sysop` as a default grid user you have to copy cert and key into the `keys` directory:
+
+    bin/ca keys <CA> sysop
+
+Create a pkcs12 version if you need for the browser (this command works in the `keys` directory):
+
+    bin/ca p12 sysop
+
+Test your user certificate:
+
+    bin/ca verify rootca sysop
+
+### Certificates
+Install Globus on the root servers:
+
+    ./play @@root globus
+
+Install CA certificates, host key and host cert:
+
+    ./play @@root globus_ca
+
+Install the Gridmap file. Get the `sysop` DN and edit `globus_vars.yml`:
+
+    bin/ca subject <CA> sysop
+    ./play @@root globus_gridmap
+
+### GSI SSH
+This command starts GSI SSH on port 2222:
+
+    ./play @@root globus_ssh
+
+Test GSI SSH from OS X by `shf3` since it is the best CLI tool for SSH stuff. Check DNS resolution, client and host should resolv the root server names. Other users should be created by LDAP.
+
+### Apache with Globus cert
+You can use the Globus PKI for Apache SSL (the default CA is used):
+
+    bin/play @@root globus_httpd
+
+### Ajenti with Globus cert
+
+    bin/play @@root globus_ajenti
+
+## LDAP
+auto home, limits
+
 ## Monitoring
 Monitoring (Ganglia and PCP) can be played by:
 
-    bin/play @@root monitors
+    ./play @@root monitors
 
 ### Ganglia
 Ganglia is a scalable distributed monitoring system for high-performance computing systems such as clusters and Grids. It is based on a hierarchical design targeted at federations of clusters. You can think of it as a low-level cluster top. Ganglia is running with unicast addresses and root servers cross-monitor each other. Ganglia is a best effort monitor and you should use it to monitor as many things as possible.
 
-    bin/play @@root ganglia
+    ./play @@root ganglia
 
 Ganglia's web intreface is at `http://root-0?/ganglia`.
 
@@ -534,10 +619,14 @@ The following monitors can be played:
     ganglia_procstat  - basic service monitor
     ganglia_system    - cpu and memory statistics
 
+Install topcoat header temlpate:
+
+    ./play @@root ganglia_topcoat
+
 ### SGI PCP
 SGI's PCP is a very matured performance monitoring tool especially designed for high-performance systems. Install PCP by:
 
-    bin/play @@root pcp
+    ./play @@root pcp
 
 PCP contains an automated reasoning deamon (`pmie`) which you can use to throw system exceptions caught by eg. Errbit or broadcasted via an MQ.
 
@@ -557,30 +646,25 @@ The `basic_tools` playbook installs several small wrappers for simple cluster mo
     slurmctldlog  - HA Slurm controller servers
     galeralog     - HA Mysql wsrep
 
-### Webmin
-
-    bin/play @@root webmin
-
 ### Sensu
 Install RabbitMQ and Redis
 
-    bin/play @@root rabbitmq
-    bin/play @@root redis
-
+    ./play @@root rabbitmq
+    ./play @@root redis
 
 ## Databases
 ### MariaDB with Galera
 MariaDB with Galera is used for the cluster SQL service. The first root node (`root-01`) is the pseudo-master. Edit `networks.yml` to change master host.
 
-    bin/play @@root mariadb
+    ./play @@root mariadb
 
 Secure mysql (delete test database and set root password):
 
-    bin/play @@root mariadb_secure
+    ./play @@root mariadb_secure
 
 Install mysql tools:
 
-    bin/play @@root mariadb_tools
+    ./play @@root mariadb_tools
 
 The following tools are installed under `/root/bin`:
 
@@ -619,14 +703,16 @@ Switch on Ganglia monitors for the local MQ:
 ### Bittorrent Sync
 Sharing is caring, even among root servers:
 
-    bin/play btsync
+    ./play btsync
 
 ### Gluster
-Warning Gluster hangs yum chroot install. You might consider ditching in favour of Ceph or XtreemFS.
+Switch to the mainline kernel and reboot:
+
+    ./play @@root kernel_ml
 
 Glusterfs playbook creates a common directory (`/common`) on the root servers:
 
-    bin/play @@root gluster --extra-vars "format=yes"
+    ./play @@root gluster --extra-vars "format=yes"
 
 Login to the first server (`root-01`) and run:
 
@@ -634,7 +720,7 @@ Login to the first server (`root-01`) and run:
 
 Locally mount the common partion on all root servers:
 
-    bin/play @@root glusterfs
+    ./play @@root glusterfs
 
 If you have to replace a failed node eg. root-03 (10.1.1.3) check the peer uuid:
 
@@ -642,11 +728,16 @@ If you have to replace a failed node eg. root-03 (10.1.1.3) check the peer uuid:
 
 Play the gluster_replace playbook with the uuid you get from the previous command:
 
-    bin/play @@root-03 gluster_replace --extra-vars "uuid=<UUID>"
+    ./play @@root-03 gluster_replace --extra-vars "uuid=<UUID>"
 
 and mount
 
-    bin/play @@root-03 glusterfs
+    ./play @@root-03 glusterfs
+
+Install SNMP and `gtop` for monitoring:
+
+    ./play @@root snmp
+    ./play @@root gluster_gtop
 
 ### Ceph
 
@@ -666,75 +757,6 @@ and rerun bootstrap and start. Mount ceph by fuse:
 
     ceph-fuse -m $(hostname) /common
 
-## Globus
-Install the certificate utilities and Globus on your mac:
-
-    make globus_simple_ca globus_gsi_cert_utils
-
-There is a hash mismatch between OpenSSL 0.9 and 1.X. Install newer OpenSSL on your mac. You can use the NCE module/package manager. Load the Globus and the new OpenSSL environment:
-
-    module load globus openssl
-
-The Grid needs a PKI, which protects access and the communication. You can create as many CA2 as you like. It is advised to make many short-term and flat CAs. Edit grid scripts as well as templates in `share/globus_simple_ca` if you want to change key parameters. Create a Root CA:
-
-    bin/ca create <CA> [days] [email]
-
-The new CA is created under the `ca/<ID>` directory. The CA certificate is installed under `ca/grid-security` to make requests easy. If you compile Globus with the old OpenSSL (system default) you have to use old-style subject hash. Create old CA hash by:
-
-    bin/ca oldhash
-
-Request & sign host certificates:
-
-    bin/ca host <CA> <FQDN>
-    bin/ca sign <CA> <FQDN>
-
-Certs, private keys and requests are in `ca/<CA>/grid-security`. There is also a `ca/<CAHASH>` directory link for each CA. You have to use the `<CAHASH>` in the playbooks. Edit `globus_vars.yml` and set the default CA hash.
-
-Create and sign the sysop cert:
-
-    bin/ca user <CA> sysop "System Operator"
-    bin/ca sign <CA> sysop
-
-In order to use `sysop` as a default grid user you have to copy cert and key into the `keys` directory:
-
-    bin/ca keys <CA> sysop
-
-Create a pkcs12 version if you need for the browser (this command works in the `keys` directory):
-
-    bin/ca p12 sysop
-
-Test your user certificate:
-
-    bin/ca verify rootca sysop
-
-### GSI SSH
-Install Globus on the root servers:
-
-    bin/play @@root globus
-
-Install CA certificates, host key and host cert:
-
-    bin/play @@root globus_ca
-
-Install the Gridmap file. Get the `sysop` DN and edit `globus_vars.yml`:
-
-    bin/ca subject <CA> sysop
-    bin/play @@root globus_gridmap
-
-This command starts GSI SSH on port 2222:
-
-    bin/play @@root globus_ssh
-
-Test GSI SSH from OS X by shf3 since it is the best CLI tool for SSH stuff. Check DNS resolution, client and host should resolv the root server names. Other users should be created by LDAP.
-
-### Apache with Globus
-You can use the Globus PKI for Apache SSL (the default CA is used):
-
-    bin/play @@root globus_httpd
-
-
-## LDAP
-
 ## Slurm
 Slurm is a batch scheduler for the cluster with `low` `normal` and `high` queues. First you have to create a munge key to protect authentication:
 
@@ -742,19 +764,36 @@ Slurm is a batch scheduler for the cluster with `low` `normal` and `high` queues
 
 Install and setup Slurm:
 
-    bin/play @@root slurm
+    ./play @@root slurm
 
 The first root node is the master and the 2nd is the backup controller for `slurmctld` and `slurmdbd`. The common state directory is `/common/slurm`. Failover timeout is 60 s.
 
 ## Warewulf Cluster
 Warewulf cluster manager is a simple yet powerful cluster provision toolkit. It support stateless installation of compute nodes. Install and setup Warewulf:
 
-    bin/play @@root warewulf
+    ./play @@root warewulf
+
+Install tools:
+
+    ./play @@root warewulf_tools
 
 Create provision directory on one of the root servers:
 
-    wwmkchroot centos-6 /common/warewulf/chroots/centos-6
+    wwmkchroot sl-6 /common/warewulf/chroots/sl-6
 
+Create the VNFS image:
+
+    wwvnfs --chroot /common/warewulf/chroots/sl-6
+
+Install kernel (TODO auto kernel):
+
+    /root/bin/wwyum sl-6 install kernel
+
+Bootstrap the kernel:
+
+    wwbootstrap --chroot=/common/warewulf/chroots/sl-6 2.6.32-358.el6.x86_64
+
+TODO dataroot, node management
 
 ### Graphite
 

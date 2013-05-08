@@ -3,12 +3,14 @@
 # 
 
 - include: basic_packages.yml
-- include: basic_services.yml
 - include: basic_python.yml
+- include: basic_services.yml
 - include: basic_ruby.yml
 - include: basic_crypto.yml
 - include: basic_tops.yml
 - include: basic_httpd.yml
 - include: phpsysinfo.yml
+- include: httpd_topcoat.yml
+- include: httpd_h5ai.yml
 - include: basic_tools.yml
 - include: basic_config.yml

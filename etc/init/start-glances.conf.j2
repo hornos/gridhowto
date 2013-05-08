@@ -1,0 +1,8 @@
+start on stopped rc RUNLEVEL=[2345]
+
+env GLANCES_TTY={{ttys.glances}}
+task
+script
+. /etc/sysconfig/init
+initctl start glances TTY=$GLANCES_TTY
+end script

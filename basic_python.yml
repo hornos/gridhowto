@@ -11,9 +11,11 @@
     with_items:
       - rainbow
       - configparser
+      - Glances
+      - monner
+      - httpie
     tags:
       - packages
-
 
   - name: Install rainbow configs
     template: src=usr/share/rainbow/configs/${item}.cfg.j2

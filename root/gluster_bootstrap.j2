@@ -64,7 +64,7 @@ read -p "Create volume $VOLUME on $ROOT_DISK?"
 gluster volume create $VOLUME replica $REPLICA transport {{gluster.transport}} $ROOT_DISK
 
 echo ""
-read -p "Start volume $VOLUME"
+read -p "Start volume $VOLUME?"
 gluster volume start $VOLUME
 
 echo ""

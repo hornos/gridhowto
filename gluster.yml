@@ -31,6 +31,7 @@
     yum: name=$item
          state=latest
     with_items:
+      - xfsprogs
       - glusterfs-server
       - glusterfs-fuse
     tags:
@@ -67,6 +68,7 @@
     mount: name={{gluster.lv_mnt}}
            src=/dev/{{gluster.vg_root}}/{{gluster.lv_data}}
            fstype=xfs
+           opts={{gluster.opts}}
            state=mounted
     tags:
       - partition
