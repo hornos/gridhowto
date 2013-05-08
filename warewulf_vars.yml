@@ -9,3 +9,4 @@ warewulf:
   interface: eth0
   master: 'root-01'
   backup: 'root-02'
+  range: '10.1.1.21 10.1.1.61'

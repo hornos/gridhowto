@@ -203,6 +203,7 @@
     tags:
       - config
       - rules
+      - interfaces
     notify:
       - Restart shorewall
 

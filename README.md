@@ -722,7 +722,7 @@ Locally mount the common partion on all root servers:
 
     ./play @@root glusterfs
 
-If you have to replace a failed node eg. root-03 (10.1.1.3) check the peer uuid:
+If you have to replace a failed node eg. `root-03 (10.1.1.3)` check the peer uuid:
 
     grep 10.1.1.3 /var/lib/glusterd/peers/* | sed s/:.*// | sed s/.*\\///
 

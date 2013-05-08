@@ -1,4 +1,4 @@
 #ZONE      INTERFACE     BROADCAST     OPTIONS
-sys        {{interfaces.system}}    detect
-ext        {{interfaces.external}}  detect dhcp,tcpflags,nosmurfs,routefilter,logmartians,blacklist,upnpclient
+sys        {{interfaces.system}}   detect dhcp
+ext        {{interfaces.external}} detect dhcp,tcpflags,nosmurfs,routefilter,logmartians,blacklist,upnpclient
 #LAST LINE -- ADD YOUR ENTRIES BEFORE THIS ONE -- DO NOT REMOVE

@@ -31,6 +31,7 @@
       - tcpdump
       - tftp-server
       - mod_perl
+      - perl-Term-ReadLine-Gnu
       - warewulf-common
       - warewulf-cluster
       - warewulf-cluster-node
@@ -162,6 +163,16 @@
       - Update dhcp
     only_if: '$is_warewulf_backup'
 
+  - name: Set DHCP listen interface
+    lineinfile: dest=/etc/sysconfig/dhcpd
+                regexp='^DHCPDARGS'
+                line="DHCPDARGS={{warewulf.interface}}"
+    tags:
+      - config
+      - dhcp
+    notify:
+      - Update dhcp
+
   - name: Exclude /boot
     lineinfile: dest=/etc/warewulf/vnfs.conf
                 regexp='^excludes \+= \/boot'
@@ -169,6 +180,36 @@
                 backup=yes
     tags:
       - exclude
+
+  - name: Install node.conf
+    template: src=etc/warewulf/defaults/node.conf.j2
+              dest=/etc/warewulf/defaults/node.conf
+              backup=yes
+    tags:
+      - config
+      - defaults
+
+#### FIX wwinit
+#  - name: Fix 10-database.init
+#    template: src=usr/libexec/warewulf/wwinit/10-database.init.j2
+#              dest=/usr/libexec/warewulf/wwinit/10-database.init
+#              backup=yes
+#    tags:
+#      - config
+#      - fix
+#
+
+  - name: Install /etc/shorewall/rules.d/warewulf
+    template: src=etc/shorewall/rules.d/warewulf.j2
+              dest=/etc/shorewall/rules.d/warewulf
+              owner=root
+              group=root
+              mode=0640
+    tags:
+      - firewall
+    notify:
+      - Restart shorewall
+
 
   ### SERVICES
   - name: Start xinetd
@@ -184,6 +225,9 @@
       service: name=xinetd
                state=restarted
 
+    - name: Restart shorewall
+      service: name=shorewall
+               state=restarted
+
     - name: Update dhcp
       shell: /usr/bin/wwsh dhcp update
-

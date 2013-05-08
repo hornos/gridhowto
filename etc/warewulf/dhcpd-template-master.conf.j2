@@ -17,12 +17,13 @@ failover peer "warewulf" {             # Failover configuration
   load balance max seconds 3;
 }
 
-subnet {{networks.system}} netmask {{masks.system}} {
+subnet {{networks.system}} netmask {{dhpc_masks.system}} {
   pool {
     failover peer "warewulf";
+    range {{warewulf.range}};
   }
   not authoritative;
-  option subnet-mask {{masks.system}};
+  option subnet-mask {{dhpc_masks.system}};
   allow booting;
   allow bootp;
   ddns-update-style interim;
