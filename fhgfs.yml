@@ -1,0 +1,234 @@
+#
+# http://www.fhgfs.com/
+#
+#
+# Format fhgfs disk:
+# --extra-vars "format=yes"
+# Mount fhgfs disk:
+# --extra-vars "mount=yes"
+#
+
+---
+- hosts: all
+  vars_files:
+    - networks.yml
+    - fhgfs_vars.yml
+
+  vars:
+    is_master: "'$inventory_hostname' == '$master'"
+    is_format: "'$format' == 'yes'"
+    is_mount: "'$mount' == 'yes'"
+
+  tasks:
+
+  - name: Download FhGFS release key
+    get_url: url={{key_url}}/{{key}} dest=/root/fhgfs-release.asc
+    tags:
+      - packages
+      - key
+
+  - name: Install FhGFS release key
+    shell: /bin/rpm --import /root/fhgfs-release.asc
+    tags:
+      - packages
+      - key
+
+  - name: Download FhGFS repo
+    get_url: url={{url}}/{{repo}} dest=/etc/yum.repos.d/{{repo}}
+    tags:
+      - packages
+      - repo
+
+  - name: Install packages
+    yum: name=$item
+         state=installed
+    with_items:
+      - fhgfs-common
+      - fhgfs-mgmtd
+      - fhgfs-meta
+      - fhgfs-storage
+      - fhgfs-client
+      - fhgfs-helperd
+      - fhgfs-admon
+      - fhgfs-utils
+    tags:
+      - packages
+
+### DATA
+  - name: Create FhGFS data partition
+    lvol: vg={{fhgfs.vg_root}}
+          lv={{fhgfs.lv_data}}
+          size={{fhgfs.lv_data_size}}
+    tags:
+      - partition
+      - data
+      - lvm
+
+  - name: Create XFS filesystem for data
+    command: /sbin/mkfs.xfs -i size=512 /dev/{{fhgfs.vg_root}}/{{fhgfs.lv_data}}
+    only_if: '$is_format'
+    tags:
+      - partition
+      - data
+      - fs
+
+  - name: Creat mount dir for data
+    file: path={{fhgfs.lv_data_mnt}}
+          state=directory
+    tags:
+      - partition
+      - data
+
+  - name: Mount data partition
+    mount: name={{fhgfs.lv_data_mnt}}
+           src=/dev/{{fhgfs.vg_root}}/{{fhgfs.lv_data}}
+           fstype=xfs
+           opts={{fhgfs.data_opts}}
+           state=mounted
+    tags:
+      - partition
+      - data
+
+
+### META
+  - name: Create FhGFS meta partition
+    lvol: vg={{fhgfs.vg_root}}
+          lv={{fhgfs.lv_meta}}
+          size={{fhgfs.lv_meta_size}}
+    tags:
+      - partition
+      - meta
+      - lvm
+
+  - name: Create XFS filesystem for meta
+    command: /sbin/mkfs.ext4 /dev/{{fhgfs.vg_root}}/{{fhgfs.lv_meta}}
+    only_if: '$is_format'
+    tags:
+      - partition
+      - meta
+      - fs
+
+  - name: Creat mount dir for meta
+    file: path={{gluster.lv_meta_mnt}}
+          state=directory
+    tags:
+      - partition
+      - meta
+
+  - name: Mount meta partition
+    mount: name={{fhgfs.lv_meta_mnt}}
+           src=/dev/{{fhgfs.vg_root}}/{{fhgfs.lv_meta}}
+           fstype=ext4
+           opts={{fhgfs.meta_opts}}
+           state=mounted
+    tags:
+      - partition
+      - meta
+
+### MANAGEMENT SERVER
+  - name: Create state directory
+    file: path={{fhgfs.state}}
+          owner=root
+          group=root
+          state=directory
+    only_if: '$is_master'
+    tags:
+      - directories
+      - state
+      - config
+      - mgmt
+
+  - name: Create client mount directory
+    file: path={{fhgfs.mount}}
+          owner=root
+          group=root
+          state=directory
+    tags:
+      - directories
+      - config
+
+  - name: Enable state directory
+    lineinfile: dest=/etc/fhgfs/fhgfs-mgmtd.conf
+                regexp='^storeMgmtdDirectory'
+                line="storeMgmtdDirectory={{fhgfs.state}}"
+                backup=yes
+    tags:
+      - config
+      - mgmt
+
+### METADATA SERVER
+  - name: Set meta directory
+    lineinfile: dest=/etc/fhgfs/fhgfs-meta.conf
+                regexp='^storeMetaDirectory'
+                line="storeMetaDirectory={{fhgfs.lv_meta_mnt}}"
+                backup=yes
+    tags:
+      - config
+      - meta
+
+  - name: Set mgmt host for metadata
+    lineinfile: dest=/etc/fhgfs/fhgfs-meta.conf
+                regexp='^sysMgmtdHost'
+                line="sysMgmtdHost={{master}}"
+                backup=yes
+    tags:
+      - config
+      - meta
+
+### STORAGE SERVER
+  - name: Set storage directory
+    lineinfile: dest=/etc/fhgfs/fhgfs-storage.conf
+                regexp='^storeStorageDirectory'
+                line="storeStorageDirectory={{fhgfs.lv_data_mnt}}"
+                backup=yes
+    tags:
+      - config
+      - data
+      - storage
+
+  - name: Set mgmt host for storage
+    lineinfile: dest=/etc/fhgfs/fhgfs-storage.conf
+                regexp='^sysMgmtdHost'
+                line="sysMgmtdHost={{master}}"
+                backup=yes
+    tags:
+      - config
+      - meta
+      - storage
+
+### MONITOR SERVER
+  - name: Set mgmt host for monitor
+    lineinfile: dest=/etc/fhgfs/fhgfs-admon.conf
+                regexp='^sysMgmtdHost'
+                line="sysMgmtdHost={{master}}"
+                backup=yes
+    tags:
+      - config
+      - meta
+      - monitor
+
+### CLIENT
+  - name: Set mgmt host for client
+    lineinfile: dest=/etc/fhgfs/fhgfs-client.conf
+                regexp='^sysMgmtdHost'
+                line="sysMgmtdHost={{master}}"
+                backup=yes
+    tags:
+      - config
+      - meta
+      - monitor
+
+  - name: Disable services
+    service: name=$item
+             state=stopped
+             enabled=no
+    with_items:
+      - fhgfs-admon
+      - fhgfs-client
+      - fhgfs-helperd
+      - fhgfs-meta
+      - fhgfs-mgmtd
+      - fhgfs-storage
+    tags:
+      - init
+    ignore_errors: yes

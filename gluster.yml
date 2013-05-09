@@ -1,13 +1,9 @@
 #
-# FAILED: gluster hangs
-# wwmkchroot centos-6
-# yum
-# Running Transaction Test
-#
 # Format gluster disk:
 # --extra-vars "format=yes"
 # Mount gluster disk:
 # --extra-vars "mount=yes"
+#
 ---
 - hosts: all
   vars_files:

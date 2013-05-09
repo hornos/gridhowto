@@ -739,6 +739,10 @@ Install SNMP and `gtop` for monitoring:
     ./play @@root snmp
     ./play @@root gluster_gtop
 
+### Fraunhofer FS (FhGFS)
+
+    ./play @@root fhgfs
+
 ### Ceph
 
     bin/play @@root ceph --extra-vars "format=yes"
