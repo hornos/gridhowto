@@ -781,7 +781,7 @@ Create provision directory on one of the root servers:
 
     wwmkchroot sl-6 /common/warewulf/chroots/sl-6
 
-Set a root password in the `shadow` and `passwd` and create the VNFS image:
+Edit the following files and set a root password in the `shadow` and `passwd` and create the VNFS image:
 
     wwvnfs --chroot /common/warewulf/chroots/sl-6
 
@@ -798,6 +798,9 @@ Bootstrap the kernel:
     wwbootstrap --chroot=/common/warewulf/chroots/sl-6 2.6.32-358.el6.x86_64
 
 Provision a node:
+
+    wwsh node new n0000 --netdev=eth0 --hwaddr=<MACADDR> -I 10.1.1.21 -G 10.1.1.254 --netmask=255.255.255.0
+    wwsh provision set n0000 --bootstrap=2.6.32-358.el6.x86_64 --vnfs=sl-6
 
 ### Graphite
 
