@@ -769,7 +769,7 @@ Install and setup Slurm:
 The first root node is the master and the 2nd is the backup controller for `slurmctld` and `slurmdbd`. The common state directory is `/common/slurm`. Failover timeout is 60 s.
 
 ## Warewulf Cluster
-Warewulf cluster manager is a simple yet powerful cluster provision toolkit. It support stateless installation of compute nodes. Install and setup Warewulf:
+Warewulf cluster manager is a simple yet powerful cluster provision toolkit. It support stateless installation of compute nodes. The `compute` PIset is defined in `networks.yml`. Install and setup Warewulf:
 
     ./play @@root warewulf
 
@@ -781,11 +781,15 @@ Create provision directory on one of the root servers:
 
     wwmkchroot sl-6 /common/warewulf/chroots/sl-6
 
-Create the VNFS image:
+Set a root password in the `shadow` and `passwd` and create the VNFS image:
 
     wwvnfs --chroot /common/warewulf/chroots/sl-6
 
-Install kernel (TODO auto kernel):
+Later, if you want to rebuild the VNFS image:
+
+    wwvnfs sl-6
+
+Install the kernel:
 
     /root/bin/wwyum sl-6 install kernel
 
@@ -793,7 +797,7 @@ Bootstrap the kernel:
 
     wwbootstrap --chroot=/common/warewulf/chroots/sl-6 2.6.32-358.el6.x86_64
 
-TODO dataroot, node management
+Provision a node:
 
 ### Graphite
 
