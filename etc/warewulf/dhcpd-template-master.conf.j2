@@ -1,5 +1,9 @@
 # http://consultancy.edvoncken.net/index.php/HOWTO_Configure_DHCP_failover
 
+#
+# TODO: http://kb.juniper.net/InfoCenter/index?page=content&id=KB16352&actp=RSS
+#
+
 ##########################
 # DHCP Failover, Primary #
 ##########################
@@ -17,13 +21,13 @@ failover peer "warewulf" {             # Failover configuration
   load balance max seconds 3;
 }
 
-subnet {{networks.system}} netmask {{dhpc_masks.system}} {
+subnet {{networks.system}} netmask {{dhcp_masks.system}} {
   pool {
     failover peer "warewulf";
     range {{warewulf.range}};
   }
   not authoritative;
-  option subnet-mask {{dhpc_masks.system}};
+  option subnet-mask {{dhcp_masks.system}};
   allow booting;
   allow bootp;
   ddns-update-style interim;

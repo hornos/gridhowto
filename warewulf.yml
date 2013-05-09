@@ -34,7 +34,6 @@
       - perl-Term-ReadLine-Gnu
       - warewulf-common
       - warewulf-cluster
-      - warewulf-cluster-node
       - warewulf-provision
       - warewulf-provision-server
       - warewulf-vnfs
@@ -137,7 +136,7 @@
       - config
       - provision
 
-  - name: Install /etc/warewulf/dhcpd-template.conf
+  - name: Install master /etc/warewulf/dhcpd-template.conf
     template: src=etc/warewulf/dhcpd-template-master.conf.j2
               dest=/etc/warewulf/dhcpd-template.conf
               owner=root
@@ -150,7 +149,7 @@
       - Update dhcp
     only_if: '$is_warewulf_master'
 
-  - name: Install /etc/warewulf/dhcpd-template.conf
+  - name: Install backup /etc/warewulf/dhcpd-template.conf
     template: src=etc/warewulf/dhcpd-template-backup.conf.j2
               dest=/etc/warewulf/dhcpd-template.conf
               owner=root
@@ -199,7 +198,21 @@
 #      - fix
 #
 
-  - name: Install /etc/shorewall/rules.d/warewulf
+  - name: Install ipset tables
+    template: src=etc/ipset.d/${item}.j2
+              dest=/etc/ipset.d/$item
+              owner=root
+              group=root
+              mode=0755
+    with_items:
+      - warewulf.sh
+    tags:
+      - firewall
+      - ipset
+    notify:
+      - Restart ipset
+
+  - name: Install firewall rules
     template: src=etc/shorewall/rules.d/warewulf.j2
               dest=/etc/shorewall/rules.d/warewulf
               owner=root
@@ -224,6 +237,10 @@
     - name: Restart xinetd
       service: name=xinetd
                state=restarted
+
+    - name: Restart ipset
+      service: name=ipset
+               state=reloaded
 
     - name: Restart shorewall
       service: name=shorewall

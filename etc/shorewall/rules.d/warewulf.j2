@@ -1,6 +1,6 @@
 # tftp
-ACCEPT       sys           $FW       udp       69
-ACCEPT       sys           $FW       udp      514
-ACCEPT       sys           $FW       tcp       80
-Ping(ACCEPT) sys           $FW
+ACCEPT       sys:+warewulf           $FW       udp       69
+ACCEPT       sys:+warewulf           $FW       udp      514
+ACCEPT       sys:+warewulf           $FW       tcp       80
+Ping(ACCEPT) sys                     $FW
 #RULESEND

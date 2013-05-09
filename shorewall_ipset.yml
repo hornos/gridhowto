@@ -54,13 +54,14 @@
       - config
       - directories
 
-  - name: Install ipset lists
+  - name: Install ipset tables
     template: src=etc/ipset.d/${item}.j2
               dest=/etc/ipset.d/$item
               owner=root
               group=root
               mode=0755
     with_items:
+      - functions
       - blacklist.sh
       - whitelist.sh
       - root.sh

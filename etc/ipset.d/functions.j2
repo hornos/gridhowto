@@ -1,0 +1,31 @@
+
+function ipset/restore() {
+  local _save=${1:-${save}}
+  if [ -r ${_save} ] ; then
+    echo "Restoring ipset: ${_save}"
+    ipset -exist restore < ${_save}
+    exit $?
+  fi
+}
+
+function ipset/init() {
+  local _set=${1:-${gbn}}
+  local _type=${2:-${type}}
+  echo "Creating ipset: ${_set} [${_type}]"
+  ipset -exist -N ${_set} ${_type}
+}
+
+function ipset/save() {
+  local _set=${1:-${gbn}}
+  local _save=${2:-${save}}
+  ipset save ${_set} > ${_save}
+}
+
+function ipset/start() {
+  ipset/init $*
+  ipset/restore $*
+}
+
+function ipset/stop() {
+  ipset/save $*
+}

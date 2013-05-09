@@ -13,7 +13,7 @@ failover peer "warewulf" {             # Failover configuration
   max-response-delay 60;
   max-unacked-updates 10;
   mclt 3600;
-  split 128;                           # Leave this at 128, only defined on Primary
+  # split 128;                           # Leave this at 128, only defined on Primary
   load balance max seconds 3;
 }
 

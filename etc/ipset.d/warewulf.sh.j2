@@ -9,7 +9,7 @@ gbn=$(basename $0)
 gbn=${gbn%%.sh}
 gdn=$(dirname $0)
 save=${gbn}.save
-type=iphash
+type=nethash
 mode=${1:-start}
 shift
 source /etc/ipset.d/functions
@@ -21,10 +21,8 @@ pushd ${gdn} > /dev/null
 case ${mode} in
   start)
     ipset/start
-    echo "Setting sysops"
-    {% for host in sysops %}
-      ipset -exist -A ${gbn} {{ host }}
-    {% endfor %}
+    echo "Downloading ${gbn} definitions for ${countries}"
+    ipset -exist -A ${gbn} {{networks.compute}}/{{masks.compute}}
     ipset/save
   ;;
   stop)
