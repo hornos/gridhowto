@@ -3,4 +3,5 @@ service_rngd: rng-tools
 service_ntpd: ntp
 service_httpd: apache2
 service_gmond: ganglia-monitor
+service_crond: cron
 ganglia_webfrontend: ganglia-webfrontend

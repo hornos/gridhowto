@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # IPset init script
 #
@@ -18,7 +18,18 @@
 ### END INIT INFO
 
 # Source function library.
-. /etc/rc.d/init.d/functions
+# RedHat
+if test -r /etc/rc.d/init.d/functions ; then
+  source /etc/rc.d/init.d/functions
+fi
+
+# Debian & Ubuntu
+if test -r /lib/lsb/init-functions ; then
+  source /lib/lsb/init-functions
+  function success() {
+    log_success_msg
+  }
+fi
 
 prog="ipset"
 daemon="/usr/sbin/$prog"

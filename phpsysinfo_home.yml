@@ -1,0 +1,38 @@
+---
+- hosts: all
+
+  vars_files:
+    - networks.yml
+    - [ "vars/{{ ansible_os_family }}.yml", "vars/Defaults.yml" ]
+
+  tasks:
+    - name: Install phpsysinfo
+      git: repo=git://github.com/rk4an/phpsysinfo.git
+           dest=/opt/phpsysinfo
+      tags:
+        - packages
+
+    - name: Install /opt/phpsysinfo/phpsysinfo.ini
+      copy: src=opt/phpsysinfo/phpsysinfo.ini
+            dest=/opt/phpsysinfo/phpsysinfo.ini
+            owner=root
+            group=root
+            mode=0644
+      tags:
+        - config
+
+    - name: Enable phpsysinfo
+      template: src=etc/httpd/conf.d/phpsysinfo_home.conf.j2
+                dest=/etc/{{service_httpd}}/conf.d/phpsysinfo.conf
+                owner=root
+                group=root
+                mode=0644
+      notify:
+        - Restart {{service_httpd}}
+      tags:
+        - config
+
+  handlers:
+    - name: Restart {{service_httpd}}
+      service: name={{service_httpd}}
+               state=restarted

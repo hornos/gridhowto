@@ -1,0 +1,39 @@
+#!/bin/bash
+
+function fhgfsmgr/info() {
+  for i in mgmt meta storage ; do
+    echo ""
+    echo "$i"
+    echo "-----------------------------------------------"
+    fhgfs-ctl --listnodes --nodetype=$i --details
+  done
+}
+
+function fhgfsmgr/start() {
+  local _mode=${1}
+	if test "${_mode}" == "master"; then
+	  service fhgfs-mgmtd start
+	fi
+	service fhgfs-meta start
+	service fhgfs-storage start
+	if test "${_mode}" == "master"; then
+	  service fhgfs-admon start
+	fi
+}
+
+### args
+cmd=${1:-info}
+shift
+mode=${1:-slave}
+
+case ${cmd} in
+  info)
+    fhgfsmgr/info
+    ;;
+  start)
+    echo
+  ;;
+  stop)
+    echo
+  ;;
+esac

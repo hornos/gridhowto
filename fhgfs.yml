@@ -156,6 +156,16 @@
       - config
       - mgmt
 
+  - name: Forbids daemon startup if the storage directory is empty
+    lineinfile: dest=/etc/fhgfs/fhgfs-mgmtd.conf
+                regexp='^storeAllowFirstRunInit'
+                line="storeAllowFirstRunInit=false"
+                backup=yes
+    tags:
+      - config
+      - safety
+      - mgmt
+
 ### METADATA SERVER
   - name: Set meta directory
     lineinfile: dest=/etc/fhgfs/fhgfs-meta.conf
@@ -175,6 +185,16 @@
       - config
       - meta
 
+  - name: Forbids daemon startup if the storage directory is empty
+    lineinfile: dest=/etc/fhgfs/fhgfs-meta.conf
+                regexp='^storeAllowFirstRunInit'
+                line="storeAllowFirstRunInit=false"
+                backup=yes
+    tags:
+      - config
+      - safety
+      - meta
+
 ### STORAGE SERVER
   - name: Set storage directory
     lineinfile: dest=/etc/fhgfs/fhgfs-storage.conf
@@ -183,7 +203,6 @@
                 backup=yes
     tags:
       - config
-      - data
       - storage
 
   - name: Set mgmt host for storage
@@ -193,7 +212,16 @@
                 backup=yes
     tags:
       - config
-      - meta
+      - storage
+
+  - name: Forbids daemon startup if the storage directory is empty
+    lineinfile: dest=/etc/fhgfs/fhgfs-storage.conf
+                regexp='^storeAllowFirstRunInit'
+                line="storeAllowFirstRunInit=false"
+                backup=yes
+    tags:
+      - config
+      - safety
       - storage
 
 ### MONITOR SERVER

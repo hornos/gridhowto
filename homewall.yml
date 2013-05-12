@@ -1,0 +1,8 @@
+#
+# Basic configuration for root servers
+# 
+
+- include: shorewall_ipset_home.yml
+- include: shorewall_home.yml
+- include: fail2ban.yml
+- include: geoip.yml

@@ -44,7 +44,11 @@ fi
 
 ### common args
 key=./keys/${user}
-args="-u ${user} --private-key=${key} -i ${inventory} ${opts}"
+_key=""
+if test -r ${key} ; then
+  _key="--private-key=${key}"
+fi
+args="-u ${user} ${_key} -i ${inventory} ${opts}"
 cmd=""
 
 ### modules
@@ -101,7 +105,12 @@ case $gbn in
     grep ansible_ssh_host | \
     sed s/.*=// | uniq)
 
-    ssh -X ${opts} -i keys/${user} ${user}@${host}
+    key=keys/${user}
+    _key=""
+    if test -r ${_key} ; then
+      _key="-i ${key}"
+    fi
+    ssh -X ${opts} ${_key}  ${user}@${host}
     exit $?
     ;;
   help|*)

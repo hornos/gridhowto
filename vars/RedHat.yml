@@ -4,4 +4,5 @@ service_ntpd: ntpd
 service_httpd: httpd
 service_gmond: gmond
 service_mysql: mysql
+service_crond: crond
 ganglia_webfrontend: ganglia

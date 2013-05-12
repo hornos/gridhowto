@@ -21,3 +21,5 @@ scicomp ansible_ssh_host=10.1.1.11
 [harmonia]
 harmonia ansible_ssh_host=10.10.10.10
 
+[gateway]
+gateway ansible_ssh_host=gateway

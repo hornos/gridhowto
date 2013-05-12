@@ -583,6 +583,10 @@ This command starts GSI SSH on port 2222:
 
 Test GSI SSH from OS X by `shf3` since it is the best CLI tool for SSH stuff. Check DNS resolution, client and host should resolv the root server names. Other users should be created by LDAP.
 
+### Grid FTP
+
+### Globus Online
+
 ### Apache with Globus cert
 You can use the Globus PKI for Apache SSL (the default CA is used):
 
@@ -591,6 +595,10 @@ You can use the Globus PKI for Apache SSL (the default CA is used):
 ### Ajenti with Globus cert
 
     bin/play @@root globus_ajenti
+
+## SSH
+### GateONE
+### Mosh
 
 ## LDAP
 auto home, limits
@@ -829,15 +837,30 @@ At first, you have to run with `format=yes` to create the mongodb partition unde
 
   bin/play @@root-01 xcat
 
+## VPN
+### Tinc VPN
 
-## Grid
-### Globus
-#### PKI
-#### GSI-SSH
-#### GridFTP
-### GateONE
-## Tinc VPN
+### SoftEther
+### OpenVPN
 
-### Root Server VPN
+## Gateway Howto
+The *gateway* is Ubuntu-based home server, in particular a Zotac mini PC. You have to modify `space/.host` file to be able to inject machines on the local network, eg.:
 
-### Tinc Over TOR
+    listen_addresses="192.168.1.192"
+    router=192.168.1.1
+    # for the kickstart
+    http_listen="192.168.1.192:8080"
+
+IP of your OS X is in the `listen_addresses` list.
+
+Kickstart the gateway:
+
+    bin/jockey gateway 08:00:27:fb:2f:1d
+
+The installer initiates the network console and waits for an SSH login to continue. After reboot you have to run the following playbooks:
+
+    ./play root@gateway bootstrap
+    ./play @@gateway secure
+    ./play @@gateway homewall
+    ./play @@gateway basic_home
+    ./play @@gateway ajenti_home

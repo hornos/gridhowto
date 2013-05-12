@@ -1,0 +1,25 @@
+#
+# Basic configuration for root servers
+# 
+
+- include: basic_packages.yml
+- include: basic_python.yml
+
+# basic_services
+- include: dnsmasq_home.yml
+- include: ntp_server_home.yml
+- include: syslog-ng.yml
+- include: syslog-ng_loghost.yml
+- include: logcheck.yml
+
+- include: basic_ruby.yml
+- include: basic_crypto.yml
+- include: basic_tops.yml
+- include: basic_httpd.yml
+- include: phpsysinfo_home.yml
+- include: httpd_topcoat_home.yml
+- include: httpd_h5ai_home.yml
+- include: basic_tools.yml
+- include: basic_config.yml
+
+- include: ajenti_home.yml

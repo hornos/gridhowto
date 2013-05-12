@@ -77,8 +77,7 @@
         - functions
         - blacklist.sh
         - whitelist.sh
-        - root.sh
-        - sysop.sh
+        - homelist.sh
       tags:
         - config
 
@@ -88,8 +87,7 @@
       with_items:
         - blacklist.save
         - whitelist.save
-        - root.save
-        - sysop.save
+        - homelist.save
       only_if: '$is_reset'
       tags:
         - fix

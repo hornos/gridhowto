@@ -1,0 +1,34 @@
+#
+# UI http://topcoat.io/
+#
+---
+- hosts: all
+
+  vars_files:
+    - networks.yml
+    - httpd_topcoat_vars.yml
+    - [ "vars/{{ ansible_os_family }}.yml", "vars/Defaults.yml" ]
+
+  tasks:
+  - name: Download topcoat
+    get_url: url="{{url}}"
+             dest="/root/{{zip}}"
+
+  - name: Unpack topcoat
+    command: unzip -o "/root/{{zip}}" -d /opt
+
+  - name: Enable topcoat
+    template: src=etc/httpd/conf.d/topcoat_home.conf.j2
+              dest=/etc/{{service_httpd}}/conf.d/topcoat.conf
+              owner=root
+              group=root
+              mode=0644
+    notify:
+      - Restart {{service_httpd}}
+    tags:
+      - config
+
+  handlers:
+    - name: Restart httpd
+      service: name={{service_httpd}}
+               state=restarted

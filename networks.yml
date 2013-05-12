@@ -7,15 +7,18 @@ interfaces:
   system: eth0
   external: eth1
   dhcp: eth1
+  home: eth0
 
 networks:
   bmc: 10.0.0.0
   system: 10.1.0.0
   compute: 10.1.1.0
+  home: 192.168.1.0
 
 masks:
   system: 16
   compute: 24
+  home: 24
 
 dhcp_masks:
   system: 255.255.0.0

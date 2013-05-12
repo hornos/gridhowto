@@ -10,6 +10,7 @@ http {
 
   server {
     listen HTTP_LISTEN;
+    #LISTEN
     server_name jockey;
     location / {
       root HTTP_ROOT;

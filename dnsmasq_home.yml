@@ -1,0 +1,129 @@
+# This play enables dnsmasq DNS cache. Put /etc/hosts 
+# entries into /etc/dnsmasq.d/
+#
+# Not detect root servers:
+#
+#     --extra-vars "nodetect=yes"
+#
+# Use dnsmasq for /etc/hosts
+#     --extra-vars "usehosts=no"
+#
+---
+- hosts: all
+
+  vars:
+    nodetect: "no"
+    usehosts: "yes"
+
+  vars_files:
+    - networks.yml
+
+  tasks:
+### REDHAT
+
+#    - name: Install dnsmasq packages
+#      yum: name=$item state=installed
+#      with_items:
+#        - dnsmasq
+#        - dnsmasq-utils
+#        - bind-utils
+#      tags:
+#        - packages
+
+    - name: Install dnsmasq
+      yum: name=dnsmasq
+           state=installed
+      when: ansible_os_family == "RedHat"
+      tags:
+        - packages
+
+    - name: Install dnsmasq-utils
+      yum: name=dnsmasq-utils
+           state=installed
+      when: ansible_os_family == "RedHat"
+      tags:
+        - packages
+
+    - name: Install bind-utils
+      yum: name=bind-utils
+           state=installed
+      when: ansible_os_family == "RedHat"
+      tags:
+        - packages
+
+
+### DEBIAN
+    - name: Install dnsmasq
+      apt: name=dnsmasq
+           state=installed
+      when: ansible_os_family == "Debian"
+      tags:
+        - packages
+
+    - name: Install bind9utils
+      apt: name=bind9utils
+           state=installed
+      when: ansible_os_family == "Debian"
+      tags:
+        - packages
+
+
+### CONFIGURATION
+    - name: Enable /etc/dnsmasq.d
+      lineinfile: dest=/etc/dnsmasq.conf
+                  regexp='^conf-dir.*'
+                  insertafter='^#conf-dir.*'
+                  line='conf-dir=/etc/dnsmasq.d'
+                  backup=yes
+      notify:
+        - Restart dnsmasq
+      tags:
+        - configs
+
+    - name: Create hosts.d directory
+      file: path=/etc/hosts.d
+            owner=root
+            group=root
+            state=directory
+      tags:
+        - hosts
+
+    - name: Enable /etc/hosts.d
+      lineinfile: dest=/etc/dnsmasq.conf
+                  regexp='^addn-hosts.*'
+                  insertafter='^#addn-hosts.*'
+                  line='addn-hosts=/etc/hosts.d'
+                  backup=yes
+      notify:
+        - Restart dnsmasq
+      tags:
+        - hosts
+
+    - name: Localhost DNS in /etc/resolv.conf
+      lineinfile: dest=/etc/resolv.conf
+                  regexp='^nameserver 127.0.0.1'
+                  insertbefore='^nameserver.*'
+                  line='nameserver 127.0.0.1'
+                  backup=yes
+      tags:
+        - resolv
+
+    - name: Localhost DNS for DHCP (${interfaces.home})
+      template: src=etc/dhcp/dhclient.conf.j2
+                dest=/etc/dhcp/dhclient-${interfaces.home}.conf
+                owner=root
+                group=root
+                backup=yes
+      when_string: "'${interfaces.home}' != ''"
+      tags:
+        - dhcp
+
+    - name: Start dnsmasq
+      service: name=dnsmasq
+               state=started
+               enabled=yes
+
+  handlers:
+    - name: Restart dnsmasq
+      service: name=dnsmasq
+               state=restarted

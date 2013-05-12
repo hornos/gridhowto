@@ -54,7 +54,7 @@
 
 ### CONFIGURATION
     - name: Install /etc/shorewall/rules.d/ajenti
-      template: src=etc/shorewall/rules.d/ajenti.j2
+      template: src=etc/shorewall/rules.d/ajenti_home.j2
                 dest=/etc/shorewall/rules.d/ajenti
                 owner=root
                 group=root

@@ -31,7 +31,13 @@ ipxe_root=${masq_root}/pxelinux.cfg
 
 ### http server (nginx)
 http_conf=${jockey_root}/.http
-http_listen=${jockey_ip}:8080
+
+if ! test -z "${http_listen}" ; then
+  http_listen=${http_listen}
+else
+  http_listen=${jockey_ip}:8080
+fi
+
 http_root=${masq_root}
 
 nginx_bin=${usrlocal}/sbin/nginx
@@ -114,7 +120,7 @@ case ${cmd} in
     echo "ip=${ip}" | tee ${host}
   ;;
 
-  centos63|centos64|squeeze|wheezy|quantal|raring|kali|harmonia)
+  centos63|centos64|squeeze|wheezy|quantal|raring|kali|harmonia|gateway)
     if [ -z "${arg}" ] ; then help/jockey; fi
 
     ### args
@@ -125,7 +131,7 @@ case ${cmd} in
     shift
     name=${1:-root-01}
 
-    http_listen=${jockey_ip}:8080
+    # http_listen=${jockey_ip}:8080
 
     pass=$(jockey/pass)
     echo ""
@@ -161,12 +167,12 @@ case ${cmd} in
     > ${ipxe_root}/01-${ks}
   ;;
 
-  local|memtest|detect|firmware|cirros|tiny|kali)
+  local|memtest|detect|firmware|cirros|tiny|rawkali)
     if [ -z "${arg}" ] ; then help/jockey; fi
 
     mac=$(jockey/mac ${arg})
 
-    http_listen=${jockey_ip}:8080
+    # http_listen=${jockey_ip}:8080
     ks=$(echo "${mac}" | sed s/:/-/g | tr '[:upper:]' '[:lower:]')
     kickstart=${http_listen}/${ks}.ks
     default=${cmd}
@@ -180,7 +186,7 @@ case ${cmd} in
 
     mac=$(jockey/mac ${arg})
 
-    http_listen=${jockey_ip}:8080
+    # http_listen=${jockey_ip}:8080
     default=${cmd}
 
     pass=$(jockey/pass)
@@ -215,19 +221,61 @@ case ${cmd} in
   ;;
 
   http)
+    addresses=""
+    for i in $listen_addresses; do
+      if test "${i}:8080" != "${http_listen}" ; then
+        addresses="${addresses}listen $i:8080;\n"
+      fi
+    done
+
     cat ${jockey_root}/http | \
-    awk -v p=${http_root} -v l=${http_listen} '{gsub("HTTP_ROOT",p); gsub("HTTP_LISTEN",l); print}' \
+    awk -v p=${http_root} \
+        -v l=${http_listen} \
+        -v a="${addresses}" '{
+      gsub("#LISTEN",a);
+      gsub("HTTP_ROOT",p);
+      gsub("HTTP_LISTEN",l); print}' \
     > ${http_conf}
+    # cat ${http_conf}
     echo "Starting HTTP Server..."
     echo "Press Ctrl+C to exit"
     ${nginx_bin} -c ${http_conf}
   ;;
 
   boot)
+    interfaces=""
+    for i in $listen_interfaces; do
+      interfaces="${interfaces}interface=$i\n"
+    done
+
+    addresses=""
+    for i in $listen_addresses; do
+      addresses="${addresses}listen-address=$i\n"
+    done
+
+    _router="dhcp-option=3"
+    _dns=""
+    if ! test -z "${router}" ; then
+      _router="dhcp-option=option:router,${router}"
+      _dns="dhcp-option=6,${router}"
+    fi
+
     cat ${jockey_root}/masq | \
-    awk -v p=${masq_root} -v l=${jockey_ip} '{gsub("DNSMASQ_LISTEN",l); gsub("DNSMASQ_ROOT",p); print}' \
+    awk -v i=${interfaces} \
+        -v a=${addresses} \
+        -v p=${masq_root} \
+        -v r=${_router} \
+        -v d=${_dns} \
+        -v l=${jockey_ip} '{
+      gsub("#LISTEN-INTERFACES",i);
+      gsub("#LISTEN-ADDRESSES",a);
+      gsub("#ROUTER",r);
+      gsub("#DNS",d);
+      gsub("DNSMASQ_LISTEN",l);
+      gsub("DNSMASQ_ROOT",p); print}' \
     > ${masq_conf}
 
+    # cat ${masq_conf}
     echo "Starting DNSmasq server..."
     echo "Press Ctrl+C to exit"
     sudo ${dnsmasq_bin} -d -C ${masq_conf}

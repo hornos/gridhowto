@@ -46,7 +46,7 @@
       - zones
 
   - name: Install /etc/shorewall/zones.d/root
-    template: src=etc/shorewall/zones.d/root.j2
+    template: src=etc/shorewall/zones.d/home.j2
               dest=/etc/shorewall/zones.d/root
               owner=root
               group=root
@@ -113,7 +113,7 @@
       - policy
 
   - name: Install /etc/shorewall/policy.d/root
-    template: src=etc/shorewall/policy.d/root.j2
+    template: src=etc/shorewall/policy.d/home.j2
               dest=/etc/shorewall/policy.d/root
               owner=root
               group=root
@@ -146,7 +146,7 @@
       - rules
 
   - name: Install /etc/shorewall/rules.d/root
-    template: src=etc/shorewall/rules.d/root.j2
+    template: src=etc/shorewall/rules.d/home.j2
               dest=/etc/shorewall/rules.d/root
               owner=root
               group=root
@@ -156,19 +156,7 @@
     notify:
       - Restart shorewall
 
-
-  - name: Install /etc/shorewall/rules.d/sysop
-    template: src=etc/shorewall/rules.d/sysop.j2
-              dest=/etc/shorewall/rules.d/sysop
-              owner=root
-              group=root
-              mode=0640
-    tags:
-      - rules
-    notify:
-      - Restart shorewall
-
-
+### OTHER CONFIGURATIONS
   - name: Install other configurations
     template: src=etc/shorewall/${item}.j2
               dest=/etc/shorewall/${item}
@@ -179,14 +167,26 @@
     with_items:
       - rules
       - blrules
-      - interfaces
       - routestopped
     tags:
       - config
       - rules
+    notify:
+      - Restart shorewall
+
+  - name: Install interfaces
+    template: src=etc/shorewall/interfaces_home.j2
+              dest=/etc/shorewall/interfaces
+              owner=root
+              group=root
+              mode=0640
+              backup=yes
+    tags:
+      - config
       - interfaces
     notify:
       - Restart shorewall
+
 
   - name: Enable shorewall.conf
     template: src=etc/shorewall/shorewall.conf.j2

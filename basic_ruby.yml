@@ -1,7 +1,7 @@
 ---
 - hosts: all
   tasks:
-
+### PACKAGES
   - name: Install ruby packages
     yum: name=$item
     with_items:
@@ -15,6 +15,20 @@
     tags:
       - packages
 
+  - name: Install ruby packages
+    apt: name=$item
+    with_items:
+      - make
+      - gcc
+      - g++
+      - zlib1g-dev
+      - libxml2-dev
+      - libxslt1-dev
+    when: ansible_os_family == "Debian"
+    tags:
+      - packages
+
+### RVM
   - name: Copy RVM Installer
     copy: src=root/install_rvm.sh
           dest=/root/install_rvm.sh

@@ -40,6 +40,7 @@
     tags:
       - packages
 
+# TODO: nodejs and repos
   - name: Install basic packages
     apt: name=$item
          state=installed
@@ -58,9 +59,14 @@
       - python-crypto
       - python-distutils-extra
       - python-openssl
+      - python-dev
       - make
       - multitail
       - rsstail
+      - xauth
+      - libtool
+      - python-software-properties
+      - software-properties-common
     when: ansible_os_family == "Debian"
     tags:
       - packages

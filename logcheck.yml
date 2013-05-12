@@ -2,6 +2,7 @@
 - hosts: all
   vars_files:
     - slurm_vars.yml
+    - [ "vars/{{ ansible_os_family }}.yml", "vars/Defaults.yml" ]
 
   tasks:
 
@@ -36,5 +37,5 @@
 ### SERVICE
   handlers:
     - name: Restart crond
-      service: name=crond
+      service: name={{service_crond}}
                state=restarted

@@ -21,7 +21,7 @@ pushd ${gdn} > /dev/null
 case ${mode} in
   start)
     ipset/start
-    ipset -exist -A ${gbn} {{networks.compute}}/{{masks.compute}}
+    ipset -exist -A ${gbn} {{networks.home}}/{{masks.home}}
     ipset/save
   ;;
   stop)

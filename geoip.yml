@@ -16,6 +16,17 @@
         - packages
 
 ### DEBIAN
+    - name: Install GeoIP packages
+      apt: name=$item
+           state=installed
+      with_items:
+        - geoclue-ubuntu-geoip
+        - geoip-bin
+        - geoip-database
+        - python-geoip
+      when: ansible_os_family == "Debian"
+      tags:
+        - packages
 
 ### CONFIGURATION
     - name: Download databases
@@ -31,6 +42,6 @@
         - databases
 
     - name: Uncompress databases
-      shell: /usr/bin/gunzip -f /usr/share/GeoIP/*.gz
+      shell: gunzip -f /usr/share/GeoIP/*.gz
       tags:
         - config

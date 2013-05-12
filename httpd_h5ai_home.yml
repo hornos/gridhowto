@@ -1,0 +1,34 @@
+#
+# UI http://larsjung.de/h5ai/
+#
+---
+- hosts: all
+
+  vars_files:
+    - networks.yml
+    - httpd_h5ai_vars.yml
+    - [ "vars/{{ ansible_os_family }}.yml", "vars/Defaults.yml" ]
+
+  tasks:
+  - name: Download h5ai
+    get_url: url="{{url}}"
+             dest="/root/{{zip}}"
+
+  - name: Unpack h5ai
+    command: unzip -o "/root/{{zip}}" -d /opt
+
+  - name: Enable h5ai
+    template: src=etc/httpd/conf.d/h5ai_home.conf.j2
+              dest=/etc/{{service_httpd}}/conf.d/h5ai.conf
+              owner=root
+              group=root
+              mode=0644
+    notify:
+      - Restart {{service_httpd}}
+    tags:
+      - config
+
+  handlers:
+    - name: Restart httpd
+      service: name={{service_httpd}}
+               state=restarted

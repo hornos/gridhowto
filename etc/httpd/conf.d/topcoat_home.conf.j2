@@ -4,7 +4,7 @@ Alias /topcoat /opt/{{pkg}}/release
 <Directory "/opt/{{pkg}}/release">
   Order Deny,Allow
   Deny from all
-  Allow from {{ networks.system }}/{{ masks.system }}
+  Allow from {{ networks.home }}/{{ masks.home }}
   Allow from 127.0.0.1
 </Directory>
 

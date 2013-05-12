@@ -1,0 +1,10 @@
+ACCEPT     ext:+homelist           $FW       tcp        22
+ACCEPT     ext:+homelist           $FW       tcp        80
+ACCEPT     ext:+homelist           $FW       tcp       443
+# syslog
+ACCEPT     ext:+homelist           $FW       tcp       514
+ACCEPT     ext:+homelist           $FW       udp       514
+# ganglia
+ACCEPT     ext:+homelist           $FW       udp      8649
+ACCEPT     ext:+homelist           $FW       tcp      8649
+#RULESEND
