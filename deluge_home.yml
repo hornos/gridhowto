@@ -1,0 +1,25 @@
+#
+# http://deluge-torrent.org/
+#
+---
+- hosts: all
+
+  vars_files:
+    - deluge_vars.yml
+    - networks.yml
+
+  tasks:
+    - name: Install Deluge repo
+      apt_repository: repo=ppa:deluge-team/ppa
+      tags:
+        - repo
+
+    - name: Install Deluge packages
+      apt: name=$item
+           state=installed
+           force=yes
+      with_items:
+        - deluge
+      when: ansible_os_family == "Debian"
+      tags:
+        - packages

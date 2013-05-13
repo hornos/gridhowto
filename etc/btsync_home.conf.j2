@@ -1,0 +1,37 @@
+{ 
+  "device_name": "{{inventory_hostname}}",
+  "listening_port" : {{btsync.data}},
+  "storage_path" : "{{btsync.home}}/.sync",
+  "pid_file" : "/var/run/btsync/pid",
+  "check_for_updates" : false, 
+  "use_upnp" : true,
+  "download_limit" : 0,
+  "upload_limit" : 0,
+  "webui" :
+  {
+    "listen" : "{{ansible_eth0["ipv4"]["address"]}}:{{btsync.http}}",
+    "login" : "sysop",
+    "password" : "sysop"
+  },
+  "shared_folders" :
+  [
+    {
+      "secret" : "{{btsync.rwsecret}}",
+      "dir" : "{{btsync.rwdir}}",
+      "use_relay_server" : true,
+      "use_tracker" : true, 
+      "use_dht" : true,
+      "search_lan" : false,
+      "use_sync_trash" : true
+    },
+    {
+      "secret" : "{{btsync.rosecret}}",
+      "dir" : "{{btsync.rodir}}",
+      "use_relay_server" : true,
+      "use_tracker" : true, 
+      "use_dht" : true,
+      "search_lan" : false,
+      "use_sync_trash" : true
+    } 
+  ]
+}

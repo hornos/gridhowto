@@ -1,6 +1,6 @@
 { 
   "device_name": "{{inventory_hostname}}",
-  "listening_port" : {{btsync_port}},                       // 0 - randomize port
+  "listening_port" : {{btsync.port}},                       // 0 - randomize port
   
 /* storage_path dir contains auxilliary app files
    if no storage_path field: .sync dir created in the directory 
@@ -26,7 +26,7 @@
 
   "webui" :
   {
-    "listen" : "{{ansible_eth0["ipv4"]["address"]}}:{{btsync_http_port}}",
+    "listen" : "{{ansible_eth0["ipv4"]["address"]}}:{{btsync.http}}",
     "login" : "sysop",
     "password" : "sysop"
   }
@@ -41,8 +41,8 @@
   [
     {
 //  use --generate-secret in command line to create new secret
-      "secret" : "{{btsync_secret}}",                   // * required field
-      "dir" : "{{btsync_shared}}", // * required field
+      "secret" : "{{btsync.rwsecret}}",                   // * required field
+      "dir" : "{{btsync.rwdir}}", // * required field
 
 //  use relay server when direct connection fails
       "use_relay_server" : false,

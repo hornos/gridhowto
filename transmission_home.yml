@@ -1,0 +1,71 @@
+#
+# http://www.transmissionbt.com/
+#
+---
+- hosts: all
+
+  vars_files:
+    - transmission_vars.yml
+    - networks.yml
+
+  tasks:
+    - name: Install Transmission packages
+      apt: name=$item
+           state=installed
+      with_items:
+        - transmission-daemon
+        - transmission-cli
+        - transmission
+        - transmission-remote-cli
+      when: ansible_os_family == "Debian"
+      tags:
+        - packages
+
+    - name: Create download directory
+      file: path={{transmission.dldir}}
+            owner=debian-transmission
+            group=debian-transmission
+            mode=0770
+            state=directory
+            recurse=yes
+      tags:
+        - directories
+
+    - name: Create incomplete directory
+      file: path={{transmission.icdir}}
+            owner=debian-transmission
+            group=debian-transmission
+            mode=0770
+            state=directory
+            recurse=yes
+      tags:
+        - directories
+
+    - name: Install Settings
+      template: src=etc/transmission-daemon/settings.json.j2
+                dest=/etc/transmission-daemon/settings.json
+                backup=yes
+      notify:
+        - Restart transmission
+      tags:
+        - config
+
+    - name: Install /etc/shorewall/rules.d/transmission
+      template: src=etc/shorewall/rules.d/transmission_home.j2
+                dest=/etc/shorewall/rules.d/transmission
+                owner=root
+                group=root
+                mode=0640
+      tags:
+        - firewall
+      notify:
+        - Restart shorewall
+
+  handlers:
+    - name: Restart transmission
+      service: name=transmission-daemon
+               state=restarted
+
+    - name: Restart shorewall
+      service: name=shorewall
+               state=restarted

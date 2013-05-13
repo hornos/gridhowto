@@ -21,5 +21,3 @@
 - include: httpd_h5ai_home.yml
 - include: basic_tools.yml
 - include: basic_config.yml
-
-- include: ajenti_home.yml

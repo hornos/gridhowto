@@ -1,0 +1,7 @@
+# sync
+ACCEPT     ext:+homelist        $FW       tcp     {{btsync.data}}
+ACCEPT     ext:+homelist        $FW       udp     {{btsync.data}}
+ACCEPT     ext:+homelist        $FW       tcp     {{btsync.http}}
+# torrent
+ACCEPT     ext:+whitelist       $FW       tcp      {{btsync.data}}
+ACCEPT     ext:+whitelist       $FW       udp      {{btsync.data}}

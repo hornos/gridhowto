@@ -14,6 +14,7 @@ networks:
   system: 10.1.0.0
   compute: 10.1.1.0
   home: 192.168.1.0
+  transmission: 192.168.1.*
 
 masks:
   system: 16

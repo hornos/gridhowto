@@ -1,9 +1,14 @@
-Alias /ldap /usr/share/phpldapadmin/htdocs
+#
+#  Web-based tool for managing LDAP servers
+#
 
-<Location /ldap>
-  Order deny,allow
+Alias /phpldapadmin /usr/share/phpldapadmin/htdocs
+Alias /ldapadmin /usr/share/phpldapadmin/htdocs
+
+<Directory /usr/share/phpldapadmin/htdocs>
+  Order Deny,Allow
   Deny from all
-  Allow from {{ networks['system'] }}/{{ masks['system'] }}
+  Allow from {{ networks.system }}/{{ masks.system }}
   Allow from 127.0.0.1
   Allow from ::1
-</Location>
+</Directory>

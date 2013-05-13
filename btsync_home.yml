@@ -37,15 +37,21 @@
     tags:
       - directories
 
-  - name: Create directories
-    file: path=$item
+  - name: Create public directory
+    file: path={{btsync.rwdir}}
           owner=root
           group=btsync
           mode=0775
           state=directory
-    with_items:
-      - {{btsync.rwdir}}
-      - {{btsync.rodir}}
+    tags:
+      - directories
+
+  - name: Create read-only directory
+    file: path={{btsync.rodir}}
+          owner=root
+          group=btsync
+          mode=0775
+          state=directory
     tags:
       - directories
 
@@ -75,7 +81,7 @@
       - Restart btsync
 
   - name: Install /etc/btsync.conf
-    template: src=etc/btsync.conf.j2
+    template: src=etc/btsync_home.conf.j2
               dest=/etc/btsync.conf
               owner=root
               group=btsync
@@ -86,7 +92,7 @@
       - Restart btsync
 
   - name: Install /etc/shorewall/rules.d/btsync
-    template: src=etc/shorewall/rules.d/btsync.j2
+    template: src=etc/shorewall/rules.d/btsync_home.j2
               dest=/etc/shorewall/rules.d/btsync
               owner=root
               group=root

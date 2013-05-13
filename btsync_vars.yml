@@ -2,10 +2,10 @@ url: http://btsync.s3-website-us-east-1.amazonaws.com
 tgz: btsync_x64.tar.gz
 
 btsync:
-  port: 44444
+  data: 44444
   http: 44445
-  rwsecret: Y6J7SMBQAPSFIILTS77BOBU7DI3Z2NY7
-  rosecret: Y6J7SMBQAPSFIILTS77BOBU7DI3Z2NY8
+  rwsecret: 5FEW7EYHPB3Y6U2RZUEIC5OXLF7ADOHS
+  rosecret: AD7J4IIKSIQK653YH33AHFGL5YQZEV5S
   home: /opt/btsync
   rwdir: /opt/btsync/public
   rodir: /opt/btsync/readonly

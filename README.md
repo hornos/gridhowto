@@ -863,4 +863,11 @@ The installer initiates the network console and waits for an SSH login to contin
     ./play @@gateway secure
     ./play @@gateway homewall
     ./play @@gateway basic_home
+
+Administrator panels:
+
     ./play @@gateway ajenti_home
+
+Bittorrent sync:
+
+    ./play @@gateway btsync_home

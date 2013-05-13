@@ -53,7 +53,7 @@ case "$1" in
     PID=`cat $PIDFILE`
     cd $DAEMON_PATH
     if [ -f $PIDFILE ]; then
-      kill -HUP $PID
+      kill $PID
       printf "%s\n" "Ok"
       rm -f $PIDFILE
     else

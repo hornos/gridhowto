@@ -1,6 +1,7 @@
 # Open UDP
 source loghost_src_udp {
-  udp( ip({{ ansible_eth0["ipv4"]["address"] }}) port(514));
+  # udp( ip({{ ansible_eth0["ipv4"]["address"] }}) port(514));
+  udp(0.0.0.0) port(514));
 };
 
 # Destination log file

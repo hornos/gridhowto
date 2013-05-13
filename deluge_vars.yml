@@ -1,0 +1,9 @@
+#
+# http://lifehacker.com/5798692/i+blocklist-houses-loads-of-bittorrent-blocklists-for-increased-privacy
+# http://www.iblocklist.com/lists.php
+# 
+---
+deluge:
+  blocklist: 'http://list.iblocklist.com/?list=bt_level1'
+  dldir: '/common/deluge/downloaded'
+  icdir: '/common/deluge/incomplete'

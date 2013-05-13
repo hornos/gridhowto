@@ -1,0 +1,30 @@
+#
+# QE Benchmarks 
+# http://qe-forge.org/gf/project/q-e/frs/?action=FrsReleaseBrowse&frs_package_id=36
+#
+---
+- hosts: all
+
+  vars:
+    url: http://qe-forge.org/gf/download/frsrelease
+    # relative to remote HOME
+    dst: qebench
+
+  tasks:
+    - name: Create Benchmarks directory
+      file: path={{dst}}
+            state=directory
+
+    - name: Download Benchmarks
+      get_url: url={{url}}/$item
+               dest={{dst}}
+      with_items:
+        - 43/76/pwscf-small-benchmark.tar.gz
+        - 47/61/GRIR443.tgz
+        - 45/78/AUSURF112.tgz
+        - 44/77/cppw-bench-med.tar.gz
+        - 48/62/GRIR686.tgz
+        - 46/60/PSIWAT.tgz
+        - 49/63/CNT10POR8.tgz
+      tags:
+        - packages
