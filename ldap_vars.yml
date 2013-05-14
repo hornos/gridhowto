@@ -1,6 +1,0 @@
----
-ldap:
-  dctop: 'root'
-  domain: 'dc=root,dc=grid'
-  password: '{SSHA}5EBfh0TF818thSFKmoLSojYhAARxqTZ3'
-  database: '/etc/openldap/slapd.d/cn=config/olcDatabase={2}bdb.ldif'

@@ -538,6 +538,12 @@ The new CA is created under the `ca/<ID>` directory. The CA certificate is insta
 
     bin/ca oldhash
 
+Edit `<CA>/grid-ca-ssl.conf` and add the following line under `policy`:
+
+    copy_extensions = copy
+
+This enables extension copy on sign and let alt names go.
+
 Request & sign host certificates:
 
     bin/ca host <CA> <FQDN>
@@ -601,7 +607,22 @@ You can use the Globus PKI for Apache SSL (the default CA is used):
 ### Mosh
 
 ## LDAP
-auto home, limits
+Install Open LDAP server and tools:
+
+    ./play @@root openldap_server
+    ./play @@root openldap_tools
+
+Enable TLS with Globus:
+
+    ./play @@root globus_openldap
+
+Enabled LDAP authentication (and reboot):
+
+    ./play @@root globus_auth
+
+You should be abel to login as the `test` user (run as `sysop`):
+
+    su -l test
 
 ## Monitoring
 Monitoring (Ganglia and PCP) can be played by:

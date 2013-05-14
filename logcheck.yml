@@ -1,7 +1,7 @@
 ---
 - hosts: all
   vars_files:
-    - slurm_vars.yml
+    - logcheck_vars.yml
     - [ "vars/{{ ansible_os_family }}.yml", "vars/Defaults.yml" ]
 
   tasks:
@@ -26,7 +26,7 @@
   - name: Set sysop email /etc/logcheck/logcheck.conf
     lineinfile: dest=/etc/logcheck/logcheck.conf
                 regexp='^SENDMAILTO'
-                line='SENDMAILTO={{ logcheck_mailto }}'
+                line='SENDMAILTO={{logcheck.mailto}}'
                 backup=yes
     notify:
       - Restart crond

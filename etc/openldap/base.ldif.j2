@@ -1,14 +1,14 @@
-dn: {{rootdc}}
+dn: {{ldap.domain}}
 objectClass: top
 objectClass: domain
-dc: {{topdc}}
+dc: {{ldap.dctop}}
 
-dn: ou=People,{{rootdc}}
+dn: ou=People,{{ldap.domain}}
 ou: People
 objectClass: top
 objectClass: organizationalUnit
 
-dn: ou=Group,{{rootdc}}
+dn: ou=Group,{{ldap.domain}}
 ou: Group
 objectClass: top
 objectClass: organizationalUnit

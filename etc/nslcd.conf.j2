@@ -1,0 +1,11 @@
+uri ldaps://localhost/{%- for host in hostvars %}
+ ldaps://{{host}}/
+{%- endfor %}
+
+ssl on
+base {{ldap.domain}}
+tls_cacertfile /etc/grid-security/cacert.pem
+tls_cert /etc/grid-security/hostcert.pem
+tls_key /etc/grid-security/hostkey.pem
+uid nslcd
+gid ldap

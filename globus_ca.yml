@@ -55,6 +55,14 @@
         - key
         - config
 
+    - name: Link default CA
+      file: src=/etc/grid-security/certificates/{{globus_default_ca}}.0
+            dest=/etc/grid-security/cacert.pem
+            state=link
+      tags:
+        - config
+        - link
+
     - name: Install Grid tools
       template: src=root/bin/${item}.j2
                 dest=/root/bin/${item}

@@ -1,0 +1,103 @@
+#
+# https://www.overclockers.com/forums/showthread.php?t=726947
+# https://help.ubuntu.com/13.04/serverguide/openldap-server.html
+# http://itdavid.blogspot.hu/2012/05/howto-openldap-2.html
+#
+# TODO: DB_CONFIG tuning
+#
+---
+- hosts: all
+
+  vars_files:
+    - networks.yml
+    - openldap_vars.yml
+
+  tasks:
+### PACKAGES
+    - name: Install ldap packages
+      yum: name=$item
+           state=installed
+      with_items:
+        - pam_ldap
+        - nss-pam-ldapd
+        - sssd
+      when: ansible_os_family == "RedHat"
+      tags:
+        - packages
+
+### CONFIGURATION
+    - name: Install nslcd.conf
+      template: src=etc/nslcd.conf.j2
+                dest=/etc/nslcd.conf
+                owner=root
+                group=root
+                mode=0600
+                backup=yes
+      tags:
+        - config
+        - nslcd
+      notify:
+        - Restart nslcd
+
+    - name: Install pam_ldap.conf
+      template: src=etc/pam_ldap.conf.j2
+                dest=/etc/pam_ldap.conf
+                owner=root
+                group=root
+                mode=0644
+                backup=yes
+      tags:
+        - config
+        - pam
+
+    - name: Install system-auth-ac
+      template: src=etc/pam.d/system-auth-ac.j2
+                dest=/etc/pam.d/system-auth-ac
+                owner=root
+                group=root
+                mode=0644
+                backup=yes
+      tags:
+        - config
+        - pam
+
+    - name: Install nsswitch
+      template: src=etc/nsswitch.conf.j2
+                dest=/etc/nsswitch.conf
+                owner=root
+                group=root
+                mode=0644
+                backup=yes
+      tags:
+        - config
+        - nss
+
+    - name: Enable LDAP auth
+      lineinfile: dest=/etc/sysconfig/authconfig
+                  regexp='^USELDAP'
+                  line='USELDAP=yes'
+
+    - name: Install firewall rules
+      template: src=etc/shorewall/rules.d/openldap.j2
+                dest=/etc/shorewall/rules.d/openldap
+                owner=root
+                group=root
+                mode=0640
+      tags:
+        - firewall
+      notify:
+        - Restart shorewall
+
+    - name: Start nslcd
+      service: name=nslcd
+               state=restarted
+               enabled=yes
+
+  handlers:
+    - name: Restart nslcd
+      service: name=nslcd
+               state=restarted
+
+    - name: Restart shorewall
+      service: name=shorewall
+               state=restarted

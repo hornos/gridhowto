@@ -2,6 +2,8 @@
 # http://www.admin-magazine.com/HPC/Articles/Warewulf-Cluster-Manager-Master-and-Compute-Nodes
 # http://www.admin-magazine.com/HPC/Articles/Warewulf-Cluster-Manager-Completing-the-Environment
 #
+# TODO: consider /usr/bin/cluster-env for regular users
+#
 ---
 - hosts: all
   vars_files:

@@ -1,3 +1,3 @@
 #!/bin/bash
 
-ldapadd -x -W -D "cn=Manager,{{ldap.domain}}" -f $*
+ldapadd -x -W -D "{{ldap.manager}}" -f $*

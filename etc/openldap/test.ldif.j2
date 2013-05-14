@@ -1,20 +1,19 @@
 # test user group
-dn: cn=test,ou=Group,{{rootdc}}
+dn: cn=test,ou=Group,{{ldap.domain}}
 objectClass: posixGroup
 objectClass: top
 cn: test
-userPassword: {crypt}x
 gidNumber: 10000
 
 # test user
-dn: uid=test,ou=People,{{rootdc}}
+dn: uid=test,ou=People,{{ldap.domain}}
 uid: test
 cn: test
 objectClass: account
 objectClass: posixAccount
 objectClass: top
 objectClass: shadowAccount
-userPassword: {crypt}x
+userPassword: $1$12345$CQruoOSylf9ItA76Hhqh2.
 shadowLastChange: 13048
 shadowMax: 99999
 shadowWarning: 7

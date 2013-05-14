@@ -1,0 +1,71 @@
+#
+# openssl verify -purpose sslserver -CAfile /etc/grid-security/cacert.pem /etc/grid-security/hostcert.pem
+# openssl s_client -connect localhost:389 -showcerts -state -cert /etc/grid-security/hostcert.pem -key /etc/grid-security/hostkey.pem -CAfile /etc/grid-security/cacert.pem
+#
+# http://itdavid.blogspot.hu/2012/05/howto-centos-6.html
+#
+---
+- hosts: all
+  vars_files:
+    - networks.yml
+    - openldap_vars.yml
+
+  tasks:
+    - name: Set olcTLSCertificateFile
+      lineinfile: 'dest={{ldap.database}} regexp="^olcTLSCertificateFile" insertafter="^olcRootPW" line="olcTLSCertificateFile: /etc/grid-security/hostcert.pem"'
+      tags:
+        - cert
+        - config
+
+    - name: Set olcTLSCertificateKeyFile
+      lineinfile: 'dest={{ldap.database}} regexp="^olcTLSCertificateKeyFile" insertafter="^olcRootPW" line="olcTLSCertificateKeyFile: /etc/grid-security/hostkey.pem"'
+      tags:
+        - key
+        - config
+
+    - name: Set olcTLSCACertificateFile
+      lineinfile: 'dest={{ldap.database}} regexp="^olcTLSCACertificateFile" insertafter="^olcRootPW" line="olcTLSCACertificateFile: /etc/grid-security/cacert.pem"'
+      tags:
+        - key
+        - config
+
+    - name: Enabled LDAPS
+      lineinfile: dest=/etc/sysconfig/ldap
+                  regexp='^SLAPD_LDAPS'
+                  line='SLAPD_LDAPS=yes'
+      tags:
+        - config
+
+    - name: Fix key mode
+      file: path=/etc/grid-security/hostkey.pem
+            owner=root
+            group=ldap
+            mode=0640
+      tags:
+        - key
+        - fix
+
+    - name: Install SSL tools
+      template: src=root/bin/${item}.j2
+                dest=/root/bin/${item}
+                owner=root
+                group=root
+                mode=0700
+      with_items:
+        - ldaps_verify
+        - ldaps_check
+        - ldap_search
+        - ldaps_search
+      tags:
+        - tools
+
+    - name: Restart LDAP server
+      service: name=slapd
+               state=restarted
+
+    - name: Install ldap.conf
+      template: src=etc/openldap/ldap.conf.j2
+                dest=/etc/openldap/ldap.conf
+                backup=yes
+      tags:
+        - config

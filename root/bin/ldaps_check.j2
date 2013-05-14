@@ -1,0 +1,4 @@
+#!/bin/bash
+_host=${1:-localhost:636}
+
+openssl s_client -connect ${_host} -showcerts -state -cert /etc/grid-security/hostcert.pem -key /etc/grid-security/hostkey.pem -CAfile /etc/grid-security/cacert.pem

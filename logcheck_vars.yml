@@ -1,1 +1,2 @@
-logcheck_mailto: "sysop@localhost"
+logcheck:
+  mailto: "sysop@localhost"

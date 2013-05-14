@@ -1,85 +1,80 @@
+#
+# https://www.overclockers.com/forums/showthread.php?t=726947
+# https://help.ubuntu.com/13.04/serverguide/openldap-server.html
+# http://itdavid.blogspot.hu/2012/05/howto-openldap-2.html
+#
+# TODO: DB_CONFIG tuning
+#
 ---
 - hosts: all
 
   vars_files:
-    - openldap_vars.yml
     - networks.yml
+    - openldap_vars.yml
 
   tasks:
-  - name: Install openldap-servers
-    yum: name=openldap-servers
-         state=installed
+### PACKAGES
+    - name: Install ldap packages
+      yum: name=$item
+           state=installed
+      with_items:
+        - openldap-servers
+        - openldap-clients
+        - python-ldap
+      when: ansible_os_family == "RedHat"
+      tags:
+        - packages
 
-  - name: Install openldap-clients
-    yum: name=openldap-clients
-         state=installed
+### CONFIGURATION
+    - name: Set olcSuffix
+      lineinfile: 'dest={{ldap.database}} regexp="^olcSuffix" line="olcSuffix: {{ldap.domain}}"'
+      tags:
+        - domain
+        - config
 
-  - name: Set LDAP Root DC
-    lineinfile: dest=/etc/openldap/slapd.d/cn\=config/olcDatabase\=\{2\}bdb.ldif
-                regexp="^olcSuffix"
-                line="olcSuffix:${rootdc}"
+    - name: Set olcRootDN
+      lineinfile: 'dest={{ldap.database}} regexp="^olcRootDN" line="olcRootDN: {{ldap.manager}}"'
+      tags:
+        - domain
+        - config
 
-  - name: Set LDAP Root DN
-    lineinfile: dest=/etc/openldap/slapd.d/cn\=config/olcDatabase\=\{2\}bdb.ldif
-                regexp="^olcRootDN"
-                line="olcRootDN:cn=Manager,${rootdc}"
+    - name: Set olcRootPW
+      lineinfile: 'dest={{ldap.database}} regexp="^olcRootPW" insertafter="^olcRootDN" line="olcRootPW: {{ldap.password}}"'
+      tags:
+        - domain
+        - config
 
-  - name: Set LDAP Root PW
-    lineinfile: dest=/etc/openldap/slapd.d/cn\=config/olcDatabase\=\{2\}bdb.ldif
-                regexp="^olcRootPW:"
-                insertafter="^olcRootDN"
-                line="olcRootPW:${rootpw}"
+    - name: Set monitor auth
+      lineinfile: 'dest={{ldap.monitor}} regexp="l,cn=auth" line=" l,cn=auth\" read by dn.base=\"${ldap.manager}\" read by * none"'
+      tags:
+        - domain
+        - config
 
-  - name: Set LDAP Monitor Root
-    lineinfile: dest=/etc/openldap/slapd.d/cn\=config/olcDatabase\=\{1\}monitor.ldif
-                regexp='l,cn=auth'
-                line=" l,cn=auth\" read by dn.base=\"cn=Manager,${rootdc}\" read by * none"
+    - name: Start LDAP server
+      service: name=slapd
+               state=started
+               enabled=yes
 
-  - name: Restart LDAP server
-    service: name=slapd
-             state=restarted
+    - name: Install basic ldifs
+      template: src=etc/openldap/${item}.j2
+                dest=/etc/openldap/${item}
+      with_items:
+        - base.ldif
+        - test.ldif
+      tags:
+        - config
+        - ldif
 
-  - name: Install PHP LDAP admin
-    yum: name=phpldapadmin
-         state=installed
+    - name: Load base.ldif
+      command: '/usr/bin/ldapadd -f /etc/openldap/base.ldif -x -D "${ldap.manager}" -w ${ldap.password_plain}'
+      ignore_errors: yes
+      tags:
+        - config
+        - ldif
 
-  - name: Allow networks
-    template: src=etc/httpd/conf.d/phpldapadmin.conf.j2
-              dest=/etc/httpd/conf.d/phpldapadmin.conf
-              owner=root
-              group=root
-              mode=0640
-
-  - name: Install phpldapadmin config
-    template: src=etc/phpldapadmin/config.php.j2
-              dest=/etc/phpldapadmin/config.php
-              owner=root
-              group=apache
-              mode=0640
-
-  - name: Install base.ldif
-    template: src=etc/openldap/base.ldif.j2
-              dest=/etc/openldap/base.ldif
-              owner=root
-              group=root
-              mode=0640
-
-  - name: Load base.ldif
-    command: /usr/bin/ldapadd -f /etc/openldap/base.ldif -x -D "cn=Manager,${rootdc}" -w ${rootpass}
-    ignore_errors: yes
-
-  - name: Install test.ldif
-    template: src=etc/openldap/test.ldif.j2
-              dest=/etc/openldap/test.ldif
-              owner=root
-              group=root
-              mode=0640
-
-  - name: Load test.ldif
-    command: /usr/bin/ldapadd -f /etc/openldap/test.ldif -x -D "cn=Manager,${rootdc}" -w ${rootpass}
-    ignore_errors: yes
-
-  - name: Restart HTTP
-    service: name=httpd
-             state=restarted
-             enabled=yes
+    - name: Load test.ldif
+      command: '/usr/bin/ldapadd -f /etc/openldap/test.ldif -x -D "${ldap.manager}" -w ${ldap.password_plain}'
+      ignore_errors: yes
+      tags:
+        - config
+        - ldif
