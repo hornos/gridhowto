@@ -18,7 +18,6 @@
         - repo
 
     - name: Install Globus packages
-      when: ansible_os_family == "RedHat"
       yum: name=$item
            state=installed
       with_items:
@@ -29,5 +28,34 @@
         - globus-data-management-client
         - globus-resource-management-server
         - globus-resource-management-client
+      when: ansible_os_family == "RedHat"
       tags:
         - packages
+
+    - name: Install Globus packages
+      apt: name=$item
+           state=installed
+      with_items:
+        - globus-gridftp-server-progs
+        - globus-gram-job-manager
+        - globus-gsi-cert-utils-progs
+        - globus-proxy-utils
+      when: ansible_os_family == "Debian"
+      tags:
+        - packages
+
+    - name: Create /etc/grid-security/certificates
+      file: path=/etc/grid-security/certificates
+            state=directory
+            owner=root
+            group=root
+      tags:
+        - directories
+
+    - name: Fix stop globus-gridftp-server
+      service: name=globus-gridftp-server
+               state=stopped
+               enabled=no
+      when: ansible_os_family == "Debian"
+      tags:
+        - fix

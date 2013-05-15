@@ -9,6 +9,7 @@ space/boot/squeeze/*
 space/boot/quantal/*
 space/boot/wheezy/*
 space/boot/raring/*
+space/boot/precise/*
 space/boot/leases
 space/boot/centos63/*
 space/boot/centos64/*
@@ -16,6 +17,8 @@ space/boot/cirros/*
 space/boot/tiny/*
 space/boot/kali/*
 space/boot/esxi/*
+space/boot/xenserver/*
+space/boot/xcp/*
 space/boot/pxelinux.cfg/*
 space/boot/*.ks
 space/boot/*.0

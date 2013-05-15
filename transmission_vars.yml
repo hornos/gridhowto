@@ -7,4 +7,4 @@ transmission:
   blocklist: 'http://list.iblocklist.com/?list=bt_level1'
   dldir: '/common/transmission/downloaded'
   icdir: '/common/transmission/incomplete'
-  password: '{cdf1193823c854c740c80857c7b20a0c35590fe4QiLjCOBf'
+  password: 'transmission'

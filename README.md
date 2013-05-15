@@ -149,7 +149,7 @@ Copy the firmware upgrade files to `$PWD/mnt` and umount the disk. Put `memdisk`
     bin/jockey firmware 08:00:27:14:68:75
 
 ### Install ESXi 5.X
-You have to use syslinux 4.X . Mount ESXi install media under `boot/esxi/repo`. Put `mboot.c32` from the install media into jockey's root directory. Kickstart the machine to boot ESXi installer:
+You have to use syslinux 4.X . Mount ESXi install media under `boot/esxi/repo`. Copy `mboot.c32` as `esxi.c32` from the install media into jockey's root directory. Kickstart the machine to boot ESXi installer:
 
     bin/jockey esxi 08:00:27:14:68:75
 
@@ -158,6 +158,36 @@ or the name of the VM:
     bin/jockey esxi @<VM>
 
 Edit the kickstart file if you want to change the default settings.
+
+### Xen Server 6.X
+Download the ISO as written in the [https://wiki.openstack.org/wiki/XenServer/Install/PXE](Open Stack guide) and mount the ISO under `boot/xenserver/repo` and copy `mboot.c32` as `xenserver.c32` from the install media into jockey's root directory.
+
+Create a VM:
+
+    bin/vm create xen-01 Linux26_64 2 2048 2000000 vboxnet5
+
+Lets kickstart it and boot, please note that you have to switch off jockey boot after bootstrap:
+
+    bin/jockey xenserver 08:00:27:C9:BD:3D xen-01 10.1.1.10
+
+Since Xen is RedHat-based you are ready to go with Ansible (add `xen-01` to the `hosts` file):
+
+    bin/ping root@xen-01
+
+### XCP 1.X
+Mount the ISO under `boot/xcp/repo` and copy `mboot.c32` as `xcp.c32` from the install media into jockey's root directory.
+
+Create a VM:
+
+    bin/vm create xcp-01 Linux26_64 2 2048 2000000 vboxnet5
+
+Lets kickstart it and boot, please note that you have to switch off jockey boot after bootstrap:
+
+    bin/jockey xcp 08:00:27:C9:BD:3D xcp-01 10.1.1.10
+
+Since XCP is RedHat-based you are ready to go with Ansible (add `xcp-01` to the `hosts` file):
+
+    bin/ping root@xcp-01
 
 ### Other Mini-Linux Variants
 You can boot Cirros and Tiny Linux as well. For CirrOS put `initrd.img` and `vmlinuz` into `boot/cirros`, for Tiny Linux put `core.gz` and `vmlinuz` into `boot/tiny`, and switch eg. to Tiny:
@@ -892,3 +922,20 @@ Administrator panels:
 Bittorrent sync:
 
     ./play @@gateway btsync_home
+
+Transmission torrent client:
+
+    ./play @@gateway transmission_home
+
+Create a Globus host certificate for the `gateway`:
+
+    bin/ca host rootca gateway
+    bin/ca sign rootca gateway
+
+Install Globus packages and the certificates:
+
+    ./play @@gateway globus_home
+
+Install monitoring:
+
+    ./play @@gateway ganglia_home

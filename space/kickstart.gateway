@@ -138,7 +138,5 @@ d-i preseed/late_command string \
     echo '' >> /target/etc/network/interfaces && \
     echo 'auto eth0' >> /target/etc/network/interfaces && \
     echo 'iface eth0 inet dhcp' >> /target/etc/network/interfaces && \
-    echo '' >> /target/etc/network/interfaces && \
-    echo 'SYSTEM_ADDR SYSTEM_NAME' >> /etc/hosts && \
-    echo 'SYSTEM_NAME' > /etc/hostname
+    echo '' >> /target/etc/network/interfaces
 

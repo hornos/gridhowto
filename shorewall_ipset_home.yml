@@ -44,6 +44,7 @@
         - curl
         - ipset
         - shorewall
+        - sysv-rc-conf
       when: ansible_os_family == "Debian"
       tags:
         - packages
@@ -139,3 +140,11 @@
       service: name=ipset
                state=reloaded
                enabled=yes
+
+### UBUNTU FIX
+    - name: Fix Enable ipset
+      command: sysv-rc-conf ipset on
+      when: ansible_distribution == "Ubuntu"
+      tags:
+        - fix
+        - ubuntu

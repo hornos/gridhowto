@@ -70,3 +70,13 @@
     when: ansible_os_family == "Debian"
     tags:
       - packages
+
+  - name: Install basic packages
+    apt: name=$item
+         state=installed
+    with_items:
+      - sysv-rc-conf
+    when: ansible_distribution == "Ubuntu"
+    tags:
+      - packages
+      - ubuntu

@@ -61,17 +61,21 @@
     tags:
       - packages
 
-
-### DEBIAN -- TODO: update 3.3
-  - name: Install syslog-ng packages
-    apt: name=syslog-ng
-         state=installed
-    when: ansible_os_family == "Debian"
-    tags:
-      - packages
-
-### UBUNTU OK
-
+### UBUNTU - precise
+#  - name: Install Madhouse key
+#    apt_key: url=https://packages.madhouse-project.org/debian/archive-key.txt
+#             state=present
+#    when: ansible_distribution == "Ubuntu"
+#    tags:
+#      - repo
+#      - key
+#
+#  - name: Install Madhouse repo
+#    apt_repository: repo='deb http://packages.madhouse-project.org/ubuntu precise syslog-ng-3.4'
+#    when: ansible_distribution == "Ubuntu"
+#    tags:
+#      - repo
+#      - packages
 
 ### CONFIGURATION
   - name: Install /etc/syslog-ng/syslog-ng.conf

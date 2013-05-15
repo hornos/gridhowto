@@ -17,7 +17,7 @@
         - ca
 
     - name: Install CAs
-      shell: /bin/tar xvz --strip-components 1 -C /etc/grid-security/certificates -f /root/globus_simple_ca_${item}.tar.gz
+      shell: tar xvz --strip-components 1 -C /etc/grid-security/certificates -f /root/globus_simple_ca_${item}.tar.gz
       with_items: globus_ca
       tags:
         - packages

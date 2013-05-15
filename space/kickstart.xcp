@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<installation srtype="ext">
+<primary-disk>sda</primary-disk>
+<keymap>hu</keymap>
+<root-password type="hash">ROOT_PASSWORD</root-password>
+<source type="url">HTTP_LISTEN/xcp/repo</source>
+<ntp-server>NTP_SERVER</ntp-server>
+<hostname>SYSTEM_NAME</hostname>
+<admin-interface name="eth0" proto="static">
+<ip>SYSTEM_ADDR</ip>
+<gateway>GATEWAY</gateway>
+<subnet-mask>255.255.255.0</subnet-mask>
+</admin-interface>
+<timezone>Europe/Budapest</timezone>
+</installation>

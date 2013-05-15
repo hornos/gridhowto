@@ -41,6 +41,19 @@
       tags:
         - directories
 
+    - name: Stop transmission
+      service: name=transmission-daemon
+               state=stopped
+
+    - name: Set config dir
+      lineinfile: dest=/etc/default/transmission-daemon
+                  regexp='^CONFIG_DIR'
+                  line='CONFIG_DIR=/etc/transmission-daemon/'
+      notify:
+        - Restart transmission
+      tags:
+        - config
+
     - name: Install Settings
       template: src=etc/transmission-daemon/settings.json.j2
                 dest=/etc/transmission-daemon/settings.json
@@ -60,6 +73,17 @@
         - firewall
       notify:
         - Restart shorewall
+
+    - name: Start transmission
+      service: name=transmission-daemon
+               state=started
+               enabled=yes
+
+    - name: Fix Start transmission
+      command: sysv-rc-conf transmission-daemon on
+      when: ansible_distribution== "Ubuntu"
+      tags:
+        - fix
 
   handlers:
     - name: Restart transmission

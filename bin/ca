@@ -171,7 +171,8 @@ case "${cmd}" in
     ca_hash=$(ca/hash ${ca_cn}/cacert.pem)
 
     grid-cert-request -dir "${ca_cn}/grid-security" \
-    -prefix "${fqdn}_" -ca "${ca_hash}" -dns "${fqdn},localhost" -ip "127.0.0.1" \
+    -prefix "${fqdn}_" -ca "${ca_hash}" \
+    -dns "${fqdn},localhost" -ip "127.0.0.1" \
     -host "${fqdn}" ${opts}
 
     popd

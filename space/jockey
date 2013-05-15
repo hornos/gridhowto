@@ -38,6 +38,8 @@ else
   http_listen=${jockey_ip}:8080
 fi
 
+gateway=${gateway:-${jockey_ip}}
+
 http_root=${masq_root}
 
 nginx_bin=${usrlocal}/sbin/nginx
@@ -120,7 +122,7 @@ case ${cmd} in
     echo "ip=${ip}" | tee ${host}
   ;;
 
-  centos63|centos64|squeeze|wheezy|quantal|raring|kali|harmonia|gateway)
+  centos63|centos64|squeeze|wheezy|quantal|raring|kali|harmonia|gateway|precise|xenserver|xcp)
     if [ -z "${arg}" ] ; then help/jockey; fi
 
     ### args
@@ -151,11 +153,15 @@ case ${cmd} in
         -v i=${interface} \
         -v a=${addr} \
         -v n=${name} \
+        -v t=${ntp_server} \
+        -v g=${gateway} \
     '{gsub("ROOT_PASSWORD_PLAIN",q);
       gsub("ROOT_PASSWORD",p);
       gsub("HTTP_LISTEN",l);
       gsub("SYSTEM_NAME",n);
       gsub("SYSTEM_ADDR",a);
+      gsub("NTP_SERVER",t);
+      gsub("GATEWAY",g);
       gsub("INTERFACE",i); print}' \
     > ${http_root}/${ks}.ks
 
@@ -185,8 +191,6 @@ case ${cmd} in
     if [ -z "${arg}" ] ; then help/jockey; fi
 
     mac=$(jockey/mac ${arg})
-
-    # http_listen=${jockey_ip}:8080
     default=${cmd}
 
     pass=$(jockey/pass)
@@ -213,9 +217,7 @@ case ${cmd} in
     sed "s/\//repo\//g" | \
     awk -v l="http://${kickstart}" '{gsub("^kernelopt.*","kernelopt=ks=" l);print}' \
     > ${jockey_root}/boot/esxi/boot.cfg
-
   ;;
-
   dump)
     tcpdump -i ${arg} port bootps
   ;;

@@ -6,12 +6,13 @@
     - [ "vars/{{ ansible_os_family }}.yml", "vars/Defaults.yml" ]
 
   tasks:
+### REDHAT
     - name: Install Globus packages
-      when: ansible_os_family == "RedHat"
       yum: name=$item
            state=installed
       with_items:
         - mod_ssl
+      when: ansible_os_family == "RedHat"
       tags:
         - packages
 
@@ -22,6 +23,30 @@
                 group=root
                 mode=0644
                 backup=yes
+      when: ansible_os_family == "RedHat"
+      tags:
+        - config
+      notify:
+        - Restart httpd
+
+### DEBIAN & UBUNTU
+    - name: Install Globus packages
+      apt: name=$item
+           state=installed
+      with_items:
+        - libapache2-mod-nss
+      when: ansible_os_family == "Debian"
+      tags:
+        - packages
+
+    - name: Install SSL configuration
+      template: src=etc/httpd/conf.d/ssl_ubuntu.conf.j2
+                dest=/etc/{{service_httpd}}/conf.d/ssl.conf
+                owner=root
+                group=root
+                mode=0644
+                backup=yes
+      when: ansible_distribution == "Ubuntu"
       tags:
         - config
       notify:

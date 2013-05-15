@@ -22,8 +22,16 @@ LABEL centos64
 	APPEND initrd=centos64/initrd.img ksdevice=eth0 method=cdrom ks=http://KICKSTART
 LABEL esxi
 	MENU LABEL esxi
-	KERNEL mboot.c32
+	KERNEL esxi.c32
 	APPEND -c esxi/boot.cfg
+LABEL xenserver
+	MENU LABEL xenserver
+	KERNEL xenserver.c32
+	APPEND xenserver/repo/boot/xen.gz dom0_max_vcpus=2 dom0_mem=752M com1=115200,8n1 console=com1,vga --- xenserver/repo/boot/vmlinuz xencons=hvc console=hvc0 console=tty0 answerfile=http://KICKSTART install --- xenserver/repo/install.img
+LABEL xcp
+	MENU LABEL xcp
+	KERNEL xcp.c32
+	APPEND xcp/repo/boot/xen.gz dom0_max_vcpus=2 dom0_mem=752M com1=115200,8n1 console=com1,vga --- xcp/repo/boot/vmlinuz xencons=hvc console=hvc0 console=tty0 answerfile=http://KICKSTART install --- xcp/repo/install.img
 LABEL cirros
 	MENU LABEL cirros
 	KERNEL cirros/vmlinuz
@@ -60,7 +68,11 @@ LABEL raring
 	MENU LABEL raring
 	KERNEL raring/ubuntu-installer/amd64/linux
 	APPEND vga=788 initrd=raring/ubuntu-installer/amd64/initrd.gz auto=true priority=critical interface=INTERFACE preseed/url=http://KICKSTART
+LABEL precise
+	MENU LABEL precise
+	KERNEL precise/ubuntu-installer/amd64/linux
+	APPEND vga=788 initrd=precise/ubuntu-installer/amd64/initrd.gz auto=true priority=critical interface=INTERFACE preseed/url=http://KICKSTART
 LABEL gateway
 	MENU LABEL gateway
-	KERNEL raring/ubuntu-installer/amd64/linux
-	APPEND vga=788 initrd=raring/ubuntu-installer/amd64/initrd.gz auto=true priority=critical interface=INTERFACE preseed/url=http://KICKSTART netcfg/get_hostname=gateway
+	KERNEL precise/ubuntu-installer/amd64/linux
+	APPEND vga=788 initrd=precise/ubuntu-installer/amd64/initrd.gz auto=true priority=critical interface=INTERFACE preseed/url=http://KICKSTART netcfg/get_hostname=gateway
