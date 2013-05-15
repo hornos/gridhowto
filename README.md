@@ -168,7 +168,7 @@ Create a VM:
 
 Lets kickstart it and boot, please note that you have to switch off jockey boot after bootstrap:
 
-    bin/jockey xenserver 08:00:27:C9:BD:3D xen-01 10.1.1.10
+    bin/jockey xenserver 08:00:27:C9:BD:3D 10.1.1.10 xen-01
 
 Since Xen is RedHat-based you are ready to go with Ansible (add `xen-01` to the `hosts` file):
 
@@ -183,7 +183,7 @@ Create a VM:
 
 Lets kickstart it and boot, please note that you have to switch off jockey boot after bootstrap:
 
-    bin/jockey xcp 08:00:27:C9:BD:3D xcp-01 10.1.1.10
+    bin/jockey xcp 08:00:27:C9:BD:3D 10.1.1.10 xcp-01
 
 Since XCP is RedHat-based you are ready to go with Ansible (add `xcp-01` to the `hosts` file):
 

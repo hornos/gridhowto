@@ -2,7 +2,7 @@
 <installation srtype="ext">
 <primary-disk>sda</primary-disk>
 <keymap>hu</keymap>
-<root-password type="hash">ROOT_PASSWORD</root-password>
+<root-password>ROOT_PASSWORD_PLAIN</root-password>
 <source type="url">HTTP_LISTEN/xenserver/repo</source>
 <ntp-server>NTP_SERVER</ntp-server>
 <hostname>SYSTEM_NAME</hostname>
