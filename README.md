@@ -915,9 +915,17 @@ The installer initiates the network console and waits for an SSH login to contin
     ./play @@gateway homewall
     ./play @@gateway basic_home
 
-Administrator panels:
+Ajenti Administrator panel:
 
     ./play @@gateway ajenti_home
+
+or the good old Webmin:
+
+    ./play @@gateway webmin_home
+
+Chroimum broswer:
+
+    ./play @@gateway google_chrome
 
 Bittorrent sync:
 
@@ -936,6 +944,16 @@ Install Globus packages and the certificates:
 
     ./play @@gateway globus_home
 
-Install monitoring:
+Install monitoring (on hold, key server and pcp problem):
 
     ./play @@gateway ganglia_home
+    ./play @@gateway pcp
+
+LDAP (on hold ldaps):
+
+    ./play @@root openldap_server
+    ./play @@root openldap_tools
+
+gosa
+
+samba   

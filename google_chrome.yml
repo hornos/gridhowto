@@ -16,3 +16,10 @@
       when: ansible_os_family == "RedHat"
       tags:
         - packages
+
+    - name: Install Chromium
+      apt: name=chromium-browser
+           state=installed
+      when: ansible_os_family == "Debian"
+      tags:
+        - packages

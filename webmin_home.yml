@@ -39,10 +39,20 @@
       - repo
 
   - name: Install webmin repo
-    apt_repository: repo='deb http://download.webmin.com/download/repository sarge contrib deb'
+    apt_repository: repo='deb http://download.webmin.com/download/repository sarge contrib'
     when: ansible_os_family == "Debian"
     tags:
       - repo
+
+  - name: Install Webmin packages
+    apt: name=$item
+         state=installed
+    with_items:
+      - webmin
+      - libauthen-pam-perl
+    when: ansible_os_family == "Debian"
+    tags:
+      - packages
 
 
 ### CONFIGURATION
@@ -54,7 +64,7 @@
       - config
 
   - name: Install /etc/shorewall/rules.d/webmin
-    template: src=etc/shorewall/rules.d/webmin.j2
+    template: src=etc/shorewall/rules.d/webmin_home.j2
               dest=/etc/shorewall/rules.d/webmin
               owner=root
               group=root

@@ -11,3 +11,7 @@ ldap:
   database: '/etc/openldap/slapd.d/cn=config/olcDatabase={2}bdb.ldif'
   monitor: '/etc/openldap/slapd.d/cn=config/olcDatabase={1}monitor.ldif'
   secret: '59cd5716f2782cda191b4e4bd3055f1d'
+
+ldap_debian:
+  database: '/etc/openldap/slapd.d/cn=config/olcDatabase={1}hdb.ldif'
+  monitor: '/etc/openldap/slapd.d/cn=config/olcDatabase={1}monitor.ldif'

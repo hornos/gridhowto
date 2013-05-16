@@ -13,8 +13,8 @@
     - openldap_vars.yml
 
   tasks:
-### PACKAGES
-    - name: Install ldap packages
+### REDHAT
+    - name: Install LDAP packages
       yum: name=$item
            state=installed
       with_items:
@@ -22,6 +22,23 @@
         - nss-pam-ldapd
         - sssd
       when: ansible_os_family == "RedHat"
+      tags:
+        - packages
+
+### DEBIAN
+    - name: Install LDAP packages
+      apt: name=$item
+           state=installed
+      with_items:
+        - ldaptor-utils
+        - ldap-account-manager
+        - lat
+        - python-ldap
+        - ldap-auth-client
+        - ldap-auth-config
+        - libpam-ldap
+        - nslcd
+      when: ansible_os_family == "Debian"
       tags:
         - packages
 
@@ -36,8 +53,25 @@
       tags:
         - config
         - nslcd
+      when: ansible_os_family == "RedHat"
       notify:
         - Restart nslcd
+
+### TODO: SSL
+    - name: Install nslcd.conf
+      template: src=etc/nslcd_home.conf.j2
+                dest=/etc/nslcd.conf
+                owner=root
+                group=root
+                mode=0600
+                backup=yes
+      tags:
+        - config
+        - nslcd
+      when: ansible_os_family == "Debian"
+      notify:
+        - Restart nslcd
+
 
     - name: Install pam_ldap.conf
       template: src=etc/pam_ldap.conf.j2
@@ -46,6 +80,7 @@
                 group=root
                 mode=0644
                 backup=yes
+      when: ansible_os_family == "RedHat"
       tags:
         - config
         - pam

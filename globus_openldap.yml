@@ -11,28 +11,70 @@
     - openldap_vars.yml
 
   tasks:
+### REDHAT
     - name: Set olcTLSCertificateFile
       lineinfile: 'dest={{ldap.database}} regexp="^olcTLSCertificateFile" insertafter="^olcRootPW" line="olcTLSCertificateFile: /etc/grid-security/hostcert.pem"'
+      when: ansible_os_family == "RedHat"
       tags:
         - cert
         - config
+        - database
 
     - name: Set olcTLSCertificateKeyFile
       lineinfile: 'dest={{ldap.database}} regexp="^olcTLSCertificateKeyFile" insertafter="^olcRootPW" line="olcTLSCertificateKeyFile: /etc/grid-security/hostkey.pem"'
+      when: ansible_os_family == "RedHat"
       tags:
         - key
         - config
+        - database
 
     - name: Set olcTLSCACertificateFile
       lineinfile: 'dest={{ldap.database}} regexp="^olcTLSCACertificateFile" insertafter="^olcRootPW" line="olcTLSCACertificateFile: /etc/grid-security/cacert.pem"'
+      when: ansible_os_family == "RedHat"
       tags:
         - key
         - config
+        - database
 
+### DEBIAN
+    - name: Set olcTLSCertificateFile
+      lineinfile: 'dest={{ldap_debian.database}} regexp="^olcTLSCertificateFile" insertafter="^olcRootPW" line="olcTLSCertificateFile: /etc/grid-security/hostcert.pem"'
+      when: ansible_os_family == "Debian"
+      tags:
+        - cert
+        - config
+        - database
+
+    - name: Set olcTLSCertificateKeyFile
+      lineinfile: 'dest={{ldap_debian.database}} regexp="^olcTLSCertificateKeyFile" insertafter="^olcRootPW" line="olcTLSCertificateKeyFile: /etc/grid-security/hostkey.pem"'
+      when: ansible_os_family == "Debian"
+      tags:
+        - key
+        - config
+        - database
+
+    - name: Set olcTLSCACertificateFile
+      lineinfile: 'dest={{ldap_debian.database}} regexp="^olcTLSCACertificateFile" insertafter="^olcRootPW" line="olcTLSCACertificateFile: /etc/grid-security/cacert.pem"'
+      when: ansible_os_family == "Debian"
+      tags:
+        - key
+        - config
+        - database
+
+    - name: Fix remove CRC
+      lineinfile: 'dest={{ldap_debian.database}} regexp="CRC32" state=absent'
+      when: ansible_os_family == "Debian"
+      tags:
+        - fix
+        - database
+
+### CONFIGURATION
+### REDHAT
     - name: Enabled LDAPS
       lineinfile: dest=/etc/sysconfig/ldap
                   regexp='^SLAPD_LDAPS'
                   line='SLAPD_LDAPS=yes'
+      when: ansible_os_family == "RedHat"
       tags:
         - config
 
@@ -41,6 +83,24 @@
             owner=root
             group=ldap
             mode=0640
+      when: ansible_os_family == "RedHat"
+      tags:
+        - key
+        - fix
+
+### DEBIAN
+    - name: Enabled LDAPS
+      lineinfile: dest=/etc/default/slapd regexp='^SLAPD_SERVICES' line='SLAPD_SERVICES="ldap:/// ldapi:/// ldaps:///"'
+      when: ansible_os_family == "Debian"
+      tags:
+        - config
+
+    - name: Fix key mode
+      file: path=/etc/grid-security/hostkey.pem
+            owner=root
+            group=openldap
+            mode=0640
+      when: ansible_os_family == "Debian"
       tags:
         - key
         - fix

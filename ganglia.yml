@@ -28,6 +28,13 @@
 
 
 ### DEBIAN
+  - name: Install Ganglia repo
+    apt_repository: repo='deb http://ppa.launchpad.net/rufustfirefly/ganglia/ubuntu precise main'
+    when: ansible_os_family == "Debian"
+    tags:
+      - packages
+      - repo
+
   - name: Install ganglia packages
     apt: name=$item
          state=installed

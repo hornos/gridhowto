@@ -16,7 +16,6 @@
         - transmission-daemon
         - transmission-cli
         - transmission
-        - transmission-remote-cli
       when: ansible_os_family == "Debian"
       tags:
         - packages
@@ -57,6 +56,9 @@
     - name: Install Settings
       template: src=etc/transmission-daemon/settings.json.j2
                 dest=/etc/transmission-daemon/settings.json
+                owner=debian-transmission
+                group=debian-transmission
+                mode=0640
                 backup=yes
       notify:
         - Restart transmission

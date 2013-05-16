@@ -1,5 +1,9 @@
 ---
 - hosts: all
+
+  vars_files:
+    - ruby_vars.yml
+
   tasks:
 ### PACKAGES
   - name: Install ruby packages
@@ -30,16 +34,16 @@
 
 ### RVM
   - name: Copy RVM Installer
-    copy: src=root/install_rvm.sh
-          dest=/root/install_rvm.sh
-          owner=root
-          group=root
-          mode=0700
+    template: src=root/install_rvm.j2
+              dest=/root/install_rvm
+              owner=root
+              group=root
+              mode=0700
     tags:
       - packages
 
   - name: Install RVM
-    shell: /root/install_rvm.sh
+    shell: /root/install_rvm
     tags:
       - packages
 
@@ -53,7 +57,7 @@
       - config
 
   - name: Fix global ruby path
-    file: src=/usr/local/rvm/rubies/ruby-2.0.0-p0/bin/$item
+    file: src=/usr/local/rvm/rubies/{{ruby.version}}/bin/$item
           dest=/usr/bin/$item
           state=link
     with_items:

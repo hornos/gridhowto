@@ -9,7 +9,7 @@
     - [ "vars/{{ ansible_os_family }}.yml", "vars/Defaults.yml" ]
 
   tasks:
-    - name: Install ldap tools
+    - name: Install LDAP tools
       template: src=root/bin/${item}.j2
                 dest=/root/bin/${item}
                 owner=root
@@ -20,7 +20,10 @@
         - ldap_modify
         - ldap_search
         - ldap_add
+      tags:
+        - packages
 
+### REDHAT
     - name: Install packages
       yum: name=$item
            state=installed
@@ -32,17 +35,31 @@
       tags:
         - packages
 
+### DEBIAN
+    - name: Install packages
+      apt: name=$item
+           state=installed
+      with_items:
+        - phpldapadmin
+      when: ansible_os_family == "Debian"
+      notify:
+        - Restart httpd
+      tags:
+        - packages
+
+
     - name: Install phpldapadmin config
       template: src=etc/phpldapadmin/config.php.j2
               dest=/etc/phpldapadmin/config.php
               owner=root
               group=root
               mode=0644
+              backup=yes
       tags:
         - config
 
     - name: Enable phpldapadmin
-      template: src=etc/{{service_httpd}}/conf.d/phpldapadmin.conf.j2
+      template: src=etc/httpd/conf.d/phpldapadmin.conf.j2
               dest=/etc/{{service_httpd}}/conf.d/phpldapadmin.conf
               owner=root
               group=root

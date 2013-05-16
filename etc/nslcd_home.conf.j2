@@ -1,0 +1,8 @@
+uri ldap://localhost/{%- for host in hostvars %}
+ ldap://{{host}}/
+{%- endfor %}
+
+ssl off
+base {{ldap.domain}}
+uid nslcd
+gid nslcd

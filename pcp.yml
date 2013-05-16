@@ -1,9 +1,11 @@
-
+#
+# http://oss.sgi.com/projects/pcp/
+#
 ---
 - hosts: all
 
   tasks:
-
+### REDHAT
   - name: Install PCP packages
     yum: name=$item
          state=installed
@@ -18,6 +20,21 @@
       - pcp-import-sar2pcp
       - pcp-import-mrtg2pcp
       - pcp-import-iostat2pcp
+    when: ansible_os_family == "RedHat"
+    tags:
+      - packages
+
+### DEBIAN
+  - name: Install PCP packages
+    apt: name=$item
+         state=installed
+    with_items:
+      - pcp
+      - pcp-gui
+      - pcp-import-sar2pcp
+      - pcp-import-mrtg2pcp
+      - pcp-import-iostat2pcp
+    when: ansible_os_family == "Debian"
     tags:
       - packages
 

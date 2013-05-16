@@ -31,7 +31,6 @@
       - gnupg
       - ecryptfs-utils
       - python-pyme
-      - python-gnupg
 #      - tor
     when: ansible_os_family == "Debian"
     tags:

@@ -14,7 +14,7 @@
 
   tasks:
 ### PACKAGES
-    - name: Install ldap packages
+    - name: Install LDAP packages
       yum: name=$item
            state=installed
       with_items:
@@ -25,31 +25,99 @@
       tags:
         - packages
 
-### CONFIGURATION
+    - name: Install LDAP packages
+      apt: name=$item
+           state=installed
+      with_items:
+        - ldap-utils
+        - python-ldap
+        - slapd
+        - ldapscripts
+      when: ansible_os_family == "Debian"
+      tags:
+        - packages
+
+    - name: Fix link openldap directory
+      file: src=/etc/ldap
+            dest=/etc/openldap
+            state=link
+      when: ansible_os_family == "Debian"
+      tags:
+        - packages
+        - fix
+
+### CONFIGURATION - REDHAT
     - name: Set olcSuffix
       lineinfile: 'dest={{ldap.database}} regexp="^olcSuffix" line="olcSuffix: {{ldap.domain}}"'
+      when: ansible_os_family == "RedHat"
       tags:
         - domain
         - config
 
     - name: Set olcRootDN
       lineinfile: 'dest={{ldap.database}} regexp="^olcRootDN" line="olcRootDN: {{ldap.manager}}"'
+      when: ansible_os_family == "RedHat"
       tags:
         - domain
         - config
 
     - name: Set olcRootPW
       lineinfile: 'dest={{ldap.database}} regexp="^olcRootPW" insertafter="^olcRootDN" line="olcRootPW: {{ldap.password}}"'
+      when: ansible_os_family == "RedHat"
       tags:
         - domain
         - config
 
     - name: Set monitor auth
       lineinfile: 'dest={{ldap.monitor}} regexp="l,cn=auth" line=" l,cn=auth\" read by dn.base=\"${ldap.manager}\" read by * none"'
+      when: ansible_os_family == "RedHat"
       tags:
         - domain
         - config
 
+
+### CONFIGURATION - DEBIAN
+    - name: Set olcSuffix
+      lineinfile: 'dest={{ldap_debian.database}} regexp="^olcSuffix" line="olcSuffix: {{ldap.domain}}"'
+      when: ansible_os_family == "Debian"
+      tags:
+        - domain
+        - config
+        - database
+
+    - name: Set olcRootDN
+      lineinfile: 'dest={{ldap_debian.database}} regexp="^olcRootDN" line="olcRootDN: {{ldap.manager}}"'
+      when: ansible_os_family == "Debian"
+      tags:
+        - domain
+        - config
+        - database
+
+    - name: Set olcRootPW
+      lineinfile: 'dest={{ldap_debian.database}} regexp="^olcRootPW" insertafter="^olcRootDN" line="olcRootPW: {{ldap.password}}"'
+      when: ansible_os_family == "Debian"
+      tags:
+        - domain
+        - config
+        - database
+
+    - name: Set olcAccess 0
+      lineinfile: 'dest={{ldap_debian.database}} regexp="^(.*auth\ by\ dn\=)(\".*\")(.*)$" line="\\1\"{{ldap.domain}}\"\\3" backrefs=yes'
+      when: ansible_os_family == "Debian"
+      tags:
+        - domain
+        - config
+        - monitor
+
+    - name: Set olcAccess 2
+      lineinfile: 'dest={{ldap_debian.database}} regexp="^(olcAccess.*dn\=)(\".*\")(.*)$" line="\\1\"{{ldap.domain}}\"\\3" backrefs=yes'
+      when: ansible_os_family == "Debian"
+      tags:
+        - domain
+        - config
+        - monitor
+
+### SERVICES
     - name: Start LDAP server
       service: name=slapd
                state=started

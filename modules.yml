@@ -21,7 +21,7 @@
   - name: Install modules
     apt: name=environment-modules
          state=installed
-    when: ansible_os_family == "Debian"
+    when: ansible_distribution == "Debian"
 
 ### CONFIGURATION
 #  - name: Install modulespath
