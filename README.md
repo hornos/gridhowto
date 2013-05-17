@@ -365,7 +365,7 @@ Bl  | BLACK | Ground
 Wh  | WHITE | TXD
 Gr  | GREEN | RXD
 
-#### Debricking 1043ND
+#### Debricking the 1043ND
 Attach the serial port to the P1 connector according to this figure:
 
     No.       1     2     3     4
@@ -403,7 +403,7 @@ This is a blueprint of a HA *grid engine cluster*. It enables you rapid prototyp
 
 Every playbook is an *operator product* aka tasks evaluated in a row. In order to invert the product you have to change the order and *invert* each task individually:
 
-    (AB)^-1 = B^-1 A^-1
+![Google Logo](http://goo.gl/CjgeA)
 
 By keeping this in mind it is pretty easy rollback or change a playbook. Playbooks are usually *Linux agnostic* and *holistic*.
 
