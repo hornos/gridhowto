@@ -345,7 +345,7 @@ Get the error log:
     ./jockey ipmi tool 10.0.1.1 sel elist
 
 ### WRT Hacking
-Get A PL2303 USB serial port. This is a common adapter for rPi. Install the driver and setup the device according to [http://plugable.com/2011/07/12/installing-a-usb-serial-adapter-on-mac-os-x#VERIFY](plugable.com). Install `minicom`:
+Get A PL2303 USB serial port. This is a common adapter for rPi. Install the driver and setup the device according to [plugable.com](http://plugable.com/2011/07/12/installing-a-usb-serial-adapter-on-mac-os-x#VERIFY). Install `minicom`:
 
     brew install minicom
 
@@ -356,7 +356,7 @@ Use the following setup (`minicom -s`):
     F - Hardware Flow Control : No
     G - Software Flow Control : Yes
 
-[http://putokaz.wordpress.com/2013/03/12/raspberry-pi-rs232-serial-interface-options-revisit/](Color codes):
+[Color codes](http://putokaz.wordpress.com/2013/03/12/raspberry-pi-rs232-serial-interface-options-revisit):
 
 Id | Color  | Type
 --- | --- | ---
@@ -376,7 +376,7 @@ Attach the serial port to the P1 connector according to this figure:
 
 Configure and start `minicom`. Type `tpl` at the boot prompt.
 
-You have to debrick with the [http://joeyiodice.com/converting-tp-link-tl-wr1043nd-to-dd-wrt](special German firmware). Download the image and cut the first 0x20200 (that is 131,584 = 257*512) Bytes:
+You have to debrick with the [special German firmware](http://joeyiodice.com/converting-tp-link-tl-wr1043nd-to-dd-wrt). Download the image and cut the first 0x20200 (that is 131,584 = 257*512) Bytes:
 
     pushd space/boot
     dd if=original_boot.bin of=code.bin skip=257 bs=512
@@ -393,7 +393,7 @@ Erase the flash, download the image, flash and finally boot:
     cp.b 0x81000000 0xbf020000 0x7c0000
     bootm 0xbf020000
 
-Plugin in WAN and your machine on a patch (switch to DHCP). Download the latest DD-WRT firmware from [ftp://dd-wrt.com/others/eko/BrainSlayer-V24-preSP2/2012](Brain Slayer). Upgrad the firmware from the web interface. You might have to hard reset (clear NVRAM) the router by pressing the reset button for 30s On + 30s Off + 30s On.
+Plugin in WAN and your machine on a patch (switch to DHCP). Download the latest DD-WRT firmware from [Brain Slayer](ftp://dd-wrt.com/others/eko/BrainSlayer-V24-preSP2/2012). Upgrad the firmware from the web interface. You might have to hard reset (clear NVRAM) the router by pressing the reset button for 30s On + 30s Off + 30s On.
 
 ## InfiniBand Basics
 InfiniBand is a switched fabric communications link used in high-performance computing and enterprise data centers. If you need RDMA you need InfiniBand. You have to run the subnet manager (OpenSM) which assigns Local IDentifiers (LIDs) to each port connected to the InfiniBand fabric, and develops a routing table based off of the assigned LIDs.There are two types of SMs, software based and hardware based. Hardware based subnet managers are typically part of the firmware of the attached InfiniBand switch. Buy a switch with HW-based SM.
