@@ -244,6 +244,26 @@ case ${cmd} in
     ${nginx_bin} -c ${http_conf}
   ;;
 
+  wrt)
+    # WRT Hacking
+    jockey_ip=192.168.0.5
+
+    ### args
+    default=${cmd}
+
+    cat ${jockey_root}/wrt | \
+    awk -v p=${masq_root} \
+        -v l=${jockey_ip} '{
+      gsub("DNSMASQ_LISTEN",l);
+      gsub("DNSMASQ_ROOT",p); print}' \
+    > ${masq_conf}
+
+    # cat ${masq_conf}
+    echo "Starting DNSmasq server..."
+    echo "Press Ctrl+C to exit"
+    sudo ${dnsmasq_bin} -d -C ${masq_conf}
+  ;;
+
   boot)
     interfaces=""
     for i in $listen_interfaces; do

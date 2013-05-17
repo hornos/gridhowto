@@ -35,3 +35,4 @@ space/boot/hdt/modules.pcimap
 etc/munge/munge.key
 *.pem
 *.log
+*.bin

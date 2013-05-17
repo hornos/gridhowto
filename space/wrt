@@ -1,0 +1,322 @@
+
+# Never forward plain names (without a dot or domain part)
+domain-needed
+
+# Never forward addresses in the non-routed address spaces.
+bogus-priv
+
+# Uncomment this to filter useless windows-originated DNS requests
+# which can trigger dial-on-demand links needlessly.
+# Note that (amongst other things) this blocks all SRV requests,
+# so don't use it if you use eg Kerberos, SIP, XMMP or Google-talk.
+# This option only affects forwarding, SRV records originating for
+# dnsmasq (via srv-host= lines) are not suppressed by it.
+filterwin2k
+
+# If you don't want dnsmasq to read /etc/resolv.conf or any other
+# file, getting its servers from this file instead (see below), then
+# uncomment this.
+no-resolv
+
+# If you don't want dnsmasq to poll /etc/resolv.conf or other resolv
+# files for changes and re-read them then uncomment this.
+no-poll
+
+# If you want dnsmasq to listen for DHCP and DNS requests only on
+# specified interfaces (and the loopback) give the name of the
+# interface (eg eth0) here.
+# Repeat the line for more than one interface.
+# interface=DNSMASQ_INTERFACE
+listen-address=DNSMASQ_LISTEN
+
+#LISTEN-INTERFACES
+
+#LISTEN-ADDRESSES
+
+# On systems which support it, dnsmasq binds the wildcard address,
+# even when it is listening on only some interfaces. It then discards
+# requests that it shouldn't reply to. This has the advantage of
+# working even when interfaces come and go and change address. If you
+# want dnsmasq to really bind only the interfaces it is listening on,
+# uncomment this option. About the only time you may need this is when
+# running another nameserver on the same machine.
+bind-interfaces
+
+# If you don't want dnsmasq to read /etc/hosts, uncomment the
+# following line.
+no-hosts
+
+# Set the domain for dnsmasq. this is optional, but if it is set, it
+# does the following things.
+# 1) Allows DHCP hosts to have fully qualified domain names, as long
+#     as the domain part matches this setting.
+# 2) Sets the "domain" DHCP option thereby potentially setting the
+#    domain of all systems configured by DHCP
+# 3) Provides the domain part for "expand-hosts"
+domain=grid
+
+# Specify a subnet which can't be used for dynamic address allocation,
+# is available for hosts with matching --dhcp-host lines. Note that
+# dhcp-host declarations will be ignored unless there is a dhcp-range
+# of some type for the subnet in question.
+# In this case the netmask is implied (it comes from the network
+# configuration on the machine running dnsmasq) it is possible to give
+# an explicit netmask instead.
+
+# Supply parameters for specified hosts using DHCP. There are lots
+# of valid alternatives, so we will give examples of each. Note that
+# IP addresses DO NOT have to be in the range given above, they just
+# need to be on the same network. The order of the parameters in these
+# do not matter, it's permissible to give name, address and MAC in any
+# order.
+
+# Always allocate the host with Ethernet address 11:22:33:44:55:66
+# The IP address 192.168.0.60
+#dhcp-host=11:22:33:44:55:66,192.168.0.60
+
+# Give the machine which says its name is "bert" IP address
+# 192.168.0.70 and an infinite lease
+#dhcp-host=bert,192.168.0.70,infinite
+
+# Send extra options which are tagged as "red" to
+# the machine with Ethernet address 11:22:33:44:55:66
+#dhcp-host=11:22:33:44:55:66,set:red
+
+### ROOT SERVER BOOTP
+# dhcp-host=08:00:27:14:68:75,10.1.1.1,infinite,set:root
+# dhcp-host=08:00:27:14:68:75,10.1.1.2,infinite,set:root
+# dhcp-host=08:00:27:14:68:75,10.1.1.3,infinite,set:root
+
+# Never offer DHCP service to a machine whose Ethernet
+# address is 11:22:33:44:55:66
+#dhcp-host=11:22:33:44:55:66,ignore
+
+# Ignore any client-id presented by the machine with Ethernet
+# address 11:22:33:44:55:66. This is useful to prevent a machine
+# being treated differently when running under different OS's or
+# between PXE boot and OS boot.
+#dhcp-host=11:22:33:44:55:66,id:*
+
+# Ignore any clients which are not specified in dhcp-host lines
+# or /etc/ethers. Equivalent to ISC "deny unknown-clients".
+# This relies on the special "known" tag which is set when
+# a host is matched.
+#dhcp-ignore=tag:!known
+
+
+# Send options to hosts which ask for a DHCP lease.
+# See RFC 2132 for details of available options.
+# Common options can be given to dnsmasq by name:
+# run "dnsmasq --help dhcp" to get a list.
+# Note that all the common settings, such as netmask and
+# broadcast address, DNS server and default route, are given
+# sane defaults by dnsmasq. You very likely will not need
+# any dhcp-options. If you use Windows clients and Samba, there
+# are some options which are recommended, they are detailed at the
+# end of this section.
+
+# Override the default route supplied by dnsmasq, which assumes the
+# router is the same machine as the one running dnsmasq.
+#dhcp-option=3,1.2.3.4
+
+
+# Do the same thing, but using the option name
+#dhcp-option=option:router,1.2.3.4
+
+# Override the default route supplied by dnsmasq and send no default
+# route at all. Note that this only works for the options sent by
+# default (1, 3, 6, 12, 28) the same line will send a zero-length option
+# for all other option numbers.
+# dhcp-option=3
+
+#ROUTER
+
+#DNS
+
+# Set the "all subnets are local" flag
+dhcp-option=27,1
+
+# Send the etherboot magic flag and then etherboot options (a string).
+#dhcp-option=128,e4:45:74:68:00:00
+#dhcp-option=129,NIC=eepro100
+
+# Specify an option which will only be sent to the "red" network
+# (see dhcp-range for the declaration of the "red" network)
+# Note that the tag: part must precede the option: part.
+#dhcp-option = tag:red, option:ntp-server, 192.168.1.1
+
+# The following DHCP options set up dnsmasq in the same way as is specified
+# for the ISC dhcpcd in
+# http://www.samba.org/samba/ftp/docs/textdocs/DHCP-Server-Configuration.txt
+# adapted for a typical dnsmasq installation where the host running
+# dnsmasq is also the host running samba.
+# you may want to uncomment some or all of them if you use
+# Windows clients and Samba.
+dhcp-option=19,0           # option ip-forwarding off
+#dhcp-option=44,0.0.0.0     # set netbios-over-TCP/IP nameserver(s) aka WINS server(s)
+#dhcp-option=45,0.0.0.0     # netbios datagram distribution server
+#dhcp-option=46,8           # netbios node type
+
+# Send vendor-class specific options encapsulated in DHCP option 43.
+# The meaning of the options is defined by the vendor-class so
+# options are sent only when the client supplied vendor class
+# matches the class given here. (A substring match is OK, so "MSFT"
+# matches "MSFT" and "MSFT 5.0"). This example sets the
+# mtftp address to 0.0.0.0 for PXEClients.
+#dhcp-option=vendor:PXEClient,1,0.0.0.0
+
+# Send the Encapsulated-vendor-class ID needed by some configurations of
+# Etherboot to allow is to recognise the DHCP server.
+#dhcp-option=vendor:Etherboot,60,"Etherboot"
+
+# Send options to PXELinux. Note that we need to send the options even
+# though they don't appear in the parameter request list, so we need
+# to use dhcp-option-force here.
+# See http://syslinux.zytor.com/pxe.php#special for details.
+# Magic number - needed before anything else is recognised
+# dhcp-option-force=208,f1:00:74:7e
+# Configuration file name
+# dhcp-option-force=209,configs/common
+# Path prefix
+# dhcp-option-force=210,/tftpboot/pxelinux/files/
+# Reboot time. (Note 'i' to send 32-bit value)
+# dhcp-option-force=211,30i
+
+# Set the boot filename for netboot/PXE. You will only need
+# this is you want to boot machines over the network and you will need
+# a TFTP server; either dnsmasq's built in TFTP server or an
+# external one. (See below for how to enable the TFTP server.)
+dhcp-boot=pxelinux.0
+# dhcp-boot=gpxelinux.0
+
+# The same as above, but use custom tftp-server instead machine running dnsmasq
+#dhcp-boot=pxelinux,server.name,192.168.1.100
+
+# Boot for Etherboot gPXE. The idea is to send two different
+# filenames, the first loads gPXE, and the second tells gPXE what to
+# load. The dhcp-match sets the gpxe tag for requests from gPXE.
+# dhcp-match=set:gpxe,175 # gPXE sends a 175 option.
+# dhcp-boot=tag:!gpxe,undionly.kpxe
+# dhcp-boot=mybootimage
+
+# Encapsulated options for Etherboot gPXE. All the options are
+# encapsulated within option 175
+#dhcp-option=encap:175, 1, 5b         # priority code
+#dhcp-option=encap:175, 176, 1b       # no-proxydhcp
+#dhcp-option=encap:175, 177, string   # bus-id
+#dhcp-option=encap:175, 189, 1b       # BIOS drive code
+#dhcp-option=encap:175, 190, user     # iSCSI username
+#dhcp-option=encap:175, 191, pass     # iSCSI password
+
+# Test for the architecture of a netboot client. PXE clients are
+# supposed to send their architecture as option 93. (See RFC 4578)
+#dhcp-match=peecees, option:client-arch, 0 #x86-32
+#dhcp-match=itanics, option:client-arch, 2 #IA64
+#dhcp-match=hammers, option:client-arch, 6 #x86-64
+#dhcp-match=mactels, option:client-arch, 7 #EFI x86-64
+
+dhcp-match=intels, option:client-arch, 6 #x86-64
+
+# Do real PXE, rather than just booting a single file, this is an
+# alternative to dhcp-boot.
+# pxe-prompt="NETBOOT MENU"
+# or with timeout before first available action is taken:
+# pxe-prompt="Press F8 for menu.", 5
+
+# Loads <tftp-root>/pxelinux.0 from dnsmasq TFTP server.
+# pxe-service=x86PC, "Boot from network", gpxelinux
+
+# Loads <tftp-root>/pxelinux.0 from dnsmasq TFTP server.
+# pxe-service=x86PC, "Boot from network", pxelinux
+
+# Available boot services. for PXE.
+# pxe-service=x86PC, "Boot from local disk"
+
+# Loads <tftp-root>/pxelinux.0 from TFTP server at 1.2.3.4.
+# Beware this fails on old PXE ROMS.
+#pxe-service=x86PC, "Install Linux", pxelinux, 1.2.3.4
+
+# Use bootserver on network, found my multicast or broadcast.
+#pxe-service=x86PC, "Install windows from RIS server", 1
+
+# Use bootserver at a known IP address.
+#pxe-service=x86PC, "Install windows from RIS server", 1, 1.2.3.4
+
+# If you have multicast-FTP available,
+# information for that can be passed in a similar way using options 1
+# to 5. See page 19 of
+# http://download.intel.com/design/archives/wfm/downloads/pxespec.pdf
+
+# Enable dnsmasq's built-in TFTP server
+enable-tftp
+
+# Set the root directory for files available via FTP.
+tftp-root=DNSMASQ_ROOT
+
+# Make the TFTP server more secure: with this set, only files owned by
+# the user dnsmasq is running as will be send over the net.
+#tftp-secure
+
+# This option stops dnsmasq from negotiating a larger blocksize for TFTP
+# transfers. It will slow things down, but may rescue some broken TFTP
+# clients.
+#tftp-no-blocksize
+
+# Set the boot file name only when the "red" tag is set.
+#dhcp-boot=tag:red,pxelinux.red-net
+
+#dhcp-boot=tag:root,pxelinux.root
+
+# An example of dhcp-boot with an external TFTP server: the name and IP
+# address of the server are given after the filename.
+# Can fail with old PXE ROMS. Overridden by --pxe-service.
+#dhcp-boot=/var/ftpd/pxelinux.0,boothost,192.168.0.3
+
+# If there are multiple external tftp servers having a same name
+# (using /etc/hosts) then that name can be specified as the
+# tftp_servername (the third option to dhcp-boot) and in that
+# case dnsmasq resolves this name and returns the resultant IP
+# addresses in round robin fasion. This facility can be used to
+# load balance the tftp load among a set of servers.
+#dhcp-boot=/var/ftpd/pxelinux.0,boothost,tftp_server_name
+
+# Set the limit on DHCP leases, the default is 150
+#dhcp-lease-max=150
+
+# The DHCP server needs somewhere on disk to keep its lease database.
+# This defaults to a sane location, but if you want to change it, use
+# the line below.
+dhcp-leasefile=DNSMASQ_ROOT/leases
+
+# Set the DHCP server to authoritative mode. In this mode it will barge in
+# and take over the lease for any client which broadcasts on the network,
+# whether it has a record of the lease or not. This avoids long timeouts
+# when a machine wakes up on a new network. DO NOT enable this if there's
+# the slightest chance that you might end up accidentally configuring a DHCP
+# server for your campus/company accidentally. The ISC server uses
+# the same option, and this URL provides more information:
+# http://www.isc.org/files/auth.html
+dhcp-authoritative
+
+# Change the following lines if you want dnsmasq to serve SRV
+# records.  These are useful if you want to serve ldap requests for
+# Active Directory and other windows-originated DNS requests.
+# See RFC 2782.
+# You may add multiple srv-host lines.
+# The fields are <name>,<target>,<port>,<priority>,<weight>
+# If the domain part if missing from the name (so that is just has the
+# service and protocol sections) then the domain given by the domain=
+# config option is used. (Note that expand-hosts does not need to be
+# set for this to work.)
+
+
+# For debugging purposes, log each DNS query as it passes through
+# dnsmasq.
+log-queries
+
+# Log lots of extra information about DHCP transactions.
+log-dhcp
+
+# Include another lot of configuration options.
+#conf-file=/etc/dnsmasq.more.conf
+#conf-dir=/etc/dnsmasq.d
