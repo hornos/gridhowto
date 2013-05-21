@@ -1,0 +1,42 @@
+#
+# http://top-hat-sec.com/forum/index.php?action=profile;area=showposts;u=1097
+#
+---
+- hosts: all
+  vars_files:
+    - networks.yml
+    - harmonia_vars.yml
+
+  tasks:
+  - name: Uninstall openvas
+    apt: name=$item
+         state=absent
+    with_items:
+      - greenbone-security-assistant
+      - libopenvas6
+      - openvas-administrator
+      - openvas-manager
+      - openvas-cli
+      - openvas-scanner
+    when: ansible_os_family == "Debian"
+    tags:
+      - packages
+
+  - name: Create openvas directory
+    file: path=/root/openvas
+          state=directory
+
+  - name: Download openvas packages
+    get_url: url={{harmonia.url}}/${item}
+             dest=/root/openvas
+    with_items:
+      - o/openvas-manager/openvas-manager_3.0.4-1kali0_amd64.deb
+      - o/openvas-administrator/openvas-administrator_1.2.1-1kali0_amd64.deb
+      - o/openvas-cli/openvas-cli_1.1.5-1kali0_amd64.deb
+      - o/openvas-scanner/openvas-scanner_3.3.1-1kali1_amd64.deb
+      - o/openvas/openvas_1.1_amd64.deb
+      - g/greenbone-security-assistant/greenbone-security-assistant_3.0.3-1kali0_amd64.deb
+      - libo/libopenvas/libopenvas5_5.0.4-1kali0_amd64.deb
+
+  - name: Install packages
+    shell: dpkg -i /root/openvas/*.deb

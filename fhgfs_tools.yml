@@ -1,0 +1,18 @@
+---
+- hosts: all
+
+  tasks:
+    - name: Create /root/bin directory
+      file: path=/root/bin
+            owner=root
+            group=root
+            state=directory
+
+    - name: Install tools
+      template: src=root/bin/${item}.j2
+                dest=/root/bin/${item}
+                owner=root
+                group=root
+                mode=0755
+      with_items:
+        - fhgfs_nodes

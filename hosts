@@ -19,11 +19,13 @@ root-05 ansible_ssh_host=10.1.1.5
 scicomp ansible_ssh_host=10.1.1.11
 
 [harmonia]
-harmonia ansible_ssh_host=10.10.10.10
+harmonia ansible_ssh_host=10.1.1.10
 
 [gateway]
-gateway ansible_ssh_host=193.6.222.65
+gateway ansible_ssh_host=192.168.1.101
+
+[z]
+z ansible_ssh_host=192.168.1.147
 
 [xen]
 xen-01 ansible_ssh_host=10.1.1.10
-

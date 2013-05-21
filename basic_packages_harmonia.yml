@@ -1,0 +1,45 @@
+#
+# how to check security updates:
+# http://www.cyberciti.biz/faq/redhat-fedora-centos-linux-yum-installs-security-updates/
+#
+---
+- hosts: all
+
+  tasks:
+# TODO: nodejs and repos
+  - name: Install basic packages
+    apt: name=$item
+         state=installed
+    with_items:
+      - mc
+      - htop
+      - iptraf
+      - sysstat
+      - nmap
+      - mtr-tiny
+      - manpages
+      - git
+      - gcc
+      - g++
+      - python-pip
+      - python-crypto
+      - python-distutils-extra
+      - python-openssl
+      - python-dev
+      - make
+      - multitail
+      - rsstail
+      - xauth
+      - libtool
+      - python-software-properties
+      - software-properties-common
+      - fern-wifi-cracker
+      - reaver
+      - wifi-honey
+      - wifi-radar
+      - wifitap
+      - wifite
+      - sysv-rc-conf
+    when: ansible_os_family == "Debian"
+    tags:
+      - packages

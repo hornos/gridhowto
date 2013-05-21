@@ -79,8 +79,10 @@
         - blacklist.sh
         - whitelist.sh
         - homelist.sh
+        - ipv4private.sh
       tags:
         - config
+        - lists
 
     - name: Delete saved ipsets
       file: path=/etc/ipset.d/${item}

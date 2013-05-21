@@ -1000,9 +1000,17 @@ Install monitoring (on hold, key server and pcp problem):
 
 LDAP (on hold ldaps):
 
-    ./play @@root openldap_server
-    ./play @@root openldap_tools
+    ./play @@gateway openldap_server
+    ./play @@gateway openldap_tools
 
-gosa
+Webmin with Globus:
 
-samba   
+    ./play @@gateway webmin_home
+    ./play @@gateway globus_webmin
+
+## Harmonia
+Harmonia is a Kali-based general purpose communicator (GPC). Setup a host-only network (10.1.1.0/24) on eth0 and NAT on eth1. The aim of the GPC is to provide a near-safe channel for OS X.
+
+    ./play root@harmonia bootstrap
+    ./play @@harmonia secure_harmonia
+    ./play @@harmonia shorewall_ipset_harmonia

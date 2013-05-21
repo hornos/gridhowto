@@ -6,14 +6,43 @@
 
   tasks:
 
-  - name: Install mainline kernel
-    yum: name=kernel-ml
-         state=latest
-         enablerepo=elrepo-kernel
+### REDHAT
+  - name: Clean old kernel packages
+    yum: name=$item
+         state=absent
+    with_items:
+      - kernel-headers
+      - kernel-devel
+    when: ansible_os_family == "RedHat"
     tags:
       - repo
+      - packages
+
+  - name: Install mainline kernel
+    yum: name=$item
+         state=latest
+         enablerepo=elrepo-kernel
+    with_items:
+      - kernel-ml
+      - kernel-ml-devel
+      - kernel-ml-headers
+    when: ansible_os_family == "RedHat"
+    tags:
+      - repo
+      - packages
 
   - name: Set grub default
     lineinfile: dest=/boot/grub/grub.conf
                 regexp='^default'
                 line='default=0'
+    when: ansible_os_family == "RedHat"
+
+### DEBIAN
+  - name: Install mainline repo
+    apt_repository: repo=ppa:kernel-ppa/ppa 
+    when: ansible_os_family == "Debian"
+
+#  - name: Install mainline kernel
+#    apt: name=linux-image-3.8.0-19-generic
+#         state=installed
+#    when: ansible_os_family == "Debian"

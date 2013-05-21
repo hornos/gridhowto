@@ -1,6 +1,10 @@
-ACCEPT     ext:+homelist        $FW       tcp     9091
-ACCEPT     ext:+homelist        $FW       tcp     51413
-ACCEPT     ext:+homelist        $FW       udp     51413
-# torrent
+# ACCEPT     ext:+homelist        $FW       tcp     9091
+# ACCEPT     ext:+homelist        $FW       tcp     51413
+# ACCEPT     ext:+homelist        $FW       udp     51413
+ACCEPT     ext:+ipv4private        $FW       tcp     9091
+ACCEPT     ext:+ipv4private        $FW       tcp     51413
+ACCEPT     ext:+ipv4private        $FW       udp     51413
+
+# external torrent connections
 ACCEPT     ext:+whitelist       $FW       tcp     51413
 ACCEPT     ext:+whitelist       $FW       udp     51413

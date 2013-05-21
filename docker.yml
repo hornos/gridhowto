@@ -1,0 +1,28 @@
+#
+# http://docs.docker.io/en/latest/installation/ubuntulinux.html
+#
+# update kernel: kernel_ml.yml
+#
+---
+- hosts: all
+
+  tasks:
+### UBUNTU
+  - name: Install Docker repo
+    apt_repository: repo='deb http://ppa.launchpad.net/dotcloud/lxc-docker/ubuntu precise main'
+    when: ansible_os_family == "Debian"
+    tags:
+      - repo
+
+  - name: Install Docker packages
+    apt: name=$item
+         state=installed
+    with_items:
+      - lxc-docker
+    tags:
+      - packages
+
+  - name: Install Docker base
+    command: docker pull base
+    tags:
+      - init

@@ -36,6 +36,7 @@
       - xorg-x11-xauth
       - jailkit
       - libtool
+      - curl
     when: ansible_os_family == "RedHat"
     tags:
       - packages
@@ -67,6 +68,7 @@
       - libtool
       - python-software-properties
       - software-properties-common
+      - curl
     when: ansible_os_family == "Debian"
     tags:
       - packages

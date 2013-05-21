@@ -1,0 +1,10 @@
+# This play secures the server
+# Based on RH EAL4+ recommenadtions
+---
+- name: Basic System Security
+  hosts: all
+
+- include: ssh_server_harmonia.yml
+- include: su.yml
+- include: login_defs.yml
+- include: entropy.yml

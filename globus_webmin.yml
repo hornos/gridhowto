@@ -1,0 +1,27 @@
+
+---
+- hosts: all
+  vars_files:
+    - globus_vars.yml
+    - [ "vars/{{ ansible_os_family }}.yml", "vars/Defaults.yml" ]
+
+  tasks:
+### REDHAT
+    - name: Install Globus key and cert
+      shell: cat /etc/grid-security/hostkey.pem /etc/grid-security/hostcert.pem > /etc/webmin/miniserv.pem
+      tags:
+        - cert
+        - key
+
+    - name: Install Globus CA
+      lineinfile: dest=/etc/webmin/miniserv.conf
+                  regexp='^extracas'
+                  line='extracas=/etc/grid-security/cacert.pem'
+                  backup=yes
+      tags:
+        - config
+        - ca
+
+    - name: Restart webmin
+      service: name=webmin
+               state=restarted

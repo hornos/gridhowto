@@ -1,0 +1,22 @@
+#
+# /etc/fhgfs/fhgfs-client-autobuild.conf
+# Find the option "buildArgs" and set it to:
+# buildArgs=-j8 FHGFS_OPENTK_IBVERBS=1 OFED_INCLUDE_PATH=/usr/src/openib/include
+#
+---
+- hosts: all
+  vars_files:
+    - networks.yml
+    - fhgfs_vars.yml
+
+  tasks:
+
+  - name: Install packages
+    yum: name=$item
+         state=installed
+    with_items:
+      - fhgfs-common
+      - fhgfs-client
+      - fhgfs-utils
+    tags:
+      - packages

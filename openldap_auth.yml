@@ -13,6 +13,7 @@
     - openldap_vars.yml
 
   tasks:
+### PACKAGES
 ### REDHAT
     - name: Install LDAP packages
       yum: name=$item
@@ -57,22 +58,6 @@
       notify:
         - Restart nslcd
 
-### TODO: SSL
-    - name: Install nslcd.conf
-      template: src=etc/nslcd_home.conf.j2
-                dest=/etc/nslcd.conf
-                owner=root
-                group=root
-                mode=0600
-                backup=yes
-      tags:
-        - config
-        - nslcd
-      when: ansible_os_family == "Debian"
-      notify:
-        - Restart nslcd
-
-
     - name: Install pam_ldap.conf
       template: src=etc/pam_ldap.conf.j2
                 dest=/etc/pam_ldap.conf
@@ -92,10 +77,85 @@
                 group=root
                 mode=0644
                 backup=yes
+      when: ansible_os_family == "RedHat"
       tags:
         - config
         - pam
 
+    - name: Enable LDAP auth
+      lineinfile: dest=/etc/sysconfig/authconfig
+                  regexp='^USELDAP'
+                  line='USELDAP=yes'
+      when: ansible_os_family == "RedHat"
+      tags:
+        - config
+
+    - name: Install firewall rules
+      template: src=etc/shorewall/rules.d/openldap.j2
+                dest=/etc/shorewall/rules.d/openldap
+                owner=root
+                group=root
+                mode=0640
+      when: ansible_os_family == "RedHat"
+      tags:
+        - firewall
+      notify:
+        - Restart shorewall
+
+
+### DEBIAN
+#
+# http://www.server-world.info/en/note?os=Ubuntu_12.04&p=ldap&f=2
+#
+    - name: Install nslcd.conf
+      template: src=etc/nslcd_home.conf.j2
+                dest=/etc/nslcd.conf
+                owner=root
+                group=root
+                mode=0600
+                backup=yes
+      tags:
+        - config
+        - nslcd
+      when: ansible_os_family == "Debian"
+      notify:
+        - Restart nslcd
+
+### pam
+    - name: Remove use_authok
+      lineinfile: dest=/etc/pam.d/common-password
+                  regexp='^password.*pam_ldap.so'
+                  line='password [success=1 user_unknown=ignore default=die] pam_ldap.so try_first_pass'
+                  backup=yes
+      when: ansible_os_family == "Debian"
+      tags:
+        - config
+        - pam
+
+    - name: Set auto home
+      lineinfile: dest=/etc/pam.d/common-password
+                  regexp='^session optional pam_mkhomedir.so'
+                  line='session optional pam_mkhomedir.so skel=/etc/skel umask=007'
+                  backup=yes
+      when: ansible_os_family == "Debian"
+      tags:
+        - config
+        - pam
+
+    - name: Install ldap.conf
+      template: src=etc/ldap.conf.j2
+                dest=/etc/ldap.conf
+                owner=root
+                group=root
+                mode=0644
+                backup=yes
+      when: ansible_os_family == "Debian"
+      tags:
+        - config
+        - pam
+
+
+### COMMON
     - name: Install nsswitch
       template: src=etc/nsswitch.conf.j2
                 dest=/etc/nsswitch.conf
@@ -107,26 +167,15 @@
         - config
         - nss
 
-    - name: Enable LDAP auth
-      lineinfile: dest=/etc/sysconfig/authconfig
-                  regexp='^USELDAP'
-                  line='USELDAP=yes'
-
-    - name: Install firewall rules
-      template: src=etc/shorewall/rules.d/openldap.j2
-                dest=/etc/shorewall/rules.d/openldap
-                owner=root
-                group=root
-                mode=0640
-      tags:
-        - firewall
-      notify:
-        - Restart shorewall
 
     - name: Start nslcd
       service: name=nslcd
                state=restarted
                enabled=yes
+
+    - name: Enable LDAP
+      command: sysv-rc-conf libnss-ldap on
+      when: ansible_os_family == "Debian"
 
   handlers:
     - name: Restart nslcd

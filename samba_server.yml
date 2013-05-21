@@ -1,0 +1,58 @@
+#
+# http://raerek.blogspot.hu/2012/05/samba-pdc-on-ubuntu-1204-using-ldap.html
+#
+---
+- hosts: all
+
+  tasks:
+### UBUNTU
+  - name: Install Webmin packages
+    apt: name=$item
+         state=installed
+    with_items:
+      - samba
+      - python-smbc
+      - smbclient
+      - python-samba
+      - python-smbpasswd
+      - samba-tools
+      - smbldap-tools
+      - samba-doc
+      - smbc
+    when: ansible_os_family == "Debian"
+    tags:
+      - packages
+
+### CONFIGURATION
+#  - name: Install samba schema
+#    shell: zcat /usr/share/doc/samba-doc/examples/LDAP/samba.schema.gz > /etc/openldap/schema/samba.schema
+#    when: ansible_os_family == "Debian"
+#    tags:
+#      - schema
+#
+#  - name: Install samba.conf
+#    template: src=etc/openldap/schema/samba.conf.j2
+#              dest=/etc/openldap/schema/samba.conf
+#    tags:
+#      - schema
+
+  - name: Install samba schema
+    template: src=etc/openldap/schema/samba.ldif.j2
+              dest=/etc/openldap/schema/samba.ldif
+    tags:
+      - schema
+
+  - name: Enable samba schema
+    shell: 'ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/samba.ldif'
+    ignore_errors: yes
+    notify:
+      - Restart slapd
+    tags:
+      - schema
+
+
+
+  handlers:
+    - name: Restart slapd
+      service: name=slapd
+               state=restarted

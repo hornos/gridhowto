@@ -1,7 +1,11 @@
 # sync
-ACCEPT     ext:+homelist        $FW       tcp     {{btsync.data}}
-ACCEPT     ext:+homelist        $FW       udp     {{btsync.data}}
-ACCEPT     ext:+homelist        $FW       tcp     {{btsync.http}}
-# torrent
+# ACCEPT     ext:+homelist        $FW       tcp     {{btsync.data}}
+# ACCEPT     ext:+homelist        $FW       udp     {{btsync.data}}
+# ACCEPT     ext:+homelist        $FW       tcp     {{btsync.http}}
+ACCEPT     ext:+ipv4private        $FW       tcp     {{btsync.data}}
+ACCEPT     ext:+ipv4private        $FW       udp     {{btsync.data}}
+ACCEPT     ext:+ipv4private        $FW       tcp     {{btsync.http}}
+
+# external torrent connections
 ACCEPT     ext:+whitelist       $FW       tcp      {{btsync.data}}
 ACCEPT     ext:+whitelist       $FW       udp      {{btsync.data}}

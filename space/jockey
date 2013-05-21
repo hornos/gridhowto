@@ -6,7 +6,7 @@ jockey_root=${gdn}
 default=centos63
 
 ### defaults for OS X
-host=${jockey_root}/.host
+host=${JOCKEY_HOST:-${jockey_root}/.host}
 if [ -r ${host} ] ; then
   source ${host}
 fi

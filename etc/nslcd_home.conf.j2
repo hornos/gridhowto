@@ -1,7 +1,4 @@
-uri ldap://localhost/{%- for host in hostvars %}
- ldap://{{host}}/
-{%- endfor %}
-
+uri ldap://localhost
 ssl off
 base {{ldap.domain}}
 uid nslcd

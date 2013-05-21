@@ -56,33 +56,19 @@
             group=root
             state=directory
 
-    - name: Install wsrep_status
-      template: src=root/bin/wsrep_status.j2
-                dest=/root/bin/wsrep_status
+    - name: Install tools
+      template: src=root/bin/${item}.j2
+                dest=/root/bin/${item}
                 owner=root
                 group=root
                 mode=0755
-
-    - name: Install mytop
-      template: src=root/bin/mytop.j2
-                dest=/root/bin/mytop
-                owner=root
-                group=root
-                mode=0755
-
-    - name: Install mtop
-      template: src=root/bin/mtop.j2
-                dest=/root/bin/mtop
-                owner=root
-                group=root
-                mode=0755
-
-    - name: Install innotop
-      template: src=root/bin/innotop.j2
-                dest=/root/bin/innotop
-                owner=root
-                group=root
-                mode=0755
+      with_items:
+        - wsrep_status
+        - mytop
+        - mtop
+        - innotop
+      tags:
+        - tools
 
   handlers:
     - name: Restart httpd

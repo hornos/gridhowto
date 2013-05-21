@@ -1,0 +1,21 @@
+# Based on EAL4+ recommendations
+Port 22
+ListenAddress {{ansible_eth0["ipv4"]["address"]}}
+Protocol 2
+Ciphers 3des-cbc
+LoginGraceTime 30s
+MaxAuthTries 1
+ChallengeResponseAuthentication no
+PasswordAuthentication no
+PermitRootLogin no
+PermitEmptyPasswords no
+IgnoreRhosts yes
+RhostsRSAAuthentication no
+HostbasedAuthentication no
+PubkeyAuthentication yes
+RSAAuthentication no
+KerberosAuthentication no
+GSSAPIAuthentication no
+X11Forwarding yes
+UseDNS no
+Subsystem sftp /usr/libexec/openssh/sftp-server

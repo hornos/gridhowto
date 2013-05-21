@@ -1,0 +1,62 @@
+#
+# http://www.ubuntututorials.com/remote-desktop-ubuntu-12-04-windows-7/
+#
+# http://www.zimbio.com/Linux/articles/uGaV1Hi-UXZ/Configure+Linux+Accept+Remote+Desktop+Connections
+#
+---
+- hosts: all
+  vars_files:
+    - networks.yml
+
+  tasks:
+  - name: Install packages
+    apt: name=$item
+         state=installed
+    with_items:
+      - fluxbox
+      - git
+      - autoconf
+      - libtool
+      - pkg-config
+      - gcc
+      - g++
+      - make
+      - libssl-dev
+      - libpam0g-dev
+      - libjpeg8-dev
+      - libx11-dev
+      - libxfixes-dev
+      - flex
+      - bison
+      - libxml2-dev
+      - intltool
+      - xsltproc
+      - xutils-dev
+      - python-libxml2
+      - xutils
+    when: ansible_os_family == "Debian"
+    tags:
+      - packages
+
+  - name: Clone FreeRDP
+    git: repo=git://github.com/FreeRDP/xrdp.git
+         dest=/root/xrdp
+
+# TODO: address
+#  - name: Set internal address
+#    ini_file: dest='/etc/xrdp/xrdp.ini'
+#              section=globals
+#              option=address
+#              value={{ansible_eth0.ipv4.address}}
+#    tags:
+#      - config
+#      - xrdp
+#    notify:
+#      - Restart xrdp
+#  - name: Start xrdp
+#    service: name=xrdp
+#             state=restarted
+#  handlers:
+#    - name: Restart xrdp
+#      service: name=xrdp
+#               state=restarted

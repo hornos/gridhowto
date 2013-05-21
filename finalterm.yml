@@ -1,0 +1,34 @@
+#
+# https://github.com/p-e-w/finalterm
+#
+---
+- hosts: all
+
+  tasks:
+### UBUNTU
+  - name: Install Vala repo
+    apt_repository: repo='ppa:vala-team'
+    when: ansible_os_family == "Debian"
+    tags:
+      - repo
+
+  - name: Install Vala packages
+    apt: name=$item
+         state=installed
+    with_items:
+      - git
+      - cmake
+      - valac-0.18
+      - libgee-0.8-dev
+      - libmx-dev
+      - libclutter-gtk-1.0-dev
+      - libkeybinder-dev
+      - libnotify-dev
+      - libunity-dev
+    tags:
+      - packages
+
+# on hold for keybinder-3.0
+#
+# http://www.mail-archive.com/ubuntu-bugs@lists.ubuntu.com/msg4074435.html
+#
