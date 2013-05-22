@@ -36,19 +36,20 @@
 #    tags:
 #      - schema
 
-  - name: Install samba schema
-    template: src=etc/openldap/schema/samba.ldif.j2
-              dest=/etc/openldap/schema/samba.ldif
-    tags:
-      - schema
-
-  - name: Enable samba schema
-    shell: 'ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/samba.ldif'
-    ignore_errors: yes
-    notify:
-      - Restart slapd
-    tags:
-      - schema
+#  - name: Install samba schema
+#    template: src=etc/openldap/schema/samba.ldif.j2
+#              dest=/etc/openldap/schema/samba.ldif
+#    tags:
+#      - schema
+#
+#  - name: Enable samba schema
+#    shell: 'ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/samba.ldif'
+#    ignore_errors: yes
+#    notify:
+#      - Restart slapd
+#    tags:
+#      - schema
+#
 
 
 

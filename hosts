@@ -25,7 +25,7 @@ harmonia ansible_ssh_host=10.1.1.10
 gateway ansible_ssh_host=192.168.1.101
 
 [z]
-z ansible_ssh_host=192.168.1.147
+z ansible_ssh_host=192.168.1.254
 
 [xen]
 xen-01 ansible_ssh_host=10.1.1.10

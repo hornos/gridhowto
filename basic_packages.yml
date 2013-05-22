@@ -69,6 +69,7 @@
       - python-software-properties
       - software-properties-common
       - curl
+      - miniupnpc
     when: ansible_os_family == "Debian"
     tags:
       - packages

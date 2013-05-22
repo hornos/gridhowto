@@ -1,0 +1,49 @@
+#
+# http://raerek.blogspot.hu/2012/05/samba-pdc-on-ubuntu-1204-using-ldap.html
+#
+---
+- hosts: all
+
+  tasks:
+### UBUNTU
+  - name: Install Samba packages
+    apt: name=$item
+         state=installed
+    with_items:
+      - samba
+      - python-smbc
+      - smbclient
+      - python-samba
+      - python-smbpasswd
+      - samba-tools
+      - smbldap-tools
+      - samba-doc
+      - smbc
+    when: ansible_os_family == "Debian"
+    tags:
+      - packages
+
+  - name: Install /etc/shorewall/rules.d/samba
+    template: src=etc/shorewall/rules.d/samba_home.j2
+              dest=/etc/shorewall/rules.d/samba
+              owner=root
+              group=root
+              mode=0640
+    tags:
+      - firewall
+    notify:
+      - Restart shorewall
+
+
+  - name: Start samba
+    service: name=smbd
+             state=started
+
+  handlers:
+    - name: Restart shorewall
+      service: name=shorewall
+               state=restarted
+
+    - name: Restart samba
+      service: name=smbd
+               state=restarted

@@ -1,0 +1,18 @@
+---
+- hosts: all
+  tasks:
+
+### UBUNTU
+  - name: Set fix ip for the zbox
+    template: src=etc/network/interfaces.j2
+              dest=/etc/network/interfaces
+              backup=yes
+
+  - name: Set hostname
+    file: path=/etc/hostname
+          content='z'
+
+  - name: Set hosts
+    lineinfile: dest=/etc/hosts
+                regexp='^192.168.1.254'
+                line='192.168.1.254 z'

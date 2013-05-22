@@ -1,0 +1,39 @@
+#
+# http://wiki.xbmc.org/?title=HOW-TO:Install_XBMC_on_Ubuntu/HOW-TO_1
+#
+---
+- hosts: all
+
+  tasks:
+### UBUNTU
+  - name: Install XMBC repo
+    apt_repository: repo="ppa:team-xbmc/ppa"
+    when: ansible_os_family == "Debian"
+    tags:
+      - repo
+
+  - name: Install XBMC packages
+    apt: name=$item
+         state=installed
+    with_items:
+      - alsa
+      - alsa-utils
+      - alsa-tools
+      - alsaplayer-text
+      - xinit
+      - vdpauinfo
+      - nvidia-current
+      - nvidia-settings
+      - libvdpau1
+      - vdpau-va-driver
+      - xbmc
+      - xbmc-eventclients-ps3
+    when: ansible_os_family == "Debian"
+    tags:
+      - packages
+
+  - name: Enable X start
+    lineinfile: dest=/etc/X11/Xwrapper.config
+                regexp='^allowed_users'
+                line='allowed_users=anybody'
+                backup=yes
