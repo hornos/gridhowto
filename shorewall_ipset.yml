@@ -99,23 +99,24 @@
       tags:
         - fix
 
-    - name: Fix start() for fooX in /etc/init.d/shorewall
-      lineinfile: dest=/etc/init.d/shorewall
-                  regexp='^for i in \$\(ipset'
-                  line='for i in $(ipset -n -L | uniq | grep fooX); do ipset -exist x $i;done'
-                  insertafter='^start() {'
-      tags:
-        - fix
-        - v4.5
-
-    - name: Fix restart() for fooX in /etc/init.d/shorewall
-      lineinfile: dest=/etc/init.d/shorewall
-                  regexp='^for i in \$\(ipset'
-                  line='for i in $(ipset -n -L | uniq | grep fooX); do ipset -exist x $i;done'
-                  insertafter='^restart() {'
-      tags:
-        - fix
-        - v4.5
+# TODO: better fix
+#    - name: Fix start() for fooX in /etc/init.d/shorewall
+#      lineinfile: dest=/etc/init.d/shorewall
+#                  regexp='^for i in \$\(ipset'
+#                  line='for i in $(ipset -n -L | uniq | grep fooX); do ipset -exist x $i;done'
+#                  insertafter='^start() {'
+#      tags:
+#        - fix
+#        - v4.5
+#
+#    - name: Fix restart() for fooX in /etc/init.d/shorewall
+#      lineinfile: dest=/etc/init.d/shorewall
+#                  regexp='^for i in \$\(ipset'
+#                  line='for i in $(ipset -n -L | uniq | grep fooX); do ipset -exist x $i;done'
+#                  insertafter='^restart() {'
+#      tags:
+#        - fix
+#        - v4.5
 
     - name: Remove /var/lib/shorewall/ipset.save
       file: path=/var/lib/shorewall/ipset.save

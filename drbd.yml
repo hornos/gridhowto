@@ -1,0 +1,20 @@
+
+---
+- hosts: all
+
+  vars_files:
+    - drbd_vars.yml
+    - networks.yml
+
+  tasks:
+### REDHAT
+  - name: Install drbd packages
+    yum: name=$item
+         state=installed
+    with_items:
+      - drbd
+      - kmod-drbd
+    when: ansible_os_family == "RedHat"
+    tags:
+      - packages
+

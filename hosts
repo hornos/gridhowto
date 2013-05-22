@@ -29,3 +29,7 @@ z ansible_ssh_host=192.168.1.147
 
 [xen]
 xen-01 ansible_ssh_host=10.1.1.10
+
+[lustre]
+mds-01 ansible_ssh_host=10.1.1.31
+mds-02 ansible_ssh_host=10.1.1.32

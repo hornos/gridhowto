@@ -8,8 +8,11 @@
 
 ### REDHAT
   - name: Install logcheck packages
-    yum: name=logcheck
+    yum: name=$item
          state=installed
+    with_items:
+      - logcheck
+      - cronie
     when: ansible_os_family == "RedHat"
     tags:
       - packages

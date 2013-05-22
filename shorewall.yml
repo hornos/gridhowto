@@ -215,6 +215,14 @@
     tags:
       - config
 
+  - name: Enable safe stop
+    lineinfile: dest=/etc/sysconfig/shorewall
+                regexp='^SAFESTOP'
+                line='SAFESTOP=1'
+    when: ansible_os_family == "RedHat"
+    tags:
+      - config
+
   - name: Enable Shorwall startup
     lineinfile: dest=/etc/default/shorewall
                 regexp='^startup='

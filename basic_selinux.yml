@@ -18,8 +18,14 @@
       tags:
         - packages
 
+#
+# https://www.centos.org/docs/5/html/5.2/Deployment_Guide/sec-sel-enable-disable.html
+#
+# Shorewall update has an selinux prolem: /etc/init.d/shorewall
+#
+
     - name: Set selinux permissive policy
-      lineinfile: dest=/etc/sysconfig/selinux
+      lineinfile: dest=/etc/selinux/config
                 regexp='^SELINUX='
                 line='SELINUX=permissive'
                 backup=yes

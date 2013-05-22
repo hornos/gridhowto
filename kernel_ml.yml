@@ -42,7 +42,11 @@
     apt_repository: repo=ppa:kernel-ppa/ppa 
     when: ansible_os_family == "Debian"
 
-#  - name: Install mainline kernel
-#    apt: name=linux-image-3.8.0-19-generic
-#         state=installed
-#    when: ansible_os_family == "Debian"
+  - name: Install mainline kernel
+    apt: name=$item
+         state=installed
+    with_items:
+      - linux-image-3.8.0-21-generic
+      - linux-headers-3.8.0-21-generic
+      - linux-tools-3.8.0-21
+    when: ansible_os_family == "Debian"
