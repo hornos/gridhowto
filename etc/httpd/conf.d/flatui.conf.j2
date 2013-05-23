@@ -1,0 +1,10 @@
+
+Alias /flatui /opt/{{pkg}}
+
+<Directory "/opt/{{pkg}}">
+  Order Deny,Allow
+  Deny from all
+  Allow from {{ networks.system }}/{{ masks.system }}
+  Allow from 127.0.0.1
+</Directory>
+

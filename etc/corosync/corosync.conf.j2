@@ -1,0 +1,29 @@
+compatibility: whitetank
+
+totem {
+        version: 2
+        secauth: on
+        threads: 0
+        rrp_mode: active
+        token: 10000
+        interface {
+                ringnumber: 0
+                bindnetaddr: {{networks.system}}
+                mcastaddr: 239.255.42.0
+                mcastport: 5405
+                ttl: 1
+        }
+}
+
+logging {
+        fileline: off
+        to_stderr: no
+        to_logfile: no
+        to_syslog: yes
+        debug: off
+        timestamp: on
+        logger_subsys {
+                subsys: AMF
+                debug: off
+        }
+}

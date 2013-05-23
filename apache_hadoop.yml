@@ -1,0 +1,33 @@
+#
+# http://dak1n1.com/blog/9-hadoop-el6-install
+#
+---
+- hosts: all
+  vars_files:
+    - apache_hadoop_vars.yml
+
+  tasks:
+
+  - name: Download cloudera key
+    get_url: url={{url}}/{{key}} dest=/root/{{key}}
+    tags:
+      - packages
+      - key
+
+  - name: Import cloudera key
+    command: rpm --import /root/{{key}}
+    tags:
+      - packages
+      - key
+
+  - name: Download cloudera
+    get_url: url={{url}}/{{rpm}} dest=/root/{{rpm}}
+    tags:
+      - packages
+      - key
+
+  - name: Install cloudera
+    command: yum -y localinstall /root/{{rpm}}
+    tags:
+      - packages
+      - repo

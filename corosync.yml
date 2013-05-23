@@ -1,0 +1,71 @@
+#
+# http://www.hastexo.com/resources/docs/mysqlgalera-pacemaker-high-availability-clusters/configuring-corosync
+#
+---
+- hosts: all
+
+  vars_files:
+    - corosync_vars.yml
+    - networks.yml
+
+  tasks:
+### REDHAT
+  - name: Install corosync packages
+    yum: name=$item
+         state=installed
+    with_items:
+      - corosync
+      - corosynclib
+      - pacemaker
+      - pacemaker-cli
+      - pacemaker-cluster-libs
+      - pacemaker-libs
+    when: ansible_os_family == "RedHat"
+    tags:
+      - packages
+
+  - name: Setup corosync key
+    copy: src=keys/authkey
+          dest=/etc/corosync/authkey
+          owner=root
+          group=root
+          mode=0400
+    tags:
+      - auth
+      - key
+    notify:
+      - Restart corosync
+
+  - name: Install services
+    template: src=etc/corosync/service.d/${item}.j2
+              dest=/etc/corosync/service.d/${item}
+    with_items:
+      - pacemaker
+    tags:
+      - services
+    notify:
+      - Restart corosync
+
+  - name: Install corosync.conf
+    template: src=etc/corosync/corosync.conf.j2
+              dest=/etc/corosync/corosync.conf
+              backup=yes
+    tags:
+      - config
+    notify:
+      - Restart corosync
+
+  - name: Start services
+    service: name=$item
+             state=started
+             enabled=yes
+    with_items:
+      - corosync
+      - pacemaker
+    tags:
+      - services
+
+  handlers:
+    - name: Restart corosync
+      service: name=corosync
+               state=restarted

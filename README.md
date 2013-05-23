@@ -785,27 +785,52 @@ You can access phpmyadmin on `http://root-0?/phpmyadmin`. The default user/pass 
 
 When shit happens Galera state can be reset by:
 
-    bin/play @@root-03 mariadb_reset
+    ./play @@root-03 mariadb_reset
 
 Enable Ganglia mysql monitor:
 
-    bin/play @@root ganglia_mysql
+    ./play @@root ganglia_mysql
 
 ### Icinga
 Install and setup Icinga:
 
-    bin/play @@root icinga --extra-vars "schema=yes"
+    ./play @@root icinga --extra-vars "schema=yes"
 
 You can access icinga on `http://root-0?/icinga` with `icingaadmin/icingaadmin`. The new interface is on `http://root-0?/icinga-web` with `root/password`. Parameters are in `icinga_vars.yml`.
 
-## Messaging
-### RabbitMQ Cluster
+## HA Cluster
+### Corosync
+Create common authentication key (`keys/authkey`):
 
-    bin/play @@root rabbitmq
+    dd if=/dev/urandom of=keys/authkey bs=128 count=1
+
+Install and corosync:
+
+    ./play @@root corosync
+    ./play @@root corosync_tools
+
+The following tools are installed under `/root/bin`:
+
+    ring
+    totem
+    quorum
+
+## Apache
+### Zookeeper
+
+    ./play @@root zookeeper
+    ./play @@root zookeeper_tools
+
+## Messaging
+### RabbitMQ
+
+    ./play @@root rabbitmq
 
 Switch on Ganglia monitors for the local MQ:
 
-    bin/play @@root ganglia_rabbitmq.yml
+    ./play @@root ganglia_rabbitmq.yml
+
+### MQTT
 
 ## Cluster Filesystems
 ### Bittorrent Sync

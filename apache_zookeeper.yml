@@ -1,0 +1,90 @@
+#
+# https://zookeeper.apache.org/doc/r3.1.2/zookeeperAdmin.html#sc_zkMulitServerSetup
+# http://stackoverflow.com/questions/1565388/increase-heap-size-in-java
+#
+---
+- hosts: all
+
+  vars_files:
+    - apache_vars.yml
+    - networks.yml
+    - [ "vars/{{ ansible_os_family }}.yml", "vars/Defaults.yml" ]
+    - vars/${inventory_hostname}.yml
+
+  tasks:
+### REDHAT
+  - name: Install Java packages
+    yum: name=$item
+         state=installed
+    with_items:
+      - java-1.7.0-openjdk
+    when: ansible_os_family == "RedHat"
+    tags:
+      - packages
+
+  - name: Download {{zookeeper.pkg}}
+    get_url: url={{zookeeper.url}}/{{zookeeper.tgz}} dest=/root/{{zookeeper.tgz}}
+    tags:
+      - packages
+
+  - name: Uncompress {{zookeeper.tgz}}
+    shell: tar -C /opt -xzf /root/{{zookeeper.tgz}}
+    tags:
+      - packages
+
+  - name: Link {{zookeeper.pkg}}
+    file: src=/opt/{{zookeeper.pkg}}
+          dest=/opt/zookeeper
+          owner=root
+          group=root
+          state=link
+    tags:
+      - packages
+      - link
+
+  - name: Install myid
+    copy: content={{myid}}
+          dest={{zookeeper.data}}/myid
+    tags:
+      - myid
+      - config
+
+  - name: Install zookeeper.conf
+    template: src=etc/zookeeper.conf.j2
+              dest=/etc/zookeeper.conf
+              owner=root
+              group=root
+    tags:
+      - config
+    notify:
+      - Restart zookeeper
+
+  - name: Install sysconfig
+    template: src=etc/sysconfig/zookeeper.j2
+              dest=/etc/sysconfig/zookeeper
+              owner=root
+              group=root
+    tags:
+      - sysconfig
+    notify:
+      - Restart zookeeper
+
+  - name: Install zookeeper service
+    template: src=etc/init.d/zookeeper.j2
+              dest=/etc/init.d/zookeeper
+              owner=root
+              group=root
+              mode=0755
+    tags:
+      - services
+
+
+  - name: Start zookeeper
+    service: name=zookeeper
+             state=started
+             enabled=yes
+
+  handlers:
+    - name: Restart zookeeper
+      service: name=zookeeper
+               state=restarted

@@ -1,0 +1,10 @@
+
+---
+zookeeper:
+  url: 'http://xenia.sote.hu/ftp/mirrors/www.apache.org/zookeeper/zookeeper-3.4.5'
+  tgz: 'zookeeper-3.4.5.tar.gz'
+  pkg: 'zookeeper-3.4.5'
+  data: '/var/zookeeper'
+  log: '/var/log/zookeeper'
+java:
+  heap: 1024

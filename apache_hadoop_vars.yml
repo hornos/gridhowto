@@ -1,0 +1,3 @@
+url: http://archive.cloudera.com/redhat/6/x86_64/cdh
+rpm: cdh3-repository-1.0-1.noarch.rpm
+key: RPM-GPG-KEY-cloudera

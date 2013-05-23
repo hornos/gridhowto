@@ -1,0 +1,34 @@
+#
+# UI https://github.com/designmodo/Flat-UI/
+#
+---
+- hosts: all
+
+  vars_files:
+    - networks.yml
+    - httpd_flatui_vars.yml
+    - [ "vars/{{ ansible_os_family }}.yml", "vars/Defaults.yml" ]
+
+  tasks:
+  - name: Download flatui
+    get_url: url="{{url}}"
+             dest="/root/{{zip}}"
+
+  - name: Unpack flatui
+    command: unzip -o "/root/{{zip}}" -d /opt
+
+  - name: Enable flatui
+    template: src=etc/httpd/conf.d/flatui.conf.j2
+              dest=/etc/{{service_httpd}}/conf.d/flatui.conf
+              owner=root
+              group=root
+              mode=0644
+    notify:
+      - Restart {{service_httpd}}
+    tags:
+      - config
+
+  handlers:
+    - name: Restart httpd
+      service: name={{service_httpd}}
+               state=restarted

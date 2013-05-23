@@ -10,6 +10,7 @@ xtreem_dir_replica_1: 'root-02'
 xtreem_dir_replica_2: 'root-03'
 
 ceph_id: 1
+myid: 1
 
 ### OBSOLETE
 rsyslog_fromhost:
