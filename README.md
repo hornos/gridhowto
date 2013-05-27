@@ -985,7 +985,7 @@ Kickstart the gateway:
 The installer initiates the network console and waits for an SSH login to continue. After reboot you have to run the following playbooks:
 
     ./play root@gateway bootstrap
-    ./play @@gateway secure
+    ./play @@gateway secure_home
     ./play @@gateway homewall
     ./play @@gateway basic_home
 
@@ -1032,6 +1032,22 @@ Webmin with Globus:
 
     ./play @@gateway webmin_home
     ./play @@gateway globus_webmin
+
+Desktop (guest login is disabled):
+
+    ./play @@gateway desktop_home
+
+Access the desktop with x2go as the `sysop` user.
+
+MariaDB with single node galera:
+
+    ./play @@gateway mariadb --extra-vars \"master=gateway\"
+    ./play @@gateway mariadb_secure --extra-vars \"master=gateway\"
+    ./play @@gateway mariadb_tools
+
+Redis:
+
+    ./play @@gateway redis
 
 ## Harmonia
 Harmonia is a Kali-based general purpose communicator (GPC). Setup a host-only network (10.1.1.0/24) on eth0 and NAT on eth1. The aim of the GPC is to provide a near-safe channel for OS X.

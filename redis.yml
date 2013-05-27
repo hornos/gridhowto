@@ -4,6 +4,7 @@
 
   vars_files:
     - networks.yml
+    - [ "vars/{{ ansible_os_family }}.yml", "vars/Defaults.yml" ]
 
   tasks:
 
@@ -14,7 +15,18 @@
     tags:
       - packages
 
-  - name: Start Redis
-    service: name=redis
+  - name: Install Redis
+    when: ansible_os_family == "Debian"
+    apt: name=$item
+         state=installed
+    with_items:
+      - redis-server
+      - python-redis
+      - python-celery
+    tags:
+      - packages
+
+  - name: Start redis
+    service: name={{service_httpd}}
              state=started
              enabled=yes

@@ -1,0 +1,4 @@
+gitlab:
+  devel: 'gitlab_devel'
+  prod: 'gitlab_prod'
+  password: 'gitlab'

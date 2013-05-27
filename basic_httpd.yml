@@ -1,6 +1,8 @@
 #
 # Basic httpd settings
 #
+# http://goaccess.prosoftcorp.com/
+#
 ---
 - hosts: all
 
@@ -42,6 +44,7 @@
       - apachetop
       - php5
       - php-xml-parser
+      - goaccess
     when: ansible_os_family == "Debian"
     tags:
       - packages

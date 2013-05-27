@@ -1,0 +1,50 @@
+#
+# http://wiki.x2go.org/doku.php/start
+#
+---
+- hosts: all
+  vars_files:
+    - networks.yml
+
+  tasks:
+  - name: Add x2go repo
+    apt_repository: repo='ppa:x2go/stable'
+    when: ansible_distribution == "Ubuntu"
+    tags:
+      - repo
+
+  - name: Add retroshare repo
+    apt_repository: repo='ppa:csoler-users/retroshare'
+    when: ansible_distribution == "Ubuntu"
+    tags:
+      - repo
+
+  - name: Install packages
+    apt: name=$item
+         state=installed
+         force=yes
+    with_items:
+      - ubuntu-desktop
+      - x2goserver
+      - retroshare
+      - dconf-tools
+    when: ansible_distribution == "Ubuntu"
+    tags:
+      - packages
+
+  - name: Disable guest login
+    ini_file: dest=/etc/lightdm/lightdm.conf
+              section=SeatDefaults
+              option=allow-guest
+              value=false
+    when: ansible_distribution == "Ubuntu"
+    tags:
+      - config
+      - guest
+    notify:
+      - Restart lightdm
+
+  handlers:
+    - name: Restart lightdm
+      service: name=lightdm
+               state=restarted

@@ -19,6 +19,13 @@
     tags:
       - packages
 
+  - name: Install MySQL-python
+    apt: name=python-mysqldb
+         state=installed
+    when: ansible_os_family == "Debian"
+    tags:
+      - packages
+
   - name: Update mysql root password for all root accounts
     mysql_user: name=root
                 password={{mariadb.password}}

@@ -23,6 +23,20 @@
       tags:
         - packages
 
+    - name: Install packages
+      apt: name=$item
+           state=installed
+      with_items:
+        - mytop
+        - php5-mcrypt
+        - phpmyadmin
+      when: ansible_os_family == "Debian"
+      notify:
+        - Restart httpd
+      tags:
+        - packages
+
+
 # https://github.com/repoforge/rpms/issues/254
     - name: Fix php-mcrypt
       lineinfile: dest=/etc/php.d/mcrypt.ini
@@ -35,7 +49,7 @@
         - fix
 
     - name: Enable phpmyadmin
-      template: src=etc/{{service_httpd}}/conf.d/phpmyadmin.conf.j2
+      template: src=etc/httpd/conf.d/phpmyadmin.conf.j2
               dest=/etc/{{service_httpd}}/conf.d/phpmyadmin.conf
               owner=root
               group=root

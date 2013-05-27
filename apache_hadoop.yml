@@ -7,27 +7,53 @@
     - apache_hadoop_vars.yml
 
   tasks:
-
+### REDHAT
   - name: Download cloudera key
     get_url: url={{url}}/{{key}} dest=/root/{{key}}
+    when: ansible_os_family == "RedHat"
     tags:
       - packages
       - key
 
   - name: Import cloudera key
     command: rpm --import /root/{{key}}
+    when: ansible_os_family == "RedHat"
     tags:
       - packages
       - key
 
   - name: Download cloudera
     get_url: url={{url}}/{{rpm}} dest=/root/{{rpm}}
+    when: ansible_os_family == "RedHat"
     tags:
       - packages
       - key
 
   - name: Install cloudera
     command: yum -y localinstall /root/{{rpm}}
+    when: ansible_os_family == "RedHat"
     tags:
       - packages
       - repo
+
+  - name: Install packages
+    yum: name=$item
+         state=installed
+    with_items:
+      - hadoop-0.20-namenode
+      - hadoop-0.20-jobtracker
+      - hadoop-0.20-datanode
+      - hadoop-0.20-tasktracker
+      - hadoop-hbase
+      - hadoop-hive
+      - hadoop-pig
+      - hadoop-zookeeper
+      - hadoop-0.20-fuse
+      - hue-shell
+      - oozie
+      - sqoop
+    when: ansible_os_family == "RedHat"
+    tags:
+      - packages
+
+### DEBIAN

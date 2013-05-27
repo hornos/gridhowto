@@ -5,4 +5,5 @@ service_httpd: httpd
 service_gmond: gmond
 service_mysql: mysql
 service_crond: crond
+service_redis: redis
 ganglia_webfrontend: ganglia

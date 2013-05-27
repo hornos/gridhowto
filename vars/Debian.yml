@@ -4,4 +4,5 @@ service_ntpd: ntp
 service_httpd: apache2
 service_gmond: ganglia-monitor
 service_crond: cron
+service_redis: redis-server
 ganglia_webfrontend: ganglia-webfrontend

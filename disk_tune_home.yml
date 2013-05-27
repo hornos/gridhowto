@@ -1,0 +1,18 @@
+#
+# http://unix.stackexchange.com/questions/5211/prevent-a-usb-external-hard-drive-from-sleeping
+#
+---
+- hosts: all
+
+  vars_files:
+    - home.yml
+
+  tasks:
+
+  - name: Prevent standby
+    shell: sdparm --clear=STANDBY $item -S
+    with_items:
+      - /dev/sdb
+      - /dev/sdc
+    tags:
+      - standby

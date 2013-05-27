@@ -37,6 +37,44 @@
         - packages
 
 ### DEBIAN
+    - name: Install MariaDB repo
+      apt_repository: repo='deb http://mirrors.n-ix.net/mariadb/repo/5.5/ubuntu precise main'
+      when: ansible_os_family == "Debian"
+      tags:
+        - repo
+
+    - name: Install MariaDB packages
+      apt: name=$item
+           state=installed
+           force=yes
+      with_items:
+        - mariadb-galera-server
+        - galera
+      when: ansible_os_family == "Debian"
+      tags:
+        - packages
+
+    - name: Create /etc/my.cnf.d
+      file: path=/etc/my.cnf.d
+            owner=mysql
+            group=mysql
+            state=directory
+      when: ansible_os_family == "Debian"
+      tags:
+        - directories
+
+    - name: Setup /etc/init.d/mysql
+      template: src=etc/init.d/mysql.j2
+                dest=/etc/init.d/mysql
+                owner=root
+                group=root
+                mode=0755
+      when: ansible_os_family == "Debian"
+      notify:
+        - Restart mysql
+      tags:
+        - config
+
 
 ### CONFIGURATION
     - name: Create /var/run/mysql
@@ -44,6 +82,17 @@
             owner=mysql
             group=mysql
             state=directory
+      when: ansible_os_family == "RedHat"
+      tags:
+        - directories
+
+    - name: Create /var/run/mysql
+      file: src=/var/run/mysqld
+            dest=/var/run/mysql
+            state=link
+      when: ansible_os_family == "Debian"
+      tags:
+        - directories
 
     - name: Set service timeout
       lineinfile: dest=/etc/init.d/mysql
@@ -60,9 +109,44 @@
                 mode=0644
       notify:
         - Restart mysql
+      when: ansible_os_family == "RedHat"
       tags:
         - config
 
+
+### DEBIAN
+    - name: Setup /etc/mysql/my.cnf
+      template: src=etc/my.cnf.j2
+                dest=/etc/mysql/my.cnf
+                owner=root
+                group=root
+                mode=0644
+      notify:
+        - Restart mysql
+      when: ansible_os_family == "Debian"
+      tags:
+        - config
+
+    - name: Fix my.cnf
+      file: src=/etc/mysql/my.cnf
+            dest=/etc/my.cnf
+            state=link
+      when: ansible_os_family == "Debian"
+      tags:
+        - fix
+        - links
+
+    - name: Fix lib64 link
+      file: src=/usr/lib
+            dest=/usr/lib64
+            state=link
+      when: ansible_os_family == "Debian"
+      tags:
+        - fix
+        - links
+
+
+### COMMON
     - name: Setup /etc/my.cnf.d/server.cnf
       template: src=etc/my.cnf.d/server.cnf.j2
                 dest=/etc/my.cnf.d/server.cnf
@@ -74,23 +158,53 @@
       tags:
         - config
 
+
+### REDHAT
     - name: Setup PHP mysql socket
       lineinfile: dest=/etc/php.ini
                   regexp="^mysql.default_socket"
                   line="mysql.default_socket = {{mariadb.socket}}"
+      when: ansible_os_family == "RedHat"
       notify:
         - Restart httpd
       tags:
         - config
+        - php
 
     - name: Setup PHP mysqli socket
       lineinfile: dest=/etc/php.ini
                   regexp="^mysqli.default_socket"
                   line="mysqli.default_socket = {{mariadb.socket}}"
+      when: ansible_os_family == "RedHat"
       notify:
         - Restart httpd
       tags:
         - config
+        - php
+
+### DEBIAN
+    - name: Setup PHP mysql socket
+      lineinfile: dest=/etc/php5/apache2/php.ini
+                  regexp="^mysql.default_socket"
+                  line="mysql.default_socket = {{mariadb.socket}}"
+      when: ansible_os_family == "RedHat"
+      notify:
+        - Restart httpd
+      tags:
+        - config
+        - php
+
+    - name: Setup PHP mysqli socket
+      lineinfile: dest=/etc/php5/apache2/php.ini
+                  regexp="^mysqli.default_socket"
+                  line="mysqli.default_socket = {{mariadb.socket}}"
+      when: ansible_os_family == "RedHat"
+      notify:
+        - Restart httpd
+      tags:
+        - config
+        - php
+
 
     - name: Start mysql
       service: name=mysql

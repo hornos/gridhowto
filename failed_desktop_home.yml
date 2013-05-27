@@ -1,0 +1,47 @@
+#
+# https://help.ubuntu.com/community/FreeNX#Using_custom_SSH_keys
+#
+# FAILED
+#
+---
+- hosts: all
+  vars_files:
+    - networks.yml
+
+  tasks:
+  - name: Add Nomachine repo
+    apt_repository: repo='ppa:freenx-team'
+    when: ansible_distribution == "Ubuntu"
+    tags:
+      - repo
+
+  - name: Install packages
+    apt: name=$item
+         state=installed
+    with_items:
+      - ubuntu-desktop
+      - freenx
+    when: ansible_distribution == "Ubuntu"
+    tags:
+      - packages
+
+  - name: Install nx keys
+    authorized_key: user=nx
+                     key="{{ lookup('file', 'keys/freenx.pub') }}"
+                     manage_dir=yes
+    tags:
+      - ssh
+      - key
+
+  - name: Link auth keys
+    file: src=/var/lib/nxserver/home/.ssh/authorized_keys
+          dest=/var/lib/nxserver/home/.ssh/authorized_keys2
+          state=link
+    tags:
+      - fix
+      - links
+
+  - name: Start freenx server
+    service: name=freenx-server
+             state=started
+             enabled=yes

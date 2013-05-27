@@ -1,16 +1,39 @@
 # This play installs nodejs and supervisor
+#
+# http://dev.squarecows.com/2012/06/28/nodejs-0-8-on-ubuntu-12-04/
+#
 ---
 - hosts: all
 
   tasks:
+### REDHAT
     - name: Install prerequisite packages
       yum: name=$item
            state=installed
       with_items:
         - nodejs
+      when: ansible_os_family == "RedHat"
       tags:
         - packages
 
+### DEBIAN
+    - name: Install nodejs repo
+      apt_repository: repo='ppa:richarvey/nodejs'
+      when: ansible_os_family == "Debian"
+      tags:
+        - repo
+
+    - name: Install prerequisite packages
+      apt: name=$item
+           state=latest
+      with_items:
+        - nodejs
+        - npm
+      when: ansible_os_family == "Debian"
+      tags:
+        - packages
+
+### COMMON
     - name: Install nvm package manager
       git: repo=git://github.com/creationix/nvm.git
            dest=/opt/nvm
@@ -18,3 +41,12 @@
     - name: Install /etc/profile.d/nvm.sh
       template: src=etc/profile.d/nvm.sh.j2
                 dest=/etc/profile.d/nvm.sh
+
+    - name: Install nodejs packages
+      npm: name=$item
+           global=yes
+      with_items:
+        - ejdb
+      tags:
+        - packages
+        - nodejs

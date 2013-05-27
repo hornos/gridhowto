@@ -70,6 +70,7 @@
       - software-properties-common
       - curl
       - miniupnpc
+      - sdparm
     when: ansible_os_family == "Debian"
     tags:
       - packages

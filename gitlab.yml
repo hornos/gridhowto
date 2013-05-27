@@ -1,0 +1,79 @@
+# TODO
+#
+# http://gitlab.org/
+#
+---
+- hosts: all
+
+  vars_files:
+    - networks.yml
+    - mariadb_vars.yml
+    - gitlab_vars.yml
+    - [ "vars/{{ ansible_os_family }}.yml", "vars/Defaults.yml" ]
+
+  vars:
+    is_master: "'$inventory_hostname' == '$master'"
+
+  tasks:
+  - name: Create git group
+    user: name=git
+          comment="Gitlab"
+
+  - name: Install Gitlab shell repo
+    git: repo='https://github.com/gitlabhq/gitlab-shell.git'
+         dest='/home/git/gitlab-shell'
+    tags:
+      - repo
+      - shell
+
+  - name: Install Gitlab shell config
+    template: src=home/git/gitlab-shell/config.yml.j2
+              dest=/home/git/gitlab-shell/config.yml
+              owner=git
+              group=git
+    tags:
+      - config
+      - shell
+
+  - name: Install Gitlab shell
+    shell: cd /home/git/gitlab-shell; bin/install;
+    tags:
+      - install
+      - shell
+
+  - name: Install Gitlab repo
+    git: repo='https://github.com/gitlabhq/gitlabhq.git'
+         dest='/home/git/gitlab'
+    tags:
+      - repo
+      - shell
+
+### DATABASE
+  - name: Create gitlab devel DB
+    mysql_db: db={{gitlab.devel}}
+              login_user=root
+              login_password={{mariadb.password}}
+              login_unix_socket={{mariadb.socket}}
+    only_if: '$is_master'
+
+  - name: Create gitlab prod DB
+    mysql_db: db={{gitlab.prod}}
+              login_user=root
+              login_password={{mariadb.password}}
+              login_unix_socket={{mariadb.socket}}
+    only_if: '$is_master'
+
+
+  - name: Create gitlab devel DB user
+    mysql_user: name=gitlab password={{gitlab.password}} priv={{gitlab.devel}}.*:ALL
+                login_user=root
+                login_password={{mariadb.password}}
+                login_unix_socket={{mariadb.socket}}
+    only_if: '$is_master'
+
+  - name: Create gitlab prod DB user
+    mysql_user: name=gitlab password={{gitlab.password}} priv={{gitlab.prod}}.*:ALL
+                login_user=root
+                login_password={{mariadb.password}}
+                login_unix_socket={{mariadb.socket}}
+    only_if: '$is_master'
