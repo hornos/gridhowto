@@ -79,8 +79,8 @@ case $gbn in
   run)
     cmd="ansible ${hosts} -m command -a \"${module}\""
     ;;
-  restart)
-    cmd="ansible ${hosts} -m command -a \"service ${__module} restart\""
+  restart|stop|start)
+    cmd="ansible ${hosts} -m command -a \"service ${__module} ${gbn}\""
     ;;
   shell)
     echo "${module}" > ${tmp}

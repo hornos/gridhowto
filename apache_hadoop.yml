@@ -1,3 +1,4 @@
+# REVOKED
 #
 # http://dak1n1.com/blog/9-hadoop-el6-install
 #
@@ -38,7 +39,7 @@
 
   - name: Install packages
     yum: name=$item
-         state=installed
+         state=absent
     with_items:
       - hadoop-0.20-namenode
       - hadoop-0.20-jobtracker

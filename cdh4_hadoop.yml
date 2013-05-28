@@ -1,0 +1,113 @@
+#
+# http://www.cloudera.com/content/cloudera-content/cloudera-docs/CDH4/latest/CDH4-Installation-Guide/CDH4-Installation-Guide.html
+#
+---
+- hosts: all
+  vars_files:
+    - networks.yml
+    - [ "vars/{{ ansible_os_family }}.yml", "vars/Defaults.yml" ]
+    - vars/${inventory_hostname}.yml
+    - cdh4_vars.yml
+
+  tasks:
+### REDHAT
+#  - name: Clean CDH3
+#    yum: name=cdh3-repository.noarch
+#         state=absent
+#    when: ansible_os_family == "RedHat"
+#    tags:
+#      - repo
+#
+#  - name: Install packages
+#    yum: name=$item
+#         state=absent
+#    with_items:
+#      - hadoop-0.20-namenode
+#      - hadoop-0.20-jobtracker
+#      - hadoop-0.20-datanode
+#      - hadoop-0.20-tasktracker
+#      - hadoop-hbase
+#      - hadoop-hive
+#      - hadoop-pig
+#      - hadoop-zookeeper
+#      - hadoop-0.20-fuse
+#      - hue-shell
+#      - oozie
+#      - sqoop
+#    when: ansible_os_family == "RedHat"
+#    tags:
+#      - packages
+
+
+  - name: Download CDH4 key
+    get_url: url={{url}}/{{key}} dest=/root/{{key}}
+    when: ansible_os_family == "RedHat"
+    tags:
+      - packages
+      - key
+
+  - name: Import CDH4 key
+    command: rpm --import /root/{{key}}
+    when: ansible_os_family == "RedHat"
+    tags:
+      - packages
+      - key
+
+  - name: Download CDH4
+    get_url: url={{url}}/{{rpm}} dest=/root/{{rpm}}
+    when: ansible_os_family == "RedHat"
+    tags:
+      - packages
+      - key
+
+  - name: Install CDH4
+    command: yum -y localinstall /root/{{rpm}}
+    when: ansible_os_family == "RedHat"
+    tags:
+      - packages
+      - repo
+
+  - name: Install packages
+    yum: name=$item
+         state=installed
+    with_items:
+      - zookeeper-server
+      - java-1.7.0-openjdk
+    when: ansible_os_family == "RedHat"
+    tags:
+      - packages
+      - zookeeper
+
+### ZOOKEEPER
+  - name: Install myid
+    copy: content={{myid}}
+          dest={{zookeeper.data}}/myid
+    tags:
+      - myid
+      - config
+      - zookeeper
+
+  - name: Install zoo.cfg
+    template: src=etc/zookeeper/conf/zoo.cfg.j2
+              dest=/etc/zookeeper/conf/zoo.cfg
+              owner=root
+              group=root
+              backup=yes
+    tags:
+      - config
+      - zookeeper
+    notify:
+      - Restart zookeeper
+
+  - name: Start zookeeper
+    service: name=zookeeper-server
+             state=started
+             enabled=yes
+
+# TODO: tools
+
+  handlers:
+    - name: Restart zookeeper
+      service: name=zookeeper-server
+               state=restarted
+

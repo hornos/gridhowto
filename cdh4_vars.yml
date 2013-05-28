@@ -1,0 +1,11 @@
+
+---
+url: http://archive.cloudera.com/cdh4/redhat/6/x86_64/cdh
+rpm: cdh4-repository-1-0.noarch.rpm
+key: RPM-GPG-KEY-cloudera
+
+zookeeper:
+  data: '/var/zookeeper'
+  log: '/var/log/zookeeper'
+java:
+  heap: 1024
