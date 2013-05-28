@@ -21,7 +21,7 @@
 # Define a host for the local machine
 
 
-{% for host in groups['root'] %}
+{% for host in hostvars %}
 define host{
         use                     linux-server
         host_name               {{host}}
@@ -45,7 +45,7 @@ define hostgroup{
         hostgroup_name  linux-servers ; The name of the hostgroup
         alias           Linux Servers ; Long name of the group
 {% set first=1 %}
-members {% for host in groups['root'] %}
+members {% for host in hostvars %}
 {%- if not first %}
 ,
 {%- endif %}
@@ -68,7 +68,7 @@ members {% for host in groups['root'] %}
 
 # Define a service to "ping" the local machine
 
-{% for host in groups['root'] %}
+{% for host in hostvars %}
 define service{
         use                             local-service         ; Name of service template to use
         host_name                       {{host}}
@@ -81,7 +81,7 @@ define service{
 # on the local machine.  Warning if < 20% free, critical if
 # < 10% free space on partition.
 
-{% for host in groups['root'] %}
+{% for host in hostvars %}
 define service{
         use                             local-service         ; Name of service template to use
         host_name                       {{host}}
@@ -95,7 +95,7 @@ define service{
 # users on the local machine.  Warning if > 20 users, critical
 # if > 50 users.
 
-{% for host in groups['root'] %}
+{% for host in hostvars %}
 define service{
         use                             local-service         ; Name of service template to use
         host_name                       {{host}}
@@ -108,7 +108,7 @@ define service{
 # on the local machine.  Warning if > 250 processes, critical if
 # > 400 users.
 
-{% for host in groups['root'] %}
+{% for host in hostvars %}
 define service{
         use                             local-service         ; Name of service template to use
         host_name                       {{host}}
@@ -120,7 +120,7 @@ define service{
 
 # Define a service to check the load on the local machine. 
 
-{% for host in groups['root'] %}
+{% for host in hostvars %}
 define service{
         use                             local-service         ; Name of service template to use
         host_name                       {{host}}
@@ -133,7 +133,7 @@ define service{
 # Define a service to check the swap usage the local machine. 
 # Critical if less than 10% of swap is free, warning if less than 20% is free
 
-{% for host in groups['root'] %}
+{% for host in hostvars %}
 define service{
         use                             local-service         ; Name of service template to use
         host_name                       {{host}}
@@ -146,7 +146,7 @@ define service{
 # Define a service to check SSH on the local machine.
 # Disable notifications for this service by default, as not all users may have SSH enabled.
 
-{% for host in groups['root'] %}
+{% for host in hostvars %}
 define service{
         use                             local-service         ; Name of service template to use
         host_name                       {{host}}
@@ -160,7 +160,7 @@ define service{
 # Define a service to check HTTP on the local machine.
 # Disable notifications for this service by default, as not all users may have HTTP enabled.
 
-{% for host in groups['root'] %}
+{% for host in hostvars %}
 define service{
         use                             local-service         ; Name of service template to use
         host_name                       {{host}}
@@ -173,7 +173,7 @@ define service{
 # Define a service to check current startup delay of the Icinga core daemon.
 # Disable notifications for this service by default, as no thresholds are defined.
 
-{% for host in groups['root'] %}
+{% for host in hostvars %}
 define service{
         use                             local-service         ; Name of service template to use
         host_name                       {{host}}

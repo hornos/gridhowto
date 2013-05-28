@@ -1,0 +1,93 @@
+# TODO: docker jail
+# syslog
+# key password problem
+---
+- hosts: all
+  vars_files:
+    - globus_vars.yml
+
+  tasks:
+    - name: Install Globus packages
+      when: ansible_os_family == "RedHat"
+      yum: name=$item
+           state=installed
+      with_items:
+        - globus-gridftp
+        - dpm-dsi
+        - globus-ftp-client
+        - globus-ftp-control
+        - uberftp
+      tags:
+        - packages
+
+    - name: Install gridftp user
+      user: name=gridftp
+            state=present
+      tags:
+        - users
+
+### FRONTEND
+### TODO: sudo gridftp
+    - name: Install services
+      template: src=etc/init.d/${item}.j2
+                dest=/etc/init.d/${item}
+                owner=root
+                group=root
+                mode=0755
+      with_items:
+        - globus-gridftp-frontend
+        - globus-gridftp-backend
+      tags:
+        - config
+        - services
+
+    - name: Install config
+      template: src=etc/${item}.j2
+                dest=/etc/${item}
+                owner=root
+                group=root
+                mode=0644
+      with_items:
+        - gridftp-frontend.conf
+        - gridftp-backend.conf
+      tags:
+        - config
+        - services
+      notify:
+        - Restart globus-gridftp-frontend
+        - Restart globus-gridftp-backend
+
+    - name: Start services
+      service: name=${item}
+               state=started
+               enabled=yes
+      with_items:
+        - globus-gridftp-frontend
+        - globus-gridftp-backend
+      tags:
+        - services
+
+    - name: Install /etc/shorewall/rules.d/gridftp
+      template: src=etc/shorewall/rules.d/gridftp.j2
+                dest=/etc/shorewall/rules.d/gridftp
+                owner=root
+                group=root
+                mode=0640
+      tags:
+        - firewall
+      notify:
+        - Restart shorewall
+
+
+  handlers:
+    - name: Restart globus-gridftp-frontend
+      service: name=globus-gridftp-frontend
+               state=restarted
+
+    - name: Restart globus-gridftp-backend
+      service: name=globus-gridftp-backend
+               state=restarted
+
+    - name: Restart shorewall
+      service: name=shorewall
+               state=restarted

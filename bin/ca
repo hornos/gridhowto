@@ -66,6 +66,17 @@ shift
 export X509_CERT_DIR=grid-security
 
 case "${cmd}" in
+  ### set the X509 variables for the user
+  x509env)
+    _user=${1:-sysop}
+    cat > ca/x509.env<<EOF
+export X509_CERT_DIR=ca/grid-security
+export X509_USER_CERT=keys/${_user}_cert.pem
+export X509_USER_KEY=keys/${_user}_key.pem
+# export X509_USER_PROXY
+EOF
+  ;;
+
   ### Create CA
   create)
     ca_cn=${1:-rootca}

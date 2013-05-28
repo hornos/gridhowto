@@ -1,0 +1,23 @@
+# globus-gridftp-server configuration file
+
+# this is a comment
+
+#
+# http://www.globus.org/toolkit/docs/4.0/data/gridftp/admin-index.html#s-gridftp-admin-configuring
+#
+
+# option names beginning with '$' will be set as environment variables, e.g.
+# $GLOBUS_ERROR_VERBOSE 1
+# $GLOBUS_TCP_PORT_RANGE 50000,51000
+
+# port
+port 2811
+
+# allow_from
+# deny_from
+
+connections_max 256
+log_level WARN
+# log_module syslog
+remote_nodes localhost:7001
+data_node 0

@@ -1,7 +1,2 @@
-icinga_db: 'icinga'
-icinga_user: 'icinga'
-icinga_password: 'icinga'
-
-icinga_web_db: 'icinga_web'
-icinga_web_user: 'icinga_web'
-icinga_web_password: 'icinga_web'
+icinga:
+  password: 'icinga'

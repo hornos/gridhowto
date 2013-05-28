@@ -791,6 +791,10 @@ Enable Ganglia mysql monitor:
 
     ./play @@root ganglia_mysql
 
+Secure the database on the first node:
+
+    mysql_secure_installation
+
 ### Icinga
 Install and setup Icinga:
 
@@ -1044,6 +1048,10 @@ MariaDB with single node galera:
     ./play @@gateway mariadb --extra-vars \"master=gateway\"
     ./play @@gateway mariadb_secure --extra-vars \"master=gateway\"
     ./play @@gateway mariadb_tools
+
+Secure the database on the node:
+
+    mysql_secure_installation
 
 Redis:
 

@@ -1,0 +1,274 @@
+#!/bin/bash
+#
+# globus-gridftp-frontend	- Globus GridFTP Server
+# chkconfig: - 20 80
+# description: The Globus GridFTP server is a process which \
+#              implements the GridFTP protocol for secure, high-performance \
+#              file transfer.
+#
+
+### BEGIN INIT INFO
+# Provides: globus-gridftp-backend
+# Required-Start: $network $local_fs $globus-gridftp-frontend
+# Required-Stop:
+#
+#
+# Short-Description: Globus GridFTP Server
+# Description: The Globus GridFTP server is a process which implements the
+# GridFTP protocol for secure, high-performance file transfer.
+### END INIT INFO
+
+if test -n "${GLOBUS_LOCATION}" ; then
+    prefix="${GLOBUS_LOCATION}"
+else
+    prefix="/usr"
+fi
+
+exec_prefix="/usr"
+sbindir="/usr/sbin"
+bindir="/usr/bin"
+
+case `uname -m` in
+    ppc64|s390x|sparc64|x86_64)
+        libdir="/usr/lib64"
+        ;;
+    *)
+        libdir="/usr/lib"
+        ;;
+esac
+
+includedir="${prefix}/include/globus"
+datarootdir="${prefix}/share"
+datadir="/usr/share"
+libexecdir="${datadir}/globus"
+sysconfdir="/etc"
+sharedstatedir="/var/lib"
+localstatedir="/var"
+aclocaldir="${datadir}/globus/aclocal"
+
+lsb=""
+if [ -f /lib/lsb/init-functions ]; then
+    lsb=_lsb
+    lsb_ok=1
+    . /lib/lsb/init-functions
+    if [ -f /etc/redhat-release ] && lsb_release -v | grep -q 'core-[123]'; then
+        unset lsb_ok
+    fi
+
+fi
+
+rc=0
+conf=${sysconfdir}/gridftp-backend.conf
+confdir=${sysconfdir}/gridftp.d
+pidfile=${localstatedir}/run/globus-gridftp-backend.pid
+gridftpd=${sbindir}/globus-gridftp-server
+
+start()
+{
+    printf "Starting globus-gridftp-backend: "
+    rc=0
+    if [ ! -f $conf ]; then
+      cp $conf.default $conf;
+    fi
+
+    if [ -f "$pidfile" ]; then
+        read pid < "$pidfile"
+
+        if ! kill -0 $pid; then
+            rm "$pidfile"
+        fi
+    fi
+
+    if [ ! -d $confdir ]; then
+        mkdir $confdir;
+    fi
+
+    if [ ! -f "$pidfile" ]; then
+        $gridftpd -S -c $conf -C $confdir -pidfile "${pidfile}"
+        rc=$?
+    fi
+     
+    [ $rc -eq 0 ] && echo "OK" || echo "FAILED";
+    return $rc
+}	
+
+start_lsb()
+{
+    rc=0
+    if [ ! -f $conf ]; then
+      cp $conf.default $conf;
+    fi
+    if [ ! -d $confdir ]; then
+        mkdir $confdir;
+    fi
+
+    start_daemon ${lsb_ok:+-p "$pidfile"} "$gridftpd" -S -c $conf \
+            -C $confdir -pidfile "${pidfile}"
+    rc=$?
+     
+    if [ $rc -eq 0 ]; then
+        log_success_msg "Started GridFTP backend Server"
+    else
+        log_failure_msg "Failed to start GridFTP Server"
+    fi
+
+    return $rc
+}
+
+stop()
+{
+    printf "Stopping globus-gridftp-server: "
+    if [ -f "$pidfile" ]; then
+        read pid < "$pidfile" 2> /dev/null
+
+        if [ "$pid" != "" -a "$pid" -gt 0 ]; then
+            if kill -0 "$pid" 2> /dev/null; then
+                kill -INT "$pid" 2>/dev/null
+                rc=$?
+                sleep 2
+                kill -0 "$pid" 2> /dev/null && kill -KILL "$pid"
+            fi
+        fi
+
+        rm -f "$pidfile"
+    fi
+
+    [ $rc -eq 0 ] && echo "OK" || echo "FAILED";
+    return $rc
+}
+
+stop_lsb()
+{
+    killproc ${lsb_ok:+-p "$pidfile"} "$gridftpd"
+    rc=$?
+    if [ $rc -eq 0 ]; then
+        log_success_msg "Stopped GridFTP backend Server"
+    else
+        log_failure_msg "Failed to stopped GridFTP backend Server"
+    fi
+    return $rc
+}
+
+restart()
+{
+    stop
+    start
+}
+
+restart_lsb()
+{
+    stop_lsb
+    start_lsb
+}
+
+reload()
+{
+    printf "Reloading GridFTP configuration: "
+    read pid < "$pidfile" 2> /dev/null
+
+    if [ "$pid" != "" -a "$pid" -gt 0 ]; then
+        kill -HUP "$pid" 2>/dev/null
+        rc=$?
+    fi
+
+    [ $rc -eq 0 ] && echo "OK" || echo "FAILED";
+    return $rc
+}
+
+reload_lsb()
+{
+    killproc ${lsb_ok:+-p "$pidfile"} "$gridftpd" -HUP
+    rc=$?
+    if [ $rc -eq 0 ]; then
+        log_success_msg "Reloaded GridFTP backend Server Configuration"
+    else
+        log_failure_msg "Failed to reload GridFTP backend Server Configuration"
+    fi
+    return $rc
+}
+
+status()
+{
+    if [ -f $pidfile ]; then
+        read pid < "$pidfile" 2> /dev/null
+
+        if [ "$pid" != "" -a "$pid" -gt 0 ]; then
+            if kill -0 "$pid" 2> /dev/null; then
+                echo "GridFTP backend server is running (pid=$pid)"
+                return 0
+            else
+                echo "Stale PID file $pidfile"
+                return 1
+            fi
+        else
+            echo "Invalid PID file $pidfile"
+            return 4
+        fi
+    else
+        echo "GridFTP backend server is not running"
+        return 3
+    fi
+}
+
+status_lsb()
+{
+    pid="$(pidofproc ${lsb_ok:+-p "$pidfile"} "$gridftpd")"
+    rc=$?
+    case $rc in
+        0)
+            echo "GridFTP backend Server Running (pid=$pid)"
+            ;;
+        1)
+            echo "Stale PID file for GridFTP backend Server"
+            ;;
+        2|3)
+            if [ -f "${lockfile}" ]; then
+                echo "Stale lock file for GridFTP backend Server"
+            else
+                echo "GridFTP backend Server is not running"
+            fi
+            ;;
+        4)
+            if [ -n "$lsb_ok" -a ! -f "${pidfile}" ]; then
+                echo "$gridftpd is not running"
+                rc=0
+            fi
+            ;;
+        *)
+            echo "Unknown status for GridFTP backend Server"
+            ;;
+    esac
+
+    return $rc
+}
+
+
+case "$1" in
+    start)
+	start${lsb}
+	;;
+    stop)
+	stop${lsb}
+	;;
+    restart)
+    	restart${lsb}
+        ;;
+    reload)
+        reload${lsb}
+        ;;
+    force-reload)
+        restart${lsb}
+        ;;
+    status)
+	status${lsb}
+        ;;
+    condrestart|try-restart)
+        status${lsb} || exit 0
+        restart${lsb}
+        ;;
+    *)
+	echo "Usage: $0 {start|stop|restart|reload|force-reload|status|condrestart|try-restart}"
+	exit 1
+	;;
+esac
+exit $rc

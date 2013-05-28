@@ -9,8 +9,10 @@
 - hosts: all
 
   vars_files:
+    - networks.yml
     - mariadb_vars.yml
     - icinga_vars.yml
+    - [ "vars/{{ ansible_os_family }}.yml", "vars/Defaults.yml" ]
 
   vars:
     is_master: "'$inventory_hostname' == '$master'"
@@ -18,6 +20,7 @@
 
   tasks:
 
+### REDHAT
   - name: Install icinga packages
     yum: name=$item
          state=installed
@@ -30,39 +33,63 @@
       - icinga-api
       - php-mysql
       - MySQL-python
+    when: ansible_os_family == "RedHat"
     tags:
       - packages
 
+### DEBIAN
+  - name: Install icinga packages
+    apt: name=$item
+         state=installed
+    with_items:
+      - icinga
+      - icinga-cgi
+      - nagios-plugins
+      - icli
+      - python-mysqldb
+    when: ansible_os_family == "Debian"
+    tags:
+      - packages
+
+### MYSQL
   - name: Setup icinga mysql db
-    mysql_db: db=$icinga_db
+    mysql_db: db=icinga
               login_user=root
-              login_password=$password
-              login_unix_socket=$socket
+              login_password={{mariadb.password}}
+              login_unix_socket={{mariadb.socket}}
+    tags:
+      - sql
     only_if: '$is_master'
 
   - name: Setup icinga mysql user
-    mysql_user: name=$icinga_user password=$icinga_password priv=${icinga_db}.*:ALL
+    mysql_user: name=icinga password={{icinga.password}} priv=icinga.*:ALL
                 login_user=root
-                login_password=$password
-                login_unix_socket=$socket
+                login_password={{mariadb.password}}
+                login_unix_socket={{mariadb.socket}}
+    tags:
+      - sql
     only_if: '$is_master'
 
-  - name: Setup icinga_web mysql db
-    mysql_db: db=${icinga_web_db}
+  - name: Setup icingaweb mysql db
+    mysql_db: db=icingaweb
               login_user=root
-              login_password=$password
-              login_unix_socket=$socket
+              login_password={{mariadb.password}}
+              login_unix_socket={{mariadb.socket}}
+    tags:
+      - sql
     only_if: '$is_master'
 
-  - name: Setup icinga_web mysql user
-    mysql_user: name=$icinga_web_user password=$icinga_web_password priv=${icinga_web_db}.*:ALL
+  - name: Setup icingaweb mysql user
+    mysql_user: name=icingaweb password={{icinga.password}} priv=icingaweb.*:ALL
                 login_user=root
-                login_password=$password
-                login_unix_socket=$socket
+                login_password={{mariadb.password}}
+                login_unix_socket={{mariadb.socket}}
+    tags:
+      - sql
     only_if: '$is_master'
 
   - name: Import icinga schema
-    shell: cat /usr/share/doc/icinga-idoutils-libdbi-mysql-*/db/mysql/mysql.sql | mysql -u $icinga_user --password=$icinga_password $icinga_db
+    shell: cat /usr/share/doc/icinga-idoutils-libdbi-mysql-*/db/mysql/mysql.sql | mysql -u icinga --password={{icinga.password}} icinga
     only_if: '$is_master and $is_schema'
     notify:
       - Restart ido2db
@@ -70,8 +97,8 @@
     tags:
       - schema
 
-  - name: Import icinga-web schema
-    shell: cat /usr/share/icinga-web/etc/schema/mysql.sql | mysql -u $icinga_web_user --password=$icinga_web_password $icinga_web_db
+  - name: Import icingaweb schema
+    shell: cat /usr/share/icinga-web/etc/schema/mysql.sql | mysql -u icingaweb --password={{icinga.password}} icingaweb
     only_if: '$is_master and $is_schema'
     notify:
       - Restart ido2db
@@ -92,7 +119,7 @@
   - name: Setup mysql socket
     lineinfile: dest=/etc/icinga/ido2db.cfg
                 regexp='^db_socket='
-                line="db_socket=${socket}"
+                line="db_socket={{mariadb.socket}}"
                 insertafter='^#db_socket'
     notify:
       - Restart ido2db
@@ -132,6 +159,5 @@
                state=restarted
 
     - name: Restart httpd
-      service: name=httpd
+      service: name={{service_httpd}}
                state=restarted
-
