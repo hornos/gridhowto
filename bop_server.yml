@@ -1,0 +1,111 @@
+#
+# https://github.com/bitsofproof/supernode
+#
+
+# Compile:
+# --extra-vars "compile=yes"
+
+#
+# manus manum lavat
+# java -server -classpath server/target/classes/:server/target/lib/* com.bitsofproof.supernode.main.Main leveldb production
+#
+
+#
+# Any ideas? http://pastebin.com/raw.php?i=yt8wUuYA
+#
+
+---
+- hosts: all
+  vars_files:
+    - bop_vars.yml
+
+  vars:
+    is_compile: "'$compile' == 'yes'"
+
+  tasks:
+### REDHAT - TODO
+    - name: Install packages
+      yum: name=$item
+           state=installed
+      with_items:
+        - java-1.7.0-openjdk
+      when: ansible_os_family == "RedHat"
+      tags:
+        - packages
+        - jdk
+
+### DEBIAN
+    - name: Install packages
+      apt: name=$item
+           state=installed
+      with_items:
+        - openjdk-7-jdk
+        - maven
+        - miniupnpc
+      when: ansible_os_family == "Debian"
+      tags:
+        - packages
+        - jdk
+
+### COMMON
+    - name: Install Bitsofproof supernode
+      git: repo='git://github.com/bitsofproof/supernode.git'
+           dest=/opt/supernode
+      tags:
+        - repo
+
+    # This part fails do it by hand
+    - name: Compile supernode
+      shell: 'cd /opt/supernode; mvn -X clean install'
+      only_if: '$is_compile'
+      tags:
+        - compile
+
+    - name: Create BOP user
+      user: name=bop
+      tags:
+        - users
+
+    - name: Set BOP user permissions
+      file: path=/opt/supernode
+            owner=bop
+            group=bop
+            state=directory
+            recurse=yes
+      tags:
+        - directories
+
+    - name: Install bop-server service
+      template: src=etc/init.d/bop-server.j2
+                dest=/etc/init.d/bop-server
+                owner=root
+                group=root
+                mode=0755
+      tags:
+        - services
+
+    - name: Install /etc/shorewall/rules.d/bop
+      template: src=etc/shorewall/rules.d/bop.j2
+                dest=/etc/shorewall/rules.d/bop
+                owner=root
+                group=root
+                mode=0640
+      tags:
+        - firewall
+      notify:
+        - Restart shorewall
+
+# bop user?
+    - name: Start bop-server
+      service: name=bop-server
+               state=started
+               enabled=yes
+
+  handlers:
+    - name: Restart bop-server
+      service: name=bop-server
+               state=restarted
+
+    - name: Restart shorewall
+      service: name=shorewall
+               state=restarted
