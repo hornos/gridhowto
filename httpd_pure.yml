@@ -1,0 +1,43 @@
+#
+# https://github.com/jaunesarmiento/fries/
+#
+---
+- hosts: all
+
+  vars_files:
+    - networks.yml
+    - [ "vars/{{ ansible_os_family }}.yml", "vars/Defaults.yml" ]
+
+  tasks:
+  - name: Download pure
+    git: repo='git://github.com/yui/pure.git'
+         dest=/opt/pure
+    tags:
+      - repo
+
+  # http://gruntjs.com/getting-started
+  - name: Install packages
+    npm: name=grunt-cli
+         state=latest
+         global=yes
+
+  - name: Install
+    shell: 'cd /opt/pure;npm install;grunt'
+    tags:
+      - config
+
+  - name: Enable pure
+    template: src=etc/httpd/conf.d/pure.conf.j2
+              dest=/etc/{{service_httpd}}/conf.d/pure.conf
+              owner=root
+              group=root
+              mode=0644
+    notify:
+      - Restart {{service_httpd}}
+    tags:
+      - config
+
+  handlers:
+    - name: Restart httpd
+      service: name={{service_httpd}}
+               state=restarted

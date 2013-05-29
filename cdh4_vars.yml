@@ -9,3 +9,9 @@ zookeeper:
   log: '/var/log/zookeeper'
 java:
   heap: 1024
+
+hadoop:
+  state: '/common/hadoop/state'
+  cluster: 'root'
+  master: 'root-01'
+  backup: 'root-02'

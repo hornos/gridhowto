@@ -75,6 +75,7 @@
       tags:
         - directories
 
+### TODO: /etc/sysconfig
     - name: Install bop-server service
       template: src=etc/init.d/bop-server.j2
                 dest=/etc/init.d/bop-server

@@ -9,15 +9,20 @@
     - vars/${inventory_hostname}.yml
     - cdh4_vars.yml
 
+  vars:
+    is_master: "'$inventory_hostname' == '$master'"
+    is_hadoop_master: "'$inventory_hostname' == '$hadoop.master'"
+    is_hadoop_backup: "'$inventory_hostname' == '$hadoop.backup'"
+
   tasks:
 ### REDHAT
-#  - name: Clean CDH3
-#    yum: name=cdh3-repository.noarch
-#         state=absent
-#    when: ansible_os_family == "RedHat"
-#    tags:
-#      - repo
-#
+  - name: Clean CDH3
+    yum: name=cdh3-repository.noarch
+         state=absent
+    when: ansible_os_family == "RedHat"
+    tags:
+      - repo
+
 #  - name: Install packages
 #    yum: name=$item
 #         state=absent
@@ -26,6 +31,8 @@
 #      - hadoop-0.20-jobtracker
 #      - hadoop-0.20-datanode
 #      - hadoop-0.20-tasktracker
+#      - hadoop-0.20.noarch
+#      - hadoop-0.20-libhdfs
 #      - hadoop-hbase
 #      - hadoop-hive
 #      - hadoop-pig
@@ -87,6 +94,28 @@
       - config
       - zookeeper
 
+  - name: Fix data permissions
+    file: path={{zookeeper.data}}
+          owner=zookeeper
+          group=zookeeper
+          state=directory
+          recurse=yes
+    tags:
+      - fix
+      - directories
+      - zookeeper
+
+  - name: Fix log permissions
+    file: path={{zookeeper.log}}
+          owner=zookeeper
+          group=zookeeper
+          state=directory
+          recurse=yes
+    tags:
+      - fix
+      - directories
+      - zookeeper
+
   - name: Install zoo.cfg
     template: src=etc/zookeeper/conf/zoo.cfg.j2
               dest=/etc/zookeeper/conf/zoo.cfg
@@ -104,10 +133,105 @@
              state=started
              enabled=yes
 
-# TODO: tools
+
+### HADOOP - MRv1
+#  - name: Install hadoop packages
+#    yum: name=$item
+#         state=installed
+#    with_items:
+#      - hadoop-0.20-mapreduce-jobtracker
+#      - hadoop-hdfs-namenode
+#      - hadoop-hdfs-secondarynamenode
+#      - hadoop-0.20-mapreduce-tasktracker
+#      - hadoop-hdfs-datanode
+#      - hadoop-client
+#    when: ansible_os_family == "RedHat"
+#    tags:
+#      - hadoop
+#      - packages
+
+### YARN
+  - name: Install hadoop packages
+    yum: name=$item
+         state=installed
+    with_items:
+      - hadoop-yarn-resourcemanager
+      - hadoop-hdfs-namenode
+      - hadoop-hdfs-secondarynamenode
+      - hadoop-yarn-nodemanager
+      - hadoop-hdfs-datanode
+      - hadoop-mapreduce
+      - hadoop-mapreduce-historyserver
+      - hadoop-yarn-proxyserver
+      - hadoop-client
+    when: ansible_os_family == "RedHat"
+    tags:
+      - hadoop
+      - packages
+
+### DATA PARTITION
+  - name: Create Hadoop dat partition
+    lvol: vg={{hadoop.vg_root}}
+          lv={{hadoop.lv_data}}
+          size={{hadoop.lv_size}}
+    tags:
+      - partition
+      - data
+      - lvm
+
+  - name: Create filesystem
+    command: /sbin/mkfs.xfs -i size=512 /dev/{{hadoop.vg_root}}/{{hadoop.lv_data}}
+    only_if: '$is_format'
+    tags:
+      - partition
+      - data
+      - fs
+
+  - name: Creat mount dir
+    file: path={{hadoop.lv_mnt}}
+          state=directory
+    tags:
+      - partition
+      - data
+
+  - name: Mount hadoop data
+    mount: name={{hadoop.lv_mnt}}
+           src=/dev/{{hadoop.vg_root}}/{{hadoop.lv_data}}
+           fstype=xfs
+           opts={{hadoop.opts}}
+           state=mounted
+    tags:
+      - partition
+      - data
+
+
+### CONFIGURATION
+  - name: Install new cluster
+    command: cp -r /etc/hadoop/conf.dist /etc/hadoop/conf.{{hadoop.cluster}}
+    tags:
+      - config
+      - hadoop
+
+  - name: Link config
+    file: src=/etc/hadoop/conf.{{hadoop.cluster}}
+          dest=/etc/hadoop/conf
+          state=link
+    tags:
+      - config
+      - hadoop
+      - links
+
+  # shared state aka Slurm
+  - name: Create state directory
+    file: path={{{hadoop.state}}}
+          state=directory
+    tags:
+      - state
+      - hadoop
+    only_if: '$is_hadoop_master'
+
 
   handlers:
     - name: Restart zookeeper
       service: name=zookeeper-server
                state=restarted
-

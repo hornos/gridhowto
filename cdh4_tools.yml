@@ -1,0 +1,37 @@
+#
+# https://zookeeper.apache.org/doc/r3.1.2/zookeeperAdmin.html#sc_zkMulitServerSetup
+# http://stackoverflow.com/questions/1565388/increase-heap-size-in-java
+#
+---
+- hosts: all
+
+  vars_files:
+    - cdh4_vars.yml
+    - networks.yml
+    - [ "vars/{{ ansible_os_family }}.yml", "vars/Defaults.yml" ]
+    - vars/${inventory_hostname}.yml
+
+  tasks:
+### REDHAT
+  - name: Install zktop
+    git: repo='git://github.com/phunt/zktop.git'
+         dest=/opt/zktop
+    tags:
+      - packages
+
+  - name: Install tools
+    template: src=root/bin/${item}.j2
+              dest=/root/bin/${item}
+              owner=root
+              group=root
+              mode=0755
+    with_items:
+      - zootop
+    tags:
+      - tools
+
+  - name: Install dashboard
+    git: repo='git://github.com/phunt/zookeeper_dashboard.git'
+         dest=/opt/zookeeper_dashboard
+    tags:
+      - packages

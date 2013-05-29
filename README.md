@@ -819,11 +819,14 @@ The following tools are installed under `/root/bin`:
     totem
     quorum
 
-## Apache
-### Zookeeper
+## Cloudera
+### CDH4
+First, switch on Gluster feature for the HA shared state.
 
-    ./play @@root zookeeper
-    ./play @@root zookeeper_tools
+    ./play @@root cdh4_hadoop
+    ./play @@root cdh4_hadoop_tools
+
+
 
 ## Messaging
 ### RabbitMQ
