@@ -826,8 +826,6 @@ First, switch on Gluster feature for the HA shared state.
     ./play @@root cdh4_hadoop
     ./play @@root cdh4_hadoop_tools
 
-
-
 ## Messaging
 ### RabbitMQ
 
@@ -838,6 +836,11 @@ Switch on Ganglia monitors for the local MQ:
     ./play @@root ganglia_rabbitmq.yml
 
 ### MQTT
+Use MQTT as the nervous system of your server:
+
+    ./play @@root mqtt
+
+TODO: cluster
 
 ## Cluster Filesystems
 ### Bittorrent Sync

@@ -1,0 +1,199 @@
+#!/bin/bash
+### BEGIN INIT INFO
+# Provides:          bitcoin-init.sh
+# Required-Start:    networking
+# Required-Stop:     networking
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start bitcoind
+# Description:       This file should be used to construct scripts to be
+#                    placed in /etc/init.d.
+### END INIT INFO
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+DESC="Start bitcoin"
+NAME=bitcoind
+DAEMON=/opt/bitcoin/src/bitcoind
+DAEMON_ARGS="-daemon"
+SCRIPTNAME=/etc/init.d/$0
+DEFAULT_CONF=/etc/default/bitcoind
+
+. /lib/init/vars.sh
+. /lib/lsb/init-functions
+
+# Exit if the package is not installed
+[ -x "$DAEMON" ] || exit 0
+
+if [ -f ${DEFAULT_CONF} ]
+then
+    . ${DEFAULT_CONF}
+fi
+
+set -e
+
+#
+# Function that starts the daemon/service
+#
+do_start()
+{
+    RESULT=0
+    if [ "${ENABLE}" = "yes" ]
+    then
+   /bin/su ${RUNUSER} -c "/usr/bin/nice -n ${NICE_VAL} ${DAEMON} ${DAEMON_ARGS} -datadir=${DATADIR} -conf=${SERVER_CONF} 1>/dev/null"
+   RESULT=$?
+   /bin/sleep 4
+    else
+   log_progress_msg "Failed"
+   RESULT=1
+    fi
+    return ${RESULT}
+}
+
+#
+# Function that stops the daemon/service
+#
+do_stop()
+{
+    RESULT=0
+    if [ "${ENABLE}" = "yes" ]
+    then
+   /bin/su ${RUNUSER} -c "${DAEMON} -datadir=${DATADIR} -conf=${SERVER_CONF} stop 1>/dev/null"
+   RESULT=$?
+   /bin/sleep 9
+    else
+   log_progress_msg "Failed"
+   RESULT=1
+    fi
+    return ${RESULT}
+}
+
+#
+# Function that sends a SIGHUP to the daemon/service
+#
+do_reload()
+{
+    do_stop
+    /bin/sleep 4
+    do_start
+}
+
+force_start()
+{
+    RESULT=0
+    /bin/su ${RUNUSER} -c "/usr/bin/nice -n ${NICE_VAL} ${DAEMON} ${DAEMON_ARGS} -datadir=${DATADIR} -conf=${SERVER_CONF} 1>/dev/null"
+    RESULT=$?
+    /bin/sleep 4
+    return ${RESULT}
+}
+
+force_stop()
+{
+    RESULT=0
+    /bin/su ${RUNUSER} -c "${DAEMON} -datadir=${DATADIR} -conf=${SERVER_CONF} stop 1>/dev/null"
+    RESULT=$?
+    /bin/sleep 9
+    return ${RESULT}
+}
+
+force_restart()
+{
+    force_stop
+    /bin/sleep 4
+    force_start
+}
+
+RESULT=0
+
+case "$1" in
+  start)
+   log_daemon_msg "Start ${NAME}"
+   log_progress_msg "Start bitcoind"
+   do_start
+   RESULT=$?
+   case ${RESULT} in
+       0) log_end_msg 0 ;;
+       1) log_end_msg 0 ;;
+       2) log_end_msg 1 ;;
+       *) log_end_msg 1 ;;
+   esac
+   ;;
+  stop)
+   log_daemon_msg "Stop ${NAME}"
+   log_progress_msg "Stop bitcoind"
+   do_stop
+   RESULT=$?
+   case ${RESULT} in
+       0) log_end_msg 0 ;;
+       1) log_end_msg 0 ;;
+       2) log_end_msg 1 ;;
+       *) log_end_msg 1 ;;
+   esac
+   ;;
+  force-start)
+   log_daemon_msg "${NAME}"
+   log_progress_msg "Force start bitcoind"
+   force_start
+   RESULT=$?
+   case ${RESULT} in
+       0) log_end_msg 0 ;;
+       1) log_end_msg 0 ;;
+       2) log_end_msg 1 ;;
+       *) log_end_msg 1 ;;
+   esac
+   ;;
+  force-stop)
+   log_daemon_msg "${NAME}"
+   log_progress_msg "Force stop bitcoind"
+   force_stop
+   RESULT=$?
+   case ${RESULT} in
+       0) log_end_msg 0 ;;
+       1) log_end_msg 0 ;;
+       2) log_end_msg 1 ;;
+       *) log_end_msg 1 ;;
+   esac
+   ;;
+  reload|force-reload)
+   log_daemon_msg "${NAME}"
+   log_progress_msg "Reload bitcoind"
+   do_reload
+   RESULT=$?
+   case ${RESULT} in
+       0) log_end_msg 0 ;;
+       1) log_end_msg 0 ;;
+       2) log_end_msg 1 ;;
+       *) log_end_msg 1 ;;
+   esac
+   ;;
+  restart|force-reload)
+   log_daemon_msg "${NAME}"
+   log_progress_msg "Restart bitcoind"
+   do_reload
+   RESULT=$?
+   case ${RESULT} in
+       0) log_end_msg 0 ;;
+       1) log_end_msg 0 ;;
+       2) log_end_msg 1 ;;
+       *) log_end_msg 1 ;;
+   esac
+   ;;
+  force-restart)
+   log_daemon_msg "${NAME}"
+   log_progress_msg "Force restart bitcoind"
+   force_restart
+   RESULT=$?
+   case ${RESULT} in
+       0) log_end_msg 0 ;;
+       1) log_end_msg 0 ;;
+       2) log_end_msg 1 ;;
+       *) log_end_msg 1 ;;
+   esac
+   ;;
+  *)
+   echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload|force-start|force-stop|force-restart}" >&2
+   exit 3
+   ;;
+esac
+
+exit ${RESULT}
+

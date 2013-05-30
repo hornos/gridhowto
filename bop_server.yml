@@ -14,6 +14,9 @@
 # Any ideas? http://pastebin.com/raw.php?i=yt8wUuYA
 #
 
+#
+# TODO: docker isolation
+#
 ---
 - hosts: all
   vars_files:
@@ -28,7 +31,7 @@
       yum: name=$item
            state=installed
       with_items:
-        - java-1.7.0-openjdk
+        - java-1.6.0-openjdk
       when: ansible_os_family == "RedHat"
       tags:
         - packages
@@ -39,7 +42,7 @@
       apt: name=$item
            state=installed
       with_items:
-        - openjdk-7-jdk
+        - openjdk-6-jdk
         - maven
         - miniupnpc
       when: ansible_os_family == "Debian"
@@ -63,6 +66,7 @@
 
     - name: Create BOP user
       user: name=bop
+            comment="Bitsofproof"
       tags:
         - users
 

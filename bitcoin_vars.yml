@@ -1,0 +1,6 @@
+---
+bitcoin:
+  version: '0.7.2'
+  makeflags: 'USE_UPNP=0 USE_IPV6=1 -e PIE=1'
+  blockchain: '/opt/bitcoin/blockchain'
+  password: 'bitcoin'

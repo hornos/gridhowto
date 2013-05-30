@@ -1,0 +1,142 @@
+#
+# https://github.com/bitcoin/bitcoin/tree/0.7.2
+#
+# TODO: docker isolation
+#
+---
+- hosts: all
+
+  vars_files:
+    - bitcoin_vars.yml
+
+  tasks:
+
+  - name: Download bitcoin repo
+    git: repo='git://github.com/bitcoin/bitcoin.git'
+         dest='/opt/bitcoin'
+         version='{{bitcoin.version}}'
+    tags:
+      - repo
+
+  - name: Install packages
+    apt: name=$item
+         state=installed
+    with_items:
+      - build-essential
+      - libssl-dev
+      - libboost-all-dev
+      - libminiupnpc-dev
+      - libdb-dev
+      - libdb++-dev
+      - pax-utils
+
+  - name: Compile bitcoind
+    shell: "cd /opt/bitcoin/src; make -f makefile.unix {{bitcoin.makeflags}}"
+    tags:
+      - make
+
+  - name: Strip bitcoind
+    shell: "cd /opt/bitcoin/src; strip bitcoind"
+    tags:
+      - make
+
+# check the shit
+# root@gateway:/opt/bitcoin# scanelf -e src/bitcoind
+#  TYPE   STK/REL/PTL FILE 
+# ET_DYN RW- R-- RW- src/bitcoind
+
+  - name: Security check
+    shell: 'cd /opt/bitcoin/src; scanelf -e bitcoind > /opt/bitcoin/scanelf'
+    tags:
+      - check
+
+  - name: Create bitcoin user
+    user: name=bitcoin
+          comment=Bitcoin
+    tags:
+      - users
+
+  - name: Set permissions
+    file: path=/opt/bitcoin
+          state=directory
+          recurse=yes
+          owner=bitcoin
+          group=bitcoin
+    tags:
+      - permissions
+
+  - name: Create blockchain storage
+    file: path={{bitcoin.blockchain}}
+          owner=bitcoin
+          group=bitcoin
+          state=directory
+    tags:
+      - directories
+
+  - name: Create /var/run/bitcoind
+    file: path=/var/run/bitcoind
+          owner=bitcoin
+          group=bitcoin
+          state=directory
+    tags:
+      - directories
+
+# https://bitcointalk.org/index.php?topic=76717.0
+
+  - name: Install bitcoin config
+    template: src=etc/bitcoin.conf.j2
+              dest=/etc/bitcoin.conf
+              owner=bitcoin
+              group=bitcoin
+              mode=0640
+    notify:
+      - Restart bitcoind
+    tags:
+      - config
+
+  - name: Install bitcoin service config
+    template: src=etc/default/bitcoind.j2
+              dest=/etc/default/bitcoind
+              owner=bitcoin
+              group=bitcoin
+              mode=0640
+    notify:
+      - Restart bitcoind
+    tags:
+      - config
+
+  - name: Install bitcoind service
+    template: src=etc/init.d/bitcoind.j2
+              dest=/etc/init.d/bitcoind
+              owner=root
+              group=root
+              mode=0755
+    notify:
+      - Restart bitcoind
+    tags:
+      - config
+
+  - name: Install /etc/shorewall/rules.d/bop
+    template: src=etc/shorewall/rules.d/bop.j2
+              dest=/etc/shorewall/rules.d/bop
+              owner=root
+              group=root
+              mode=0640
+    tags:
+      - firewall
+    notify:
+      - Restart shorewall
+
+  - name: Start bitcoind
+    service: name=bitcoind
+             state=started
+             enabled=yes
+
+  handlers:
+    - name: Restart shorewall
+      service: name=shorewall
+               state=restarted
+
+    - name: Restart bitcoind
+      service: name=bitcoind
+               state=restarted

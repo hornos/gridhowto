@@ -1,0 +1,18 @@
+#
+# https://github.com/bitcoin/bitcoin/tree/0.7.2
+#
+# TODO: docker isolation
+#
+---
+- hosts: all
+
+  vars_files:
+    - bitcoin_vars.yml
+
+  tasks:
+
+  - name: Download goxtool
+    git: repo='git://github.com/prof7bit/goxtool.git'
+         dest='/opt/bitcoin/goxtool'
+    tags:
+      - repo

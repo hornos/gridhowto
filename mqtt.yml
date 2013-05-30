@@ -1,0 +1,26 @@
+#
+# http://mqtt.org/
+# http://michaelconnors.net/article/462/hello-mqtt
+#
+# subscribe: mosquitto_sub -d -t hello/world
+# publish: mosquitto_pub -d -t hello/world -m "Hello, MQTT. This is my first message."
+#
+---
+- hosts: all
+
+  tasks:
+
+  - name: Install packages
+    apt: name=$item
+         state=installed
+    with_items:
+      - mosquitto
+      - mosquitto-clients
+      - python-mosquitto
+    when: ansible_os_family == "Debian"
+    tags:
+      - packages
+
+  - name: Start mosquitto
+    service: name=mosquitto
+             state=started
