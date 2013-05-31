@@ -1,0 +1,10 @@
+#!/bin/bash
+for i in $(cat /opt/supernode/logs/bop-server.log | \
+           grep INFO | \
+           cut -d'/' -f2 | \
+           cut -d ':' -f 1 | \
+           grep '[.+]'| \
+           sort -n | \
+           uniq); do
+  nmap -P0 -p 8333 $i
+done

@@ -1,5 +1,6 @@
 #
 # https://github.com/bitsofproof/supernode
+# http://bitsofproof.com:8082/display/BPD/Build+and+run+the+Server
 #
 
 # Compile:
@@ -8,10 +9,6 @@
 #
 # manus manum lavat
 # java -server -classpath server/target/classes/:server/target/lib/* com.bitsofproof.supernode.main.Main leveldb production
-#
-
-#
-# Any ideas? http://pastebin.com/raw.php?i=yt8wUuYA
 #
 
 #
@@ -57,7 +54,7 @@
       tags:
         - repo
 
-    # This part fails do it by hand
+### COMPILE love for the first time
     - name: Compile supernode
       shell: 'cd /opt/supernode; mvn -X clean install'
       only_if: '$is_compile'
@@ -70,6 +67,18 @@
       tags:
         - users
 
+    - name: Install log4j properties
+      template: src=opt/supernode/log4j.properties.j2
+                dest=/opt/supernode/log4j.properties
+                owner=bop
+                group=bop
+                mode=0644
+      notify:
+        - Restart bop-supernode
+      tags:
+        - config
+        - log
+
     - name: Set BOP user permissions
       file: path=/opt/supernode
             owner=bop
@@ -79,19 +88,29 @@
       tags:
         - directories
 
-### TODO: /etc/sysconfig
-    - name: Install bop-server service
-      template: src=etc/init.d/bop-server.j2
-                dest=/etc/init.d/bop-server
+    - name: Install bitcoin service config
+      template: src=etc/default/bop-supernode.j2
+                dest=/etc/default/bop-supernode
+                owner=bop
+                group=bop
+                mode=0640
+      notify:
+        - Restart bop-supernode
+      tags:
+        - config
+
+    - name: Install BOP supernode service
+      template: src=etc/init.d/bop-supernode.j2
+                dest=/etc/init.d/bop-supernode
                 owner=root
                 group=root
                 mode=0755
       tags:
         - services
 
-    - name: Install /etc/shorewall/rules.d/bop
-      template: src=etc/shorewall/rules.d/bop.j2
-                dest=/etc/shorewall/rules.d/bop
+    - name: Install /etc/shorewall/rules.d/bitcoin
+      template: src=etc/shorewall/rules.d/bitcoin.j2
+                dest=/etc/shorewall/rules.d/bitcoin
                 owner=root
                 group=root
                 mode=0640
@@ -100,15 +119,14 @@
       notify:
         - Restart shorewall
 
-# bop user?
-    - name: Start bop-server
-      service: name=bop-server
+    - name: Start bop-supernode
+      service: name=bop-supernode
                state=started
                enabled=yes
 
   handlers:
-    - name: Restart bop-server
-      service: name=bop-server
+    - name: Restart bop-supernode
+      service: name=bop-supernode
                state=restarted
 
     - name: Restart shorewall

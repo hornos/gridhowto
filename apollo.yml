@@ -1,0 +1,24 @@
+#
+# https://activemq.apache.org/apollo/index.html
+#
+#
+# http://soundcloud.com/daveseaman/radio-therapy-march-2013/download
+#
+---
+- hosts: all
+  vars_files:
+    - apollo_vars.yml
+
+  tasks:
+  - name: Download ${pkg}
+    get_url: url=${url}/${tgz} dest=/root/${tgz}
+
+  - name: Uncompress ${tgz}
+    shell: /bin/tar -C /opt -xzf /root/${tgz}
+
+  - name: Link ${pkg}
+    file: src=/opt/${pkg}
+          dest=/opt/apollo
+          owner=root
+          group=root
+          state=link

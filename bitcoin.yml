@@ -116,9 +116,9 @@
     tags:
       - config
 
-  - name: Install /etc/shorewall/rules.d/bop
-    template: src=etc/shorewall/rules.d/bop.j2
-              dest=/etc/shorewall/rules.d/bop
+  - name: Install /etc/shorewall/rules.d/bitcoin
+    template: src=etc/shorewall/rules.d/bitcoin.j2
+              dest=/etc/shorewall/rules.d/bitcoin
               owner=root
               group=root
               mode=0640

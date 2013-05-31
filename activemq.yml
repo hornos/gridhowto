@@ -1,0 +1,36 @@
+#
+# https://activemq.apache.org/apollo/index.html
+#
+# http://soundcloud.com/daveseaman/radio-therapy-march-2013/download
+#
+# http://www.jmkg.co.uk/2010/08/31/installing-activemq-on-ubuntu/
+#
+# log at: /var/lib/activemq/main/data/activemq.log
+#
+---
+- hosts: all
+
+  tasks:
+  - name: Install packages
+    apt: name=$item
+         state=installed
+    with_items:
+      - activemq
+      - python-stompy
+      - libactivemq-java
+      - libactivemq-protobuf-java
+      - libactivemq-activeio-java
+    tags:
+      - packages
+
+  - name: Enable main instance
+    file: src=/etc/activemq/instances-available/main
+          dest=/etc/activemq/instances-enabled/main
+          state=link
+    tags:
+      - links
+
+  - name: Start ActiveMQ
+    service: name=activemq
+             state=started
+             enabled=yes

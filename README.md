@@ -842,6 +842,12 @@ Use MQTT as the nervous system of your server:
 
 TODO: cluster
 
+### ActiveMQ
+
+## Payment Processors
+### BOP
+
+
 ## Cluster Filesystems
 ### Bittorrent Sync
 Sharing is caring, even among root servers:

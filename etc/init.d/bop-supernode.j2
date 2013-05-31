@@ -27,16 +27,28 @@
 # limitations under the License.
 # ------------------------------------------------------------------------
 
-# please burn all the java devs out there!!!
-export BOP_USER="bop"
-export BOP_BASE="/opt/supernode"
-export JVM_FLAGS="-server -Xmx1g -Duser.dir=${BOP_BASE}"
-export BOP_CONTEXTS="leveldb production"
-export BOP_SERVER_LOG="/dev/null"
+BOP_USER="bop" 
+BOP_BASE="/opt/supernode"
+JVM_FLAGS="-server -Xmx1g -Duser.dir=${BOP_BASE}"
+BOP_CONTEXTS="leveldb production BCSAPI server"
+DAEMON="${BOP_BASE}/server/target/bitsofproof-server-1.0.jar"
 
 service=bop-server
 
-PID_FILE="${BOP_BASE}/BOP.pid"
+PID_FILE="${BOP_BASE}/supernode.pid"
+DEFAULT_CONF=/etc/default/bop-supernode
+
+. /lib/init/vars.sh
+. /lib/lsb/init-functions
+
+# Exit if the package is not installed
+[ -r "$DAEMON" ] || exit 0
+
+if [ -f ${DEFAULT_CONF} ]
+then
+    . ${DEFAULT_CONF}
+fi
+
 
 status() {
   if [ -f "${PID_FILE}" ] ; then
@@ -45,8 +57,6 @@ status() {
     ps -p ${pid} > /dev/null
     if [ $? -eq 0 ] ; then
       return 1
-    else
-      rm "${PID_FILE}"
     fi
   fi
   return 0
@@ -56,6 +66,8 @@ stop() {
   if [ -f "${PID_FILE}" ] ; then
     pid=`cat "${PID_FILE}"`
     kill $@ ${pid} > /dev/null
+    sleep 2
+    rm -f ${PID_FILE}
   fi
   for i in 1 2 3 4 5 ; do
     status
@@ -64,7 +76,7 @@ stop() {
     fi
     sleep 1
   done
-  echo "Could not stop process ${pid}"
+  log_progress_msg "Failed ${pid}"
   return 1
 }
 
@@ -77,46 +89,46 @@ start() {
   fi
  
   cd ${BOP_BASE}
-  if [ -z "$BOP_USER" -o `id -un` = "$BOP_USER" ] ; then
-    nohup java ${JVM_FLAGS} -jar ${BOP_BASE}/server/target/bitsofproof-server-1.0.jar ${BOP_CONTEXTS} > /dev/null 2> /dev/null &
-  else
-    nohup sudo -n -u ${BOP_USER} java ${JVM_FLAGS} -jar ${BOP_BASE}/server/target/bitsofproof-server-1.0.jar ${BOP_CONTEXTS} > /dev/null 2> /dev/null &
-  fi
+  nohup sudo -n -u ${BOP_USER} java ${JVM_FLAGS} -jar ${DAEMON} ${BOP_CONTEXTS} > /dev/null 2> /dev/null &
 
   echo $! > "${PID_FILE}"
 
   # check to see if stays up...
-  sleep 1
+  sleep 4
   status
   if [ $? -eq 0 ] ; then
-    echo "Could not start ${service}"
+    log_progress_msg "Failed ${service}"
     return 1
   fi
-  echo "${service} is now running (${pid})"
+  log_progress_msg "${service} is now running (${pid})"
   return 0
 }
 
 case $1 in
   start)
-    echo "Starting ${service}"
+    log_daemon_msg "Start ${service}"
+    log_progress_msg "Start ${service}"
     start
     exit $?
   ;;
 
   force-stop)
-    echo "Forcibly Stopping ${service}"
+    log_daemon_msg "Stop ${service}"
+    log_progress_msg "Stop ${service}"
     stop -9
     exit $?
   ;;
 
   stop)
-    echo "Gracefully Stopping ${service}"
+    log_daemon_msg "Stop ${service}"
+    log_progress_msg "Stop ${service}"
     stop
     exit $?
   ;;
 
   restart)
-    echo "Restarting ${service}"
+    log_daemon_msg "Restart ${service}"
+    log_progress_msg "Restart ${service}"
     stop
     start
     exit $?

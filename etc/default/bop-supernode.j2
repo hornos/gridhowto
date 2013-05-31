@@ -1,0 +1,6 @@
+BOP_USER="bop" 
+BOP_BASE="/opt/supernode"
+LOG4J="-Dlog4j.configuration=file:///opt/supernode/log4j.properties"
+JVM_FLAGS="-server -Xmx2g -Duser.dir=${BOP_BASE} ${LOG4}"
+BOP_CONTEXTS="leveldb production BCSAPI"
+DAEMON="${BOP_BASE}/server/target/bitsofproof-server-1.0.jar"
