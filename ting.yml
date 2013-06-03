@@ -1,0 +1,55 @@
+#
+# http://www.howtogeek.com/howto/30184/10-ways-to-generate-a-random-password-from-the-command-line/
+#
+---
+- hosts: all
+
+  vars_files:
+    - keys/ting.yml
+
+  tasks:
+    - name: Download Ting repo
+      git: repo='git://github.com/hornos/ting.git'
+           dest=/opt/ting
+      tags:
+        - packages
+
+    - name: Install bundle packages
+      shell: 'cd /opt/ting;./install'
+      tags:
+        - packages
+
+    - name: Fix lzma link
+      file: src=/usr/lib64/liblzma.so.0
+            dest=/usr/lib64/liblzma.so
+            state=link
+      when: ansible_os_family == "RedHat"
+      tags:
+        - fix
+        - links
+
+    - name: Install key
+      copy: src=keys/ting.key
+            dest=/opt/ting/ting.key
+            owner=sysop
+            group=sysop
+            mode=0600
+      tags:
+        - key
+
+    - name: Install config
+      template: src=opt/ting/ting.yml.j2
+                dest=/opt/ting/ting.yml
+      tags:
+        - config
+
+    - name: Set permissions
+      file: path=/opt/ting
+            owner=sysop
+            group=sysop
+            recurse=yes
+            state=directory
+      tags:
+        - permissions
+
+#    - name: Install service

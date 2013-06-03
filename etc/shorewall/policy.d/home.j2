@@ -1,4 +1,7 @@
 #SOURCE    DEST        POLICY      LOG LEVEL    LIMIT:BURST
 $FW        $FW         ACCEPT
 $FW        ext         ACCEPT
+# https://forums.openvpn.net/topic9504.html
+vpn        all         ACCEPT
+$FW        vpn         ACCEPT
 all        all         DROP        info

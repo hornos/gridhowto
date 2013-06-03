@@ -33,42 +33,42 @@
     tags:
       - packages
 
-  # https://github.com/Softmotions/ejdb/wiki/Debian-Ubuntu-installation
-  - name: Install ejdb repo
-    apt_repository: repo='deb http://ppa.launchpad.net/adamansky/ejdb/ubuntu quantal main'
-    when: ansible_os_family == "Debian"
-    tags:
-      - repo
-      - ejdb
-
-  # https://launchpad.net/~adamansky/+archive/ejdb
-  - name: Install ejdb packages
-    apt: name=$item
-    with_items:
-      - libtcejdb9
-      - libtcejdb9-dev
-      - libtcejdb9-dbg
-    when: ansible_os_family == "Debian"
-    tags:
-      - packages
-      - ejdb
-
-  - name: Install ejdb ruby binding
-    git: repo='git://github.com/Softmotions/ejdb.git'
-         dest=/opt/ejdb
-    tags:
-      - ejdb
-      - packages
-
-  - name: Compile ejdb
-    shell: 'cd /opt/ejdb;make;'
-    tags:
-      - ejdb
-
-  - name: Compile rbejdb ruby
-    shell: 'cd /opt/ejdb/rbejdb;make&&make install;'
-    tags:
-      - ejdb
+#  # https://github.com/Softmotions/ejdb/wiki/Debian-Ubuntu-installation
+#  - name: Install ejdb repo
+#    apt_repository: repo='deb http://ppa.launchpad.net/adamansky/ejdb/ubuntu quantal main'
+#    when: ansible_os_family == "Debian"
+#    tags:
+#      - repo
+#      - ejdb
+#
+#  # https://launchpad.net/~adamansky/+archive/ejdb
+#  - name: Install ejdb packages
+#    apt: name=$item
+#    with_items:
+#      - libtcejdb9
+#      - libtcejdb9-dev
+#      - libtcejdb9-dbg
+#    when: ansible_os_family == "Debian"
+#    tags:
+#      - packages
+#      - ejdb
+#
+#  - name: Install ejdb ruby binding
+#    git: repo='git://github.com/Softmotions/ejdb.git'
+#         dest=/opt/ejdb
+#    tags:
+#      - ejdb
+#      - packages
+#
+#  - name: Compile ejdb
+#    shell: 'cd /opt/ejdb;make;'
+#    tags:
+#      - ejdb
+#
+#  - name: Compile rbejdb ruby
+#    shell: 'cd /opt/ejdb/rbejdb;make&&make install;'
+#    tags:
+#      - ejdb
 
 ### RVM
   - name: Copy RVM Installer
@@ -103,6 +103,7 @@
     with_items:
       - ruby
       - gem
+      - bundle
     tags:
       - fix
       - rvm

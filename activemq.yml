@@ -7,10 +7,74 @@
 #
 # log at: /var/lib/activemq/main/data/activemq.log
 #
+# http://rburnham.wordpress.com/2012/09/14/installing-and-managing-activemq-on-centos/
+#
 ---
 - hosts: all
 
+  vars_files:
+    - activemq_vars.yml
+
   tasks:
+### REDHAT
+  - name: Download {{tgz}}
+    get_url: url={{url}}/{{tgz}}
+             dest=/root/{{tgz}}
+    when: ansible_os_family == "RedHat"
+    tags:
+      - packages
+
+  - name: Uncompress {{tgz}}
+    shell: /bin/tar -C /opt -xzf /root/{{tgz}}
+    when: ansible_os_family == "RedHat"
+    tags:
+      - packages
+
+  - name: Link /opt/activemq
+    file: src=/opt/{{pkg}}
+          dest=/opt/activemq
+          state=link
+    when: ansible_os_family == "RedHat"
+    tags:
+      - packages
+
+  - name: Create activemq user
+    user: name=activemq
+          home=/var/lib/activemq
+    when: ansible_os_family == "RedHat"
+    tags:
+      - packages
+
+  - name: Install activemq config
+    template: src=etc/default/activemq.j2
+              dest=/etc/default/activemq
+              owner=root
+              group=root
+              mode=0600
+    when: ansible_os_family == "RedHat"
+    tags:
+      - services
+
+  - name: Install service
+    template: src=etc/init.d/activemq.j2
+              dest=/etc/init.d/activemq
+              owner=root
+              group=root
+              mode=0755
+    when: ansible_os_family == "RedHat"
+    tags:
+      - services
+
+#  - name: Link activemq service
+#    file: src=/opt/activemq/bin/activemq
+#          dest=/etc/init.d/activemq
+#          state=link
+#    when: ansible_os_family == "RedHat"
+#    tags:
+#      - services
+
+
+### DEBIAN
   - name: Install packages
     apt: name=$item
          state=installed
@@ -20,13 +84,16 @@
       - libactivemq-java
       - libactivemq-protobuf-java
       - libactivemq-activeio-java
+    when: ansible_os_family == "Debian"
     tags:
       - packages
+
 
   - name: Enable main instance
     file: src=/etc/activemq/instances-available/main
           dest=/etc/activemq/instances-enabled/main
           state=link
+    when: ansible_os_family == "Debian"
     tags:
       - links
 

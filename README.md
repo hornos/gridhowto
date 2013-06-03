@@ -844,7 +844,102 @@ TODO: cluster
 
 ### ActiveMQ
 
+### Ting
+Ting is a simple genral purpose UPNP. Generate a key:
+
+    openssl rand -base64 32 > keys/ting.key
+
+Register a Pusher account and create `keys/ting.yml` with the following content:
+
+    ting:
+      key:
+      secret:
+      app_id:
+
+TODO: service
+
+## VPN
+### OpenVPN
+Download Easy RSA CA:
+
+    git clone git://github.com/OpenVPN/easy-rsa.git ca/easy-rsa
+
+Create a VPN CA (`vpnca`):
+
+    bin/ovpn create
+
+Create the server cert (where `<ID>` is the `inventory_hostname`):
+
+    bin/ovpn server vpnca <ID>
+
+Create sysop client cert:
+
+    bin/ovpn client vpnca sysop
+
+Create DH parameters and the TA key:
+
+    bin/ovpn dh vpnca
+    bin/ovpn ta vpnca
+
+You need the following files:
+
+Filename | Needed By | Purpose | Secret
+--- | --- | --- | ---
+ca.crt | server & clients | Root CA cert | NO
+ca.key | sysop | Root CA key | YES
+ta.key | server & clients | HMAC | YES
+dh{n}.pem | server | DH parameters | NO
+server.crt | server | Server Cert | NO
+server.key | server | Server Key | YES
+client.crt | client | Client Cert | NO
+client.key | client | Client Key | YES
+
+Install OpenVPN servers:
+
+    ./play @@root openvpn
+
+Install Tunnelblick and Jinja CLI for OS X and link:
+
+    pushd $HOME
+    ln -s 'Library/Application Support/Tunnelblick/Configurations' .openvpn
+    popd
+    pip install jinja2-cli
+
+Install the sysop cert for Tunnelblick:
+
+    bin/ovpn blick vpnca sysop
+
 ## Payment Processors
+It is recommended to have a VPN at first:
+
+    bin/ovpn server vpnca ubcpp
+    bin/ovpn server vpnca cbcpp
+
+Create a processor node (either CentOS or a Ubuntu):
+
+    bin/vm gateway cbcpp RedHat_64
+    bin/vm gateway ubcpp Ubuntu_64
+
+Edit `space/.gateway` and bootstrap (vnc/ssh password is `installer`):
+
+    export JOCKEY_HOST=.gateway
+    bin/jockey cbcpp @cbcpp
+    bin/jockey ubcpp @ubcpp
+    bin/jockey boot
+    bin/jockey http
+
+Play the following playbooks:
+
+    bootstrap
+    secure_home
+    basic_redhat
+    (reboot)
+    homewall
+    basic_home
+    webmin_home
+    basic_java
+    activemq
+
 ### BOP
 
 

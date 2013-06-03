@@ -37,6 +37,10 @@
       - jailkit
       - libtool
       - curl
+      - sqlite-devel
+      - sqlite
+      - xz
+      - pxz
     when: ansible_os_family == "RedHat"
     tags:
       - packages

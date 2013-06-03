@@ -36,3 +36,4 @@ etc/munge/munge.key
 *.pem
 *.log
 *.bin
+easy-rsa/*

@@ -1,0 +1,150 @@
+#
+# http://openvpn.net/index.php/open-source/documentation/howto.html#quick
+#
+---
+- hosts: all
+
+  vars_files:
+    - openvpn_vars.yml
+
+  tasks:
+    - name: Install packages
+      yum: name=$item
+           state=installed
+      with_items:
+        - openvpn
+      when: ansible_os_family == "RedHat"
+      tags:
+        - packages
+
+
+    - name: Install packages
+      apt: name=$item
+           state=installed
+      with_items:
+        - openvpn
+      when: ansible_os_family == "Debian"
+      tags:
+        - packages
+
+### CERTIFICATES
+    - name: Install /etc/openvpn/ca.crt
+      copy: src=ca/{{openvpn.ca}}/2.0/keys/ca.crt
+            dest=/etc/openvpn/ca.crt
+            owner=root
+            group=root
+            mode=0644
+      tags:
+        - ca
+        - config
+
+    - name: Install /etc/openvpn/dh2048.pem
+      copy: src=ca/{{openvpn.ca}}/2.0/keys/dh2048.pem
+            dest=/etc/openvpn/dh2048.pem
+            owner=root
+            group=root
+            mode=0644
+      tags:
+        - dh
+        - config
+
+    - name: Install /etc/openvpn/ta.key
+      copy: src=ca/{{openvpn.ca}}/2.0/keys/ta.key
+            dest=/etc/openvpn/ta.key
+            owner=root
+            group=root
+            mode=0600
+      tags:
+        - ta
+        - config
+
+    - name: Install /etc/openvpn/server.crt
+      copy: src=ca/{{openvpn.ca}}/2.0/keys/{{inventory_hostname}}.crt
+            dest=/etc/openvpn/server.crt
+            owner=root
+            group=root
+            mode=0644
+      tags:
+        - cert
+        - config
+
+    - name: Install /etc/openvpn/server.key
+      copy: src=ca/{{openvpn.ca}}/2.0/keys/{{inventory_hostname}}.key
+            dest=/etc/openvpn/server.key
+            owner=root
+            group=root
+            mode=0600
+      tags:
+        - key
+        - config
+
+### SYSOP CCD
+#    - name: Create ccd
+#      file: path=/etc/openvpn/ccd
+#            state=directory
+#      tags:
+#        - directories
+#
+#    - name: Create sysop ccd
+#      copy: content='ifconfig-push 10.8.0.1 10.8.0.2'
+#            dest=/etc/openvpn/ccd/sysop
+#      tags:
+#        - sysop
+#        - ccd
+
+### CONFIGURATION
+    - name: Install ipset tables
+      template: src=etc/openvpn/server.conf.j2
+                dest=/etc/openvpn/server.conf
+                owner=root
+                group=root
+                mode=0644
+      tags:
+        - config
+      notify:
+        - Restart openvpn
+
+    - name: Start openvpn
+      service: name=openvpn
+               state=started
+               enabled=yes
+
+### FIREWALL
+    - name: Install ipset tables
+      template: src=etc/ipset.d/${item}.j2
+                dest=/etc/ipset.d/$item
+                owner=root
+                group=root
+                mode=0755
+      with_items:
+        - vpnlist.sh
+      tags:
+        - firewall
+        - ipset
+      notify:
+        - Restart ipset
+
+    - name: Install firewall rules
+      template: src=etc/shorewall/rules.d/openvpn.j2
+                dest=/etc/shorewall/rules.d/openvpn
+                owner=root
+                group=root
+                mode=0640
+      tags:
+        - firewall
+      notify:
+      - Restart shorewall
+
+### SERVICES
+  handlers:
+    - name: Restart ipset
+      service: name=ipset
+               state=restarted
+
+    - name: Restart shorewall
+      service: name=shorewall
+               state=restarted
+
+    - name: Restart openvpn
+      service: name=openvpn
+               state=restarted

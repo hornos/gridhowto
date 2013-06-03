@@ -15,11 +15,12 @@ function vm/path() {
 
 function vm/create() {
   local _name=${1}
-  local _type=${2}
+  local _type=${2} # Ubuntu_64 RedHat_64
   local _cpus=${3}
   local _memory=${4}
   local _hdsize=${5}
   local _hostnet=${6}
+  local _brdev=${7:-en0: Wi-Fi (AirPort)}
 
   vm/valid ${_name}
   if ! test $? -gt 0 ; then
@@ -37,11 +38,18 @@ function vm/create() {
   ${vbox} createhd --filename "${_disk}" --size ${_hdsize}
   if test $? -gt 0 ; then exit 1; fi
 
-  ${vbox} modifyvm "${_name}" --memory ${_memory} --cpus ${_cpus} \
+  if test "${_hostnet}" = "bridged" ; then
+    ${vbox} modifyvm "${_name}" --memory ${_memory} --cpus ${_cpus} \
+                --acpi on --boot1 net --boot2 disk \
+                --nic1 bridged --bridgeadapter1 "${_brdev}" --macaddress1 auto \
+                --audio none
+  else
+    ${vbox} modifyvm "${_name}" --memory ${_memory} --cpus ${_cpus} \
                 --acpi on --boot1 net --boot2 disk \
                 --nic1 hostonly --hostonlyadapter1 ${_hostnet} \
                 --nic2 nat --macaddress1 auto --macaddress2 auto \
                 --audio none
+  fi
 
   local _controller="Controller: SATA"
 
@@ -59,13 +67,22 @@ shift
 
 ### args
 case ${cmd} in
-  create)
+  create|harmonia)
     name=${1:-test}
     type=${2:-Ubuntu_64}
     cpus=${3:-2}
     memory=${4:-1024}
     hdsize=${5:-2000000}
     hostnet=${6:-vboxnet1}
+    vm/create ${name} ${type} ${cpus} ${memory} ${hdsize} ${hostnet}
+  ;;
+  gateway)
+    name=${1:-test}
+    type=${2:-Ubuntu_64}
+    cpus=${3:-2}
+    memory=${4:-1024}
+    hdsize=${5:-2000000}
+    hostnet=${6:-bridged}
     vm/create ${name} ${type} ${cpus} ${memory} ${hdsize} ${hostnet}
   ;;
   start)

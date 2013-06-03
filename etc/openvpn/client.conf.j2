@@ -1,0 +1,23 @@
+
+client
+proto tcp
+remote {{server}} 1194
+dev tun
+
+ca {{client}}/ca.crt
+cert {{client}}/client.crt
+key {{client}}/client.key
+tls-auth {{client}}/ta.key 1
+
+keepalive 10 120
+
+cipher DES-EDE3-CBC
+comp-lzo
+
+user nobody
+group nobody
+
+persist-key
+persist-tun
+
+verb 3

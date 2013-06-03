@@ -1,0 +1,39 @@
+#
+---
+- hosts: all
+
+  tasks:
+### REDHAT
+  - name: Install packages
+    yum: name=$item
+         state=installed
+    with_items:
+      - java-1.6.0-openjdk
+      - java-1.6.0-openjdk-devel
+    when: ansible_os_family == "RedHat"
+    tags:
+      - packages
+
+  - name: Download maven
+    get_url: url='ftp://ftp5.gwdg.de/pub/opensuse/repositories/Application:/Geo/CentOS_6/noarch/maven-3.0.4-2.2.noarch.rpm'
+             dest=/root/maven-3.0.4-2.2.noarch.rpm
+    when: ansible_os_family == "RedHat"
+    tags:
+      - packages
+
+  - name: Install maven
+    command: yum localinstall /root/maven-3.0.4-2.2.noarch.rpm
+    when: ansible_os_family == "RedHat"
+    tags:
+      - packages
+
+### DEBIAN
+  - name: Install packages
+    apt: name=$item
+         state=installed
+    with_items:
+      - openjdk-6-jdk
+      - maven
+    when: ansible_os_family == "Debian"
+    tags:
+      - packages

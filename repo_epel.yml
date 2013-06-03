@@ -8,10 +8,12 @@
 
   - name: Download EPEL repo
     get_url: url=${url}/${rpm} dest=/root
+    when: ansible_os_family == "RedHat"
     tags:
       - packages
 
   - name: Install EPEL repo
     command: yum -y localinstall /root/${rpm}
+    when: ansible_os_family == "RedHat"
     tags:
       - packages

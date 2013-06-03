@@ -1,0 +1,131 @@
+# Based on: EAL4 kickstart
+
+### Install from scratch
+install
+# reboot
+# cdrom
+# remote install
+# url --url http://HTTP_LISTEN/centos64/repo
+
+url --url http://ftp.freepark.org/pub/linux/distributions/centos/6.4/os/x86_64
+
+skipx
+text
+
+### Basic settings
+rootpw --iscrypted ROOT_PASSWORD
+authconfig --enableshadow --passalgo=md5 --update
+# authconfig --enableshadow --passalgo=sha512 --update
+
+selinux --enforcing
+key --skip
+
+bootloader --location=mbr
+# bootloader --location=mbr --md5pass=ROOT_PASSWORD
+
+vnc --password=installer
+
+### LANGUAGE
+keyboard hu
+timezone --utc Europe/Budapest
+lang en_US.UTF-8
+
+
+### PARTITIONS
+zerombr yes
+clearpart --all --initlabel
+
+part /boot --ondrive=sda --asprimary --label=boot --fstype ext4 --size 512
+part swap  --ondrive=sda --asprimary --label=swap --hibernation
+# if you need encryption
+# part swap  --ondrive=sda --asprimary --label=swap --hibernation --encrypted --passphrase=ROOT_PASSWORD_PLAIN
+
+part pv.01 --ondrive=sda --asprimary --label=lvm --grow --size=1
+# if you need encryption
+# https://systems.janestreet.com/?q=node/8
+# part pv.01 --ondrive=sda --asprimary --label=lvm --grow --size=1 --encrypted --passphrase=ROOT_PASSWORD_PLAIN
+
+volgroup vg_root pv.01
+#logvol /tmp           --name=tmp   --vgname=vg_root --fstype=ext4 --size=10000
+#logvol /var           --name=var   --vgname=vg_root --fstype=ext4 --size=10000
+#logvol /var/log       --name=log   --vgname=vg_root --fstype=ext4 --size=10000
+logvol /home          --name=home  --vgname=vg_root --fstype=ext4 --size=10000
+logvol /              --name=root  --vgname=vg_root --fstype=ext4 --grow --size=50000
+# logvol /var/log/audit --name=audit --vgname=vg_root --fstype=ext4 --size=5000
+# logvol /opt           --name=opt   --vgname=vg_root --fstype=ext4 --size=10000
+
+
+### NETWORK
+# IF   Network  Address Range
+# bmc  bmc      10.0.0.0/16
+# eth0 system   10.1.0.0/16
+# eth1 storage  10.2.0.0/16
+# eth2 mpi      10.3.0.0/16
+# ethX external ?
+
+# extended
+# network --onboot=yes --bootproto=static --ip=10.1.1.1 --netmask=255.255.0.0 --device=eth0 --activate
+# network --onboot=yes --bootproto=static --ip=10.2.1.1 --netmask=255.255.0.0 --device=eth1
+# network --onboot=yes --bootproto=static --ip=10.3.1.1 --netmask=255.255.0.0 --device=eth2
+# network --onboot=yes --bootproto=dhcp --device=eth3
+
+# simple
+network --onboot=yes --bootproto=dhcp --device=eth0 --activate --hostname cbcpp
+
+firewall --enabled --port=22:tcp
+# firewall --enabled --port=22:tcp --port=222:tcp --port=80:tcp --port=21:tcp --port=25:tcp --port=500:udp --port=:esp --port=:ah
+
+### PACKAGES
+%packages --ignoremissing
+@base
+@core
+# openssh-server
+
+### EAL4 required packages
+# audit
+# checkpolicy
+# selinux-policy-devel
+# selinux-policy-mls
+# python
+# aide
+# netlabel_tools
+# amtu
+# postfix
+# policycoreutils-newrole
+# stunnel
+# xinetd
+
+### EAL4 depricated packages
+-sendmail
+-krb5-workstation
+
+### Put here all your optional packages
+
+
+### pre begin
+%pre
+#!/bin/sh
+PATH=/bin:/usr/bin:/sbin:/usr/sbin:$PATH
+
+echo "*** Common Criteria configuration LIKE kickstart ***"
+echo
+
+# cdrom bypass
+mkdir -p /mnt/source
+mount -t iso9660 /dev/cdrom /mnt/source
+### pre end
+
+### post begin
+%post
+#!/bin/bash
+PATH=/bin:/usr/bin:/sbin:/usr/sbin:$PATH
+
+### HOSTNAME
+# echo "SYSTEM_ADDR SYSTEM_NAME" >> /etc/hosts
+
+# after this point ansible should takeover
+# creat and admin user
+# TODO: selinux
+# useradd -m -c "Admin" -G wheel -p "ROOT_PASSWORD" admin
+
+### post end

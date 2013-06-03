@@ -10,29 +10,34 @@
 
   - name: Download elrepo key
     get_url: url={{url}}/{{key}} dest=/root/{{key}}
+    when: ansible_os_family == "RedHat"
     tags:
       - packages
       - key
 
   - name: Import elrepo key
     command: rpm --import /root/{{key}}
+    when: ansible_os_family == "RedHat"
     tags:
       - packages
       - key
 
   - name: Download elrepo
     get_url: url={{url}}/{{rpm}} dest=/root/{{rpm}}
+    when: ansible_os_family == "RedHat"
     tags:
       - packages
       - key
 
   - name: Install elrepo
     command: yum -y localinstall /root/{{rpm}}
+    when: ansible_os_family == "RedHat"
     tags:
       - packages
       - repo
 
   - name: Install fastestmirror
+    when: ansible_os_family == "RedHat"
     yum: name=yum-plugin-fastestmirror
          state=installed
     tags:

@@ -20,6 +20,10 @@ LABEL centos64
 	MENU LABEL centos64
 	KERNEL centos64/vmlinuz
 	APPEND initrd=centos64/initrd.img ksdevice=eth0 method=cdrom ks=http://KICKSTART
+LABEL cbcpp
+	MENU LABEL cbcpp
+	KERNEL centos64/vmlinuz
+	APPEND initrd=centos64/initrd.img ksdevice=eth0 method=cdrom ks=http://KICKSTART
 LABEL esxi
 	MENU LABEL esxi
 	KERNEL esxi.c32
@@ -76,3 +80,7 @@ LABEL gateway
 	MENU LABEL gateway
 	KERNEL precise/ubuntu-installer/amd64/linux
 	APPEND vga=788 initrd=precise/ubuntu-installer/amd64/initrd.gz auto=true priority=critical interface=INTERFACE preseed/url=http://KICKSTART netcfg/get_hostname=gateway
+LABEL ubcpp
+	MENU LABEL ubcpp
+	KERNEL precise/ubuntu-installer/amd64/linux
+	APPEND vga=788 initrd=precise/ubuntu-installer/amd64/initrd.gz auto=true priority=critical interface=INTERFACE preseed/url=http://KICKSTART netcfg/get_hostname=ubcpp
