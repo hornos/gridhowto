@@ -27,11 +27,12 @@
 # limitations under the License.
 # ------------------------------------------------------------------------
 
+BOP_VERSION=1.1-SNAPSHOT
 BOP_USER="bop" 
 BOP_BASE="/opt/supernode"
 JVM_FLAGS="-server -Xmx1g -Duser.dir=${BOP_BASE}"
 BOP_CONTEXTS="leveldb production BCSAPI server"
-DAEMON="${BOP_BASE}/server/target/bitsofproof-server-1.0.jar"
+DAEMON="${BOP_BASE}/server/target/bitsofproof-server-${BOP_VERSION}.jar"
 
 service=bop-server
 
@@ -104,6 +105,18 @@ start() {
   return 0
 }
 
+fgstart() {
+   status
+  if [ $? -eq 1 ] ; then
+    echo "Already running."
+    return 1
+  fi
+ 
+  cd ${BOP_BASE}
+  java ${JVM_FLAGS} -jar ${DAEMON} ${BOP_CONTEXTS}
+}
+
+
 case $1 in
   start)
     log_daemon_msg "Start ${service}"
@@ -111,7 +124,10 @@ case $1 in
     start
     exit $?
   ;;
-
+  fgstart)
+    fgstart
+    exit $?
+  ;;
   force-stop)
     log_daemon_msg "Stop ${service}"
     log_progress_msg "Stop ${service}"

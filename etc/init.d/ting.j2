@@ -1,0 +1,99 @@
+#!/bin/bash
+### BEGIN INIT INFO
+# Provides: ting
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start daemon at boot time
+# Description:       Enable service provided by daemon.
+### END INIT INFO
+
+# RedHat
+if test -r /etc/rc.d/init.d/functions ; then
+  source /etc/rc.d/init.d/functions
+fi
+
+# Debian & Ubuntu
+if test -r /lib/lsb/init-functions ; then
+  source /lib/lsb/init-functions
+  function echo_success() {
+    log_success_msg
+  }
+  function echo_failure() {
+    log_failure_msg
+  }
+fi
+
+USER="sysop"
+
+DAEMON="ting"
+ROOT_DIR="/opt/ting"
+
+SERVER="client"
+LOG_FILE="${ROOT_DIR}/${DAEMON}.log"
+PID_FILE="${ROOT_DIR}/${DAEMON}.pid"
+
+status() {
+  if [ -f "${PID_FILE}" ] ; then
+    pid=`cat "${PID_FILE}"`
+    # check to see if it's gone...
+    ps -p ${pid} > /dev/null
+    if [ $? -eq 0 ] ; then
+      return 1
+    fi
+  fi
+  return 0
+}
+
+do_start()
+{
+        if [ ! -f "$PID_FILE" ] ; then
+                cd ${ROOT_DIR}
+                echo -n "Starting ${DAEMON} $SERVER: "
+                nohup sudo -n -u $USER -i ${ROOT_DIR}/${DAEMON} $SERVER &> $LOG_FILE &
+                echo "$!" > $PID_FILE
+                sleep 4
+                status
+                if [ $? -eq 0 ] ; then
+                  echo_success
+                else
+                  echo_failure
+                fi
+                echo
+        else
+                echo "$SERVER is running"
+                RETVAL=1
+        fi
+}
+do_stop()
+{
+
+  echo -n "Stopping ${DAEMON} $SERVER: "
+
+  if [ -f "${PID_FILE}" ] ; then
+    pid=`cat "${PID_FILE}"`
+    kill ${pid} > /dev/null 2>&1 && echo_success || echo_failure
+    sleep 2
+    rm -f ${PID_FILE}
+  fi
+  echo
+}
+
+case "$1" in
+        start)
+                do_start
+                ;;
+        stop)
+                do_stop
+                ;;
+        restart)
+                do_stop
+                do_start
+                ;;
+        *)
+                echo "Usage: $0 {start|stop|restart}"
+                RETVAL=1
+esac
+
+exit $RETVAL

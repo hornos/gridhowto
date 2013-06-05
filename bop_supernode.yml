@@ -10,6 +10,11 @@
 # manus manum lavat
 # java -server -classpath server/target/classes/:server/target/lib/* com.bitsofproof.supernode.main.Main leveldb production
 #
+# java -jar server/target/bitsofproof-server-1.1-SNAPSHOT.jar leveldb production BCSAPI server
+
+# supernode/core/ImplementBCSAPI.java (129):
+# session = connection.createSession (true, Session.AUTO_ACKNOWLEDGE);
+#
 
 #
 # TODO: docker isolation
@@ -29,6 +34,9 @@
            state=installed
       with_items:
         - java-1.6.0-openjdk
+        - protobuf-compiler
+        - protobuf-devel
+        - protobuf-python
       when: ansible_os_family == "RedHat"
       tags:
         - packages
@@ -42,6 +50,9 @@
         - openjdk-6-jdk
         - maven
         - miniupnpc
+        - protobuf-compiler
+        - python-protobuf
+        - libprotobuf-dev
       when: ansible_os_family == "Debian"
       tags:
         - packages
@@ -53,6 +64,28 @@
            dest=/opt/supernode
       tags:
         - repo
+
+#  - name: Install BCSAPI context
+
+
+    - name: Create locahost vhost
+      rabbitmq_vhost: name=localhost
+                      state=present
+      tags:
+        - mq
+
+    - name: Create supernode user
+      rabbitmq_user: user=supernode
+                     password=supernode
+                     vhost=localhost
+                     configure_priv=.*
+                     read_priv=.*
+                     write_priv=.*
+                     tags=supernode
+                     state=present
+      tags:
+        - users
+        - mq
 
 ### COMPILE love for the first time
     - name: Compile supernode

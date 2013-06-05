@@ -110,6 +110,11 @@ case $gbn in
     if test -r ${_key} ; then
       _key="-i ${key}"
     fi
+    # check Ting fingerprint
+    ting=$HOME/ting/hosts/${hosts}.json
+    if test -r ${ting} ; then
+       cat ${ting} | grep fp
+    fi
     ssh -X ${opts} ${_key}  ${user}@${host}
     exit $?
     ;;

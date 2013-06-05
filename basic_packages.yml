@@ -75,6 +75,7 @@
       - curl
       - miniupnpc
       - sdparm
+      - liblzma-dev
     when: ansible_os_family == "Debian"
     tags:
       - packages

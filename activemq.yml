@@ -65,14 +65,15 @@
     tags:
       - services
 
-#  - name: Link activemq service
-#    file: src=/opt/activemq/bin/activemq
-#          dest=/etc/init.d/activemq
-#          state=link
-#    when: ansible_os_family == "RedHat"
-#    tags:
-#      - services
-
+  - name: Install config
+    template: src=opt/activemq/conf/activemq.xml.j2
+              dest=/opt/activemq/conf/activemq.xml
+              backup=yes
+    when: ansible_os_family == "RedHat"
+    notify:
+      - Restart activemq
+    tags:
+      - config
 
 ### DEBIAN
   - name: Install packages
@@ -88,16 +89,42 @@
     tags:
       - packages
 
-
-  - name: Enable main instance
-    file: src=/etc/activemq/instances-available/main
-          dest=/etc/activemq/instances-enabled/main
-          state=link
+  - name: Install main instance directory
+    file: path=/etc/activemq/instances-enabled/main
+          state=directory
     when: ansible_os_family == "Debian"
     tags:
-      - links
+      - directories
+      - config
 
+  - name: Install main config
+    template: src=etc/activemq/instances-available/main/activemq.xml.j2
+              dest=/etc/activemq/instances-enabled/main/activemq.xml
+              backup=yes
+    when: ansible_os_family == "Debian"
+    notify:
+      - Restart activemq
+    tags:
+      - config
+
+  - name: Install main log
+    template: src=etc/activemq/instances-available/main/log4j.properties.j2
+              dest=/etc/activemq/instances-enabled/main/log4j.properties
+              backup=yes
+    when: ansible_os_family == "Debian"
+    tags:
+      - config
+    notify:
+      - Restart activemq
+
+
+### SERVICES
   - name: Start ActiveMQ
     service: name=activemq
              state=started
              enabled=yes
+
+  handlers:
+    - name: Restart activemq
+      service: name=activemq
+               state=restarted

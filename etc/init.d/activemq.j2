@@ -28,7 +28,7 @@ start() {
 }
 stop() {
        echo -n $"Shutting down ActiveMQ: "
-       daemon su -c ${daemon} stop
+       daemon ${daemon} stop
        echo
        return $RETVAL
 }

@@ -114,22 +114,22 @@
     tags:
       - users
 
-  - name: Install /etc/shorewall/rules.d/rabbitmq
-    template: src=etc/shorewall/rules.d/rabbitmq.j2
-              dest=/etc/shorewall/rules.d/rabbitmq
-              owner=root
-              group=root
-              mode=0640
-    tags:
-      - firewall
-    notify:
-      - Restart shorewall
+#  - name: Install /etc/shorewall/rules.d/rabbitmq
+#    template: src=etc/shorewall/rules.d/rabbitmq.j2
+#              dest=/etc/shorewall/rules.d/rabbitmq
+#              owner=root
+#              group=root
+#              mode=0640
+#    tags:
+#      - firewall
+#    notify:
+#      - Restart shorewall
 
   handlers:
     - name: Restart rabbitmq
       service: name=rabbitmq-server
                state=restarted
 
-    - name: Restart shorewall
-      service: name=shorewall
-               state=restarted
+#    - name: Restart shorewall
+#      service: name=shorewall
+#               state=restarted

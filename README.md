@@ -909,6 +909,8 @@ Install the sysop cert for Tunnelblick:
 
     bin/ovpn blick vpnca sysop
 
+Get external IPs from eg. a Ting ping circle. TODO: UPNP support.
+
 ## Payment Processors
 It is recommended to have a VPN at first:
 
@@ -938,7 +940,7 @@ Play the following playbooks:
     basic_home
     webmin_home
     basic_java
-    activemq
+    rabbitmq_home
 
 ### BOP
 
