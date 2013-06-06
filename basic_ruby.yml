@@ -103,7 +103,7 @@
     with_items:
       - ruby
       - gem
-      - bundle
+      # - bundle
     tags:
       - fix
       - rvm

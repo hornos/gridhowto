@@ -79,6 +79,7 @@
         - whitelist.sh
         - root.sh
         - sysop.sh
+        - private.sh
       tags:
         - config
 

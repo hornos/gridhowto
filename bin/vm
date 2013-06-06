@@ -73,9 +73,20 @@ case ${cmd} in
     cpus=${3:-2}
     memory=${4:-1024}
     hdsize=${5:-2000000}
-    hostnet=${6:-vboxnet1}
+    hostnet=${6:-vboxnet0}
     vm/create ${name} ${type} ${cpus} ${memory} ${hdsize} ${hostnet}
   ;;
+
+  xcp)
+    name=${1:-xcp-01}
+    type=${2:-RedHat_64}
+    cpus=${3:-2}
+    memory=${4:-2048}
+    hdsize=${5:-2000000}
+    hostnet=${6:-vboxnet0}
+    vm/create ${name} ${type} ${cpus} ${memory} ${hdsize} ${hostnet}
+  ;;
+
   gateway)
     name=${1:-test}
     type=${2:-Ubuntu_64}

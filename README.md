@@ -1166,6 +1166,39 @@ Redis:
 
     ./play @@gateway redis
 
+## Open Stack
+Create an XCP node:
+
+    bin/vm xcp
+    bin/jockey xcp @xcp-01 10.1.1.10 xcp-01
+
+Kickstart it:
+
+    screen -m -d -S http bin/jockey http
+    bin/jockey boot
+    bin/vm start xcp-01
+
+Create the controller node and kickstart:
+
+    bin/vm create cc-01 RedHat_64 1 1024
+    bin/jockey centos64 @cc-01 10.1.1.9 cc-01
+    bin/jockey boot
+    bin/vm start cc-01
+
+Bootstrap (do not forget to get the root pass by `bin/password @cc-01`):
+
+    ./play root@cc-01 bootstrap
+    ./play @@cc-01 secure
+    ./play @@cc-01 basic_redhat
+    bin/reboot @@cc-01
+
+and install the basic things: (TODO syslog loghost fix)
+
+    ./play @@cc-01 firewall
+    ./play @@cc-01 basic
+    ./play @@cc-01 ganglia
+    bin/reboot @@cc-01
+
 ## Harmonia
 Harmonia is a Kali-based general purpose communicator (GPC). Setup a host-only network (10.1.1.0/24) on eth0 and NAT on eth1. The aim of the GPC is to provide a near-safe channel for OS X.
 

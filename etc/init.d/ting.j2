@@ -39,11 +39,9 @@ status() {
     pid=`cat "${PID_FILE}"`
     # check to see if it's gone...
     ps -p ${pid} > /dev/null
-    if [ $? -eq 0 ] ; then
-      return 1
-    fi
+    return $?
   fi
-  return 0
+  return 1
 }
 
 do_start()
@@ -53,9 +51,9 @@ do_start()
                 echo -n "Starting ${DAEMON} $SERVER: "
                 nohup sudo -n -u $USER -i ${ROOT_DIR}/${DAEMON} $SERVER &> $LOG_FILE &
                 echo "$!" > $PID_FILE
-                sleep 4
+                sleep 2
                 status
-                if [ $? -eq 0 ] ; then
+                if [ $? -eq 0  ] ; then 
                   echo_success
                 else
                   echo_failure

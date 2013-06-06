@@ -1,0 +1,40 @@
+#!/bin/bash
+#
+# ipset boilerplate
+#
+# http://www.ipdeny.com/blog/blocking-country-ip-tables-using-our-data-blocks-and-ipset-utility/
+#
+# https://en.wikipedia.org/wiki/Private_network
+#
+
+### boilers
+gbn=$(basename $0)
+gbn=${gbn%%.sh}
+gdn=$(dirname $0)
+save=${gbn}.save
+type=nethash
+mode=${1:-start}
+shift
+source /etc/ipset.d/functions
+
+### args
+pushd ${gdn} > /dev/null
+
+### main
+case ${mode} in
+  start)
+    ipset/start
+    ipset -exist -A ipv4a 10.0.0.0/8
+    ipset -exist -A ipv4b 172.16.0.0/12
+    ipset -exist -A ipv4c 192.168.0.0/16
+    ipset/save
+  ;;
+  stop)
+    ipset/stop
+  ;;
+  x)
+    ipset x ${gbn}
+  ;;
+esac
+
+popd > /dev/null
