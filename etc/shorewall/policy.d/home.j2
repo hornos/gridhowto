@@ -4,4 +4,7 @@ $FW        ext         ACCEPT
 # https://forums.openvpn.net/topic9504.html
 vpn        all         ACCEPT
 $FW        vpn         ACCEPT
+# Docker is OK
+doc        all         ACCEPT
+$FW        doc         ACCEPT
 all        all         DROP        info

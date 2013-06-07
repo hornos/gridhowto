@@ -28,6 +28,15 @@
         - fix
         - links
 
+    - name: Fix lzma link
+      file: src=/usr/lib/x86_64-linux-gnu/liblzma.so.5
+            dest=/usr/lib/x86_64-linux-gnu/liblzma.so
+            state=link
+      when: ansible_os_family == "Debian"
+      tags:
+        - fix
+        - links
+
     - name: Install key
       copy: src=keys/ting.key
             dest=/opt/ting/ting.key
@@ -65,3 +74,17 @@
       service: name=ting
                state=started
                enabled=yes
+
+    - name: Enable Ting
+      command: sysv-rc-conf ting on
+      when: ansible_os_family == "Debian"
+
+    - name: Crapbuntu
+      file: src=/etc/init.d/ting
+            dest=/etc/rc6.d/K20ting
+            state=link
+      when: ansible_os_family == "Debian"
+
+    - name: Crapbuntu
+      shell: 'cd /etc/rc2.d;if test -f S20ting; then mv S20ting S80ting;fi'
+      when: ansible_os_family == "Debian"

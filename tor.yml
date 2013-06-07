@@ -1,0 +1,75 @@
+#
+# https://www.torproject.org/
+#
+# TODO 9030 directory
+#
+---
+- hosts: all
+
+  tasks:
+### UBUNTU
+  - name: Install packages
+    apt: name=$item
+    with_items:
+      - tor
+      - tor-arm
+      - tor-geoipdb
+      - torsocks
+    when: ansible_os_family == "Debian"
+    tags:
+      - packages
+
+  - name: Install relay config
+    template: src=etc/tor/torrc.j2
+              dest=/etc/tor/torrc
+              backup=yes
+              owner=root
+              group=debian-tor
+              mode=0640
+    tags:
+      - config
+    notify:
+      - Restart tor
+
+  - name: Install ipset tables
+    template: src=etc/ipset.d/${item}.j2
+              dest=/etc/ipset.d/$item
+              owner=root
+              group=root
+              mode=0755
+    with_items:
+      - tor.sh
+    tags:
+      - firewall
+      - ipset
+    notify:
+      - Restart ipset
+
+  - name: Install firewall rules
+    template: src=etc/shorewall/rules.d/tor.j2
+              dest=/etc/shorewall/rules.d/tor
+              owner=root
+              group=root
+              mode=0640
+    tags:
+      - firewall
+    notify:
+      - Restart shorewall
+
+  - name: Start tor relay
+    service: name=tor
+             state=started
+             enabled=yes
+
+  handlers:
+    - name: Restart ipset
+      service: name=ipset
+               state=reloaded
+
+    - name: Restart tor
+      service: name=tor
+               state=restarted
+
+    - name: Restart shorewall
+      service: name=shorewall
+               state=restarted

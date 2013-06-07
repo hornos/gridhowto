@@ -3,6 +3,7 @@
 #
 # update kernel: kernel_ml.yml
 #
+# TODO: Docker vs shorewall
 ---
 - hosts: all
 

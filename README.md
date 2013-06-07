@@ -856,7 +856,19 @@ Register a Pusher account and create `keys/ting.yml` with the following content:
       secret:
       app_id:
 
-TODO: service
+Play the book (Ubuntu sysv init needs fix):
+
+    ./play @@root ting
+
+The ting service will pong back the machines external IP ans SSH host fingerprints. On your local machine start the monitor:
+
+    ./ting -m client
+
+and ping them all to rule them all:
+
+    ./ting ping
+
+Hosts are collected in `ting/hosts` as json files.
 
 ## VPN
 ### OpenVPN
@@ -1165,6 +1177,13 @@ Secure the database on the node:
 Redis:
 
     ./play @@gateway redis
+
+In order to use Docker you have to switch to the mainline kernel:
+
+    ./play @@gateway kernel_ml
+    bin/reboot @@gateway
+    ./play @@gateway docker
+
 
 ## Open Stack
 Create an XCP node:
