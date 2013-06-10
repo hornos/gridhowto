@@ -97,7 +97,7 @@
       - rvm
 
   - name: Fix global ruby path
-    file: src=/usr/local/rvm/rubies/{{ruby.version}}/bin/$item
+    file: src=/usr/local/rvm/bin/$item
           dest=/usr/bin/$item
           state=link
     with_items:

@@ -1,0 +1,166 @@
+#
+# http://www.darkoperator.com/installing-metasploit-in-ubunt/
+#
+# TODO: use ruby 1.9.3
+# rvm install ruby-1.9.3
+# bundle install
+# rvm ruby-1.9.3
+#
+# http://khr0x40sh.wordpress.com/2012/05/22/msf-startup-at-boot-using-msfrpcd-msgpack-msf-rc-files-for-disaster-recovery/
+#
+---
+- hosts: all
+
+  tasks:
+### UBUNTU
+  - name: Install packages
+    apt: name=$item
+    with_items:
+      - build-essential
+      - libreadline-dev
+      - libssl-dev
+      - libpq5
+      - libpq-dev
+      - libreadline5
+      - libsqlite3-dev
+      - libpcap-dev
+      - openjdk-7-jre
+      - subversion
+      - git-core
+      - autoconf
+      - postgresql
+      - pgadmin3
+      - curl
+      - zlib1g-dev
+      - libxml2-dev
+      - libxslt1-dev
+      - vinagre
+      - vino
+      - tightvncserver
+      - ssvnc
+      - libyaml-dev
+      - nmap
+      - python3-postgresql
+      - python-psycopg2
+    when: ansible_os_family == "Debian"
+    tags:
+      - packages
+
+  - name: Install gem packages
+    gem: name=$item
+         state=latest
+    with_items:
+      - wirble
+      - bundler
+    tags:
+      - packages
+
+  - name: Set postgres password
+    shell: sudo -u postgres psql -c "ALTER USER postgres with password 'postgres';"
+    tags:
+      - fix
+
+### METASPLOIT
+  - name: Create msf db
+    postgresql_db: db=msf
+                   login_host=localhost
+                   login_user=postgres
+                   login_password=postgres
+    tags:
+      - db
+
+  - name: Create msf user
+    postgresql_user: db=msf
+                     user=msf
+                     password=msf
+                     priv=ALL
+                     login_host=localhost
+                     login_user=postgres
+                     login_password=postgres
+    tags:
+      - db
+
+  - name: Clone metasploit
+    git: repo='https://github.com/rapid7/metasploit-framework.git'
+         dest=/opt/metasploit-framework
+    tags:
+      - metasploit
+
+  - name: Install install script
+    template: src=opt/metasploit-framework/install.j2
+              dest=/opt/metasploit-framework/install
+              owner=root
+              group=root
+              mode=0755
+    tags:
+      - metasploit
+      - bundle
+
+  - name: Install bundle packages
+    shell: 'cd /opt/metasploit-framework; ./install'
+    tags:
+      - packages
+      - bundle
+
+  - name: Install pcaprub install script
+    template: src=opt/metasploit-framework/external/pcaprub/install.j2
+              dest=/opt/metasploit-framework/external/pcaprub/install
+              owner=root
+              group=root
+              mode=0755
+    tags:
+      - packages
+      - pcaprub
+      - bundle
+
+  - name: Install pcaprub packages
+    shell: 'cd /opt/metasploit-framework/external/pcaprub; ./install'
+    tags:
+      - packages
+      - bundle
+
+  - name: Install database config
+    template: src=opt/metasploit-framework/database.yml.j2
+              dest=/opt/metasploit-framework/database.yml
+              owner=root
+              group=root
+              mode=0644
+    tags:
+      - metasploit
+      - profile
+
+  - name: Profile for metasploit
+    template: src=etc/profile.d/msf.sh.j2
+              dest=/etc/profile.d/msf.sh
+              owner=root
+              group=root
+              mode=0644
+    tags:
+      - metasploit
+      - profile
+
+### SERVICES
+# TODO: msfrpcd service
+
+### ARMITAGE
+  - name: Download armitage
+    get_url: url='http://www.fastandeasyhacking.com/download/armitage-latest.tgz'
+             dest=/root/armitage-latest.tgz
+    tags:
+      - packages
+      - armitage
+
+  - name: Install armitage
+    command: tar -C /opt -xzf /root/armitage-latest.tgz
+    tags:
+      - packages
+
+  - name: Profile for armitage
+    template: src=etc/profile.d/armitage.sh.j2
+              dest=/etc/profile.d/armitage.sh
+              owner=root
+              group=root
+              mode=0644
+    tags:
+      - armitage
+      - profile

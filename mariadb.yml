@@ -1,4 +1,7 @@
 # Based on: http://edin.no-ip.com/blog/hswong3i/mariadb-galera-mastermaster-replication-ubuntu-12-04-howto
+#
+#  --extra-vars "master=cc-01"
+#
 ---
 - hosts: all
 

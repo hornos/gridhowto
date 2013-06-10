@@ -1211,12 +1211,21 @@ Bootstrap (do not forget to get the root pass by `bin/password @cc-01`):
     ./play @@cc-01 basic_redhat
     bin/reboot @@cc-01
 
-and install the basic things: (TODO syslog loghost fix)
+and install the basic things:
 
     ./play @@cc-01 firewall
     ./play @@cc-01 basic
     ./play @@cc-01 ganglia
     bin/reboot @@cc-01
+
+Install database and the message queue:
+
+    ./play mariadb
+    ./play rabbitmq
+
+Install Open Stack
+
+    ./play openstack
 
 ## Harmonia
 Harmonia is a Kali-based general purpose communicator (GPC). Setup a host-only network (10.1.1.0/24) on eth0 and NAT on eth1. The aim of the GPC is to provide a near-safe channel for OS X.

@@ -89,7 +89,7 @@
               owner=root
               group=root
               backup=yes
-    when: ansible_os_family == "Redhat"
+    when: ansible_os_family == "RedHat"
     tags:
       - config
 
