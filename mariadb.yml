@@ -1,5 +1,7 @@
 # Based on: http://edin.no-ip.com/blog/hswong3i/mariadb-galera-mastermaster-replication-ubuntu-12-04-howto
 #
+# On a single cloud controller:
+#
 #  --extra-vars "master=cc-01"
 #
 ---
@@ -187,7 +189,8 @@
 
 ### DEBIAN
     - name: Setup PHP mysql socket
-      lineinfile: dest=/etc/php5/apache2/php.ini
+      #lineinfile: dest=/etc/php5/apache2/php.ini
+      lineinfile: dest=/etc/php.ini
                   regexp="^mysql.default_socket"
                   line="mysql.default_socket = {{mariadb.socket}}"
       when: ansible_os_family == "RedHat"
@@ -198,7 +201,8 @@
         - php
 
     - name: Setup PHP mysqli socket
-      lineinfile: dest=/etc/php5/apache2/php.ini
+      #lineinfile: dest=/etc/php5/apache2/php.ini
+      lineinfile: dest=/etc/php.ini
                   regexp="^mysqli.default_socket"
                   line="mysqli.default_socket = {{mariadb.socket}}"
       when: ansible_os_family == "RedHat"

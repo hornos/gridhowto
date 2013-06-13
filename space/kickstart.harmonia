@@ -68,7 +68,7 @@ d-i partman-lvm/confirm_nooverwrite boolean true
 #d-i base-installer/install-recommends boolean false
 d-i apt-setup/non-free boolean true
 d-i apt-setup/contrib boolean true
-tasksel tasksel/first multiselect ssh-server standard
+tasksel tasksel/first multiselect ssh-server kali-defaults kali-debtags klai-archive-keyring gnome-desktop-environment kali-linux-full
 d-i pkgsel/include string openssh-server
 d-i pkgsel/upgrade select safe-upgrade
 

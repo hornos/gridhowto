@@ -1,5 +1,8 @@
-Grid Howto
-==========
+Grid Howto (LEGACY)
+===================
+
+** For a more pragmatic approach check the Flock project **
+
 This howto is for CentOS based clusters. You can try the setup in VirtualBox as well, although you will lack BMC and IB features.
 
 The following terminology is used: *client* is a remote or virtual machine you want ot provision, *host* is your machine (laptop) from which you provision and control the clients.
@@ -1230,6 +1233,7 @@ Install Open Stack
 ## Harmonia
 Harmonia is a Kali-based general purpose communicator (GPC). Setup a host-only network (10.1.1.0/24) on eth0 and NAT on eth1. The aim of the GPC is to provide a near-safe channel for OS X.
 
+    bin/vm create harmonia Ubuntu_64 1 1024
     ./play root@harmonia bootstrap
     ./play @@harmonia secure_harmonia
     ./play @@harmonia shorewall_ipset_harmonia
