@@ -1,7 +1,9 @@
-Grid Howto (LEGACY)
-===================
+Grid Howto (LEGACY and OBSOLETE)
+================================
 
-** For a more pragmatic approach check the Flock project **
+*For a more pragmatic approach check the [Flock project](https://github.com/hornos/flock)*
+*For a more pragmatic approach check the [Flock project](https://github.com/hornos/flock)*
+*For a more pragmatic approach check the [Flock project](https://github.com/hornos/flock)*
 
 This howto is for CentOS based clusters. You can try the setup in VirtualBox as well, although you will lack BMC and IB features.
 
